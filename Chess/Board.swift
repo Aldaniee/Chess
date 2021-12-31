@@ -10,8 +10,8 @@ import Foundation
 struct Board {
     
     private (set) var gameBoard = Array<Array<Tile>>()
-    private (set) var coordsOfOneAndOnlySelectedTile: Coordinate?
-    
+    private (set) var selectedTileCoordinate: Coordinate?
+
     init() {
         buildBoard()
         setupPieces()
@@ -27,29 +27,74 @@ struct Board {
         }
     }
     // MARK: - Board Changing Actions
-    mutating func addPiece(piece: Piece?, coordinate: Coordinate) {
+    mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece
     }
-    
-    mutating func removePiece(coordinate: Coordinate) {
-        addPiece(piece: nil, coordinate: coordinate)
+    mutating func putPiece(_ piece: Piece?, _ coordinate: Coordinate) -> Piece? {
+        let oldPiece = getPiece(coordinate)
+        setPiece(piece, coordinate)
+        return oldPiece
+    }
+    mutating func removePiece(_ coordinate: Coordinate) -> Piece? {
+        putPiece(nil, coordinate)
     }
     
     mutating func setupPieces() {
-        addPiece(piece: Pawn(isWhite: true), coordinate: Coordinate(fileLetter: "C", rankNum: 2))
-    }
-    
-    mutating func setSelectedTile(coordinate: Coordinate) {
-        if coordsOfOneAndOnlySelectedTile == coordinate {
-            coordsOfOneAndOnlySelectedTile = nil
+        for index in 0..<Constants.dimensions {
+            setPiece(Pawn(isWhite: true), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: 2))
         }
-        else {
-            coordsOfOneAndOnlySelectedTile = coordinate
+        
+        for index in 0..<Constants.dimensions {
+            setPiece(Pawn(isWhite: false), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: Constants.dimensions-1))
         }
     }
     
+    mutating func selectTile(_ coordinate: Coordinate?) {
+        selectedTileCoordinate = coordinate
+    }
+    
+    mutating func deselect() {
+        selectTile(nil)
+    }
+    
+    mutating func moveSelection(to coordinate: Coordinate) -> Piece? {
+        if let selectedTile = selectedTileCoordinate { // ensure a tile is selected
+            if let piece = getPieceFromSelectedTile() { // ensure a piece is on that tile
+                let capturedPiece = putPiece(piece, coordinate)
+                _ = removePiece(selectedTile)
+                selectedTileCoordinate = nil
+                return capturedPiece
+            }
+        }
+        return nil
+    }
     
     // MARK: - Access Functions
+    func isMoveOption(_ end: Coordinate) -> Bool {
+        var moves = [Coordinate]()
+        if let pieceStart = selectedTileCoordinate { // ensure a tile is selected
+            if let piece = getPieceFromSelectedTile() { // ensure a piece is on that tile
+                moves = piece.allPossibleMoves(pieceStart)
+            }
+        }
+        return moves.contains(end)
+
+    }
+    func getPiece(_ coordinate: Coordinate) -> Piece? {
+        gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
+    }
+    
+    func getPieceFromSelectedTile() -> Piece? {
+        if selectedTileCoordinate == nil {
+            return nil
+        }
+        else {
+            return getPieceFromCoords(selectedTileCoordinate!)
+        }
+    }
+    func getPieceFromCoords(_ coordinate: Coordinate) -> Piece? {
+        return gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
+    }
     
     func asArray() -> Array<Tile> {
         return Array(gameBoard.joined())

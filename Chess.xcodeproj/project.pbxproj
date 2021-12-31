@@ -17,6 +17,7 @@
 		EA8CB6C5277DFDFC00CAF379 /* Pawn.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6C4277DFDFC00CAF379 /* Pawn.swift */; };
 		EA8CB6C7277E038600CAF379 /* UtilityExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6C6277E038600CAF379 /* UtilityExtensions.swift */; };
 		EA8CB6C9277E55C000CAF379 /* GameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6C8277E55C000CAF379 /* GameViewModel.swift */; };
+		EA8CB6CB277F5DB100CAF379 /* Coordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 		EA8CB6C4277DFDFC00CAF379 /* Pawn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pawn.swift; sourceTree = "<group>"; };
 		EA8CB6C6277E038600CAF379 /* UtilityExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UtilityExtensions.swift; sourceTree = "<group>"; };
 		EA8CB6C8277E55C000CAF379 /* GameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewModel.swift; sourceTree = "<group>"; };
+		EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 				EA8CB6B4277DFBE400CAF379 /* Preview Content */,
 				EA8CB6BC277DFC2900CAF379 /* Board.swift */,
 				EA8CB6BE277DFCCF00CAF379 /* Tile.swift */,
+				EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */,
 				EA8CB6C0277DFD2C00CAF379 /* Piece.swift */,
 				EA8CB6C4277DFDFC00CAF379 /* Pawn.swift */,
 			);
@@ -160,6 +163,7 @@
 				EA8CB6AF277DFBE000CAF379 /* ChessApp.swift in Sources */,
 				EA8CB6C7277E038600CAF379 /* UtilityExtensions.swift in Sources */,
 				EA8CB6C9277E55C000CAF379 /* GameViewModel.swift in Sources */,
+				EA8CB6CB277F5DB100CAF379 /* Coordinate.swift in Sources */,
 				EA8CB6C1277DFD2C00CAF379 /* Piece.swift in Sources */,
 				EA8CB6BD277DFC2900CAF379 /* Board.swift in Sources */,
 				EA8CB6BF277DFCCF00CAF379 /* Tile.swift in Sources */,

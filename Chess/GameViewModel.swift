@@ -10,13 +10,23 @@ import Foundation
 class GameViewModel: ObservableObject {
     @Published private var board = Board()
     
-    func selectTile(_ coordinate: Coordinate) {
-        board.setSelectedTile(coordinate: coordinate)
+    func selectTile(_ selection: Coordinate) {
+        let oldSelection = board.selectedTileCoordinate
+        if oldSelection == selection {
+            board.deselect()
+        }
+        else {
+            if board.isMoveOption(selection) {
+                board.moveSelection(to: selection)
+            } else {
+                board.selectTile(selection)
+            }
+        }
     }
     func asArray() -> Array<Tile> {
         board.asArray()
     }
     func selectedTile() -> Coordinate? {
-        return board.coordsOfOneAndOnlySelectedTile
+        return board.selectedTileCoordinate
     }
 }

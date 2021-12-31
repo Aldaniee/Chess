@@ -8,7 +8,7 @@
 import SwiftUI
 
 protocol Piece {
-    func move()
+    func allPossibleMoves(_ start: Coordinate) -> [Coordinate]
     func display() -> String
     var color: Color { get }
 }

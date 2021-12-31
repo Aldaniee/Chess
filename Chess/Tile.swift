@@ -21,10 +21,6 @@ struct Tile: Identifiable {
         return ((coordinate.fileIndex + coordinate.rankIndex) % 2 == 0) ? TileColor.dark.color : TileColor.light.color
     }
     
-    func coordinateToNotation(coordinate: Coordinate) -> (Character, Int) {
-        return ((coordinate.fileIndex).toLetterAtAlphabeticalIndex(), coordinate.rankIndex + 1)
-    }
-    
     init(coordinate: Coordinate, piece: Piece? = nil) {
         self.coordinate = coordinate
         self.piece = piece
@@ -43,24 +39,4 @@ struct Tile: Identifiable {
         }
     }
 
-}
-
-struct Coordinate: Equatable {
-    
-    init(rankIndex: Int, fileIndex: Int) {
-        self.rankIndex = rankIndex
-        self.fileIndex = fileIndex
-    }
-    init(fileLetter: Character, rankNum: Int) {
-        self.rankIndex = rankNum - 1
-        self.fileIndex = fileLetter.alphabeticalIndex()
-    }
-    let rankIndex: Int
-    let fileIndex: Int
-    var rankNum: Int {
-        return rankIndex + 1
-    }
-    var fileLetter: Character {
-        return fileIndex.toLetterAtAlphabeticalIndex()
-    }
 }

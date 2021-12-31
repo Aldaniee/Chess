@@ -8,16 +8,29 @@
 import SwiftUI
 
 struct Pawn: Piece {
-    init(isWhite: Bool) {
-        color = isWhite ? .white : .black
+    
+    let isWhite: Bool
+    
+    func allPossibleMoves(_ start: Coordinate) -> [Coordinate] {
+        var moves = [Coordinate]()
+        if isWhite {
+            moves.append(start.upRank())
+            start.upOneDiagonals().forEach( { moves.append($0) } )
+        } else {
+            moves.append(start.downRank())
+            start.downOneDiagonals().forEach( { moves.append($0) } )
+        }
+        return moves
     }
-    var color: Color
+    
+    init(isWhite: Bool) {
+        self.isWhite = isWhite
+    }
+    var color: Color {
+        isWhite ? Color.white : Color.black
+    }
     
     func display() -> String {
         return "P"
-    }
-    
-    func move() {
-        print("Pawn Moved")
     }
 }
