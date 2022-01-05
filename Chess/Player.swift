@@ -13,4 +13,5 @@ class Player {
     init(side: Game.Side) {
         self.side = side
     }
+    
 }

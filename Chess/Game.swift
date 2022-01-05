@@ -21,7 +21,6 @@ class Game: ObservableObject {
     
     func newGame() {
         board.setupPieces()
-        
     }
     
     func selectTile(_ selection: Coordinate) {
@@ -38,7 +37,7 @@ class Game: ObservableObject {
                         
                         // special case of En passant rule
                         // if a pawn moves diagonal and does not land on a pawn it must be capturing en passant
-                        if movingPiece.name == "pawn" && capturedPiece == nil && oldSelection.isDiagonal(from: selection) {
+                        if movingPiece.type == .pawn && capturedPiece == nil && oldSelection.isDiagonal(from: selection) {
                             capturedPiece = board.removePiece(Coordinate(rankIndex: oldSelection.rankIndex, fileIndex: selection.fileIndex))
                         }
                         nextTurn()
@@ -72,5 +71,29 @@ class Game: ObservableObject {
             }
         }
     }
-
+    enum PieceType {
+        case pawn
+        case rook
+        case knight
+        case bishop
+        case king
+        case queen
+        
+        var name: String {
+            switch self {
+            case .pawn:
+                return "pawn"
+            case .rook:
+                return "rook"
+            case .knight:
+                return "knight"
+            case .bishop:
+                return "bishop"
+            case .king:
+                return "king"
+            case .queen:
+                return "queen"
+            }
+        }
+    }
 }
