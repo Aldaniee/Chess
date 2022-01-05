@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GameView: View {
-    @ObservedObject var game = GameViewModel()
+    @ObservedObject var game = Game()
     var body: some View {
         GeometryReader { geometry in
             VStack {
@@ -97,15 +97,20 @@ struct GameView: View {
         }
         @ViewBuilder
         func drawPiece(_ tile: Tile) -> some View {
-            if tile.piece != nil {
-                ZStack {
-                    Text(tile.piece!.display())
-                        .foregroundColor(tile.piece?.color)
-                        .colorInvert()
-                        .font(.system(size: 32, weight: .heavy, design: .default))
-                    Text(tile.piece!.display())
-                        .foregroundColor(tile.piece?.color)
-                        .font(.system(size: 28, weight: .medium, design: .default))
+            GeometryReader { geometry in
+                if tile.piece != nil {
+                    tile.piece!.image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(
+                            width: geometry.size.height-10,
+                            height: geometry.size.width-10,
+                            alignment: .center
+                        )
+                        .padding(5)
+                }
+                else {
+                    EmptyView()
                 }
             }
         }

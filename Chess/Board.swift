@@ -14,7 +14,6 @@ struct Board {
 
     init() {
         buildBoard()
-        setupPieces()
     }
     mutating func buildBoard() {
         for _ in 0...Constants.maxIndex {
@@ -27,6 +26,15 @@ struct Board {
         }
     }
     // MARK: - Board Changing Actions
+    mutating func setupPieces() {
+        for index in 0..<Constants.dimensions {
+            setPiece(Pawn(side: .white), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: 2))
+        }
+        
+        for index in 0..<Constants.dimensions {
+            setPiece(Pawn(side: .black), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: Constants.dimensions-1))
+        }
+    }
     mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece
     }
@@ -38,17 +46,6 @@ struct Board {
     mutating func removePiece(_ coordinate: Coordinate) -> Piece? {
         putPiece(nil, coordinate)
     }
-    
-    mutating func setupPieces() {
-        for index in 0..<Constants.dimensions {
-            setPiece(Pawn(isWhite: true), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: 2))
-        }
-        
-        for index in 0..<Constants.dimensions {
-            setPiece(Pawn(isWhite: false), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: Constants.dimensions-1))
-        }
-    }
-    
     mutating func selectTile(_ coordinate: Coordinate?) {
         selectedTileCoordinate = coordinate
     }
@@ -70,16 +67,6 @@ struct Board {
     }
     
     // MARK: - Access Functions
-    func isMoveOption(_ end: Coordinate) -> Bool {
-        var moves = [Coordinate]()
-        if let pieceStart = selectedTileCoordinate { // ensure a tile is selected
-            if let piece = getPieceFromSelectedTile() { // ensure a piece is on that tile
-                moves = piece.allPossibleMoves(pieceStart)
-            }
-        }
-        return moves.contains(end)
-
-    }
     func getPiece(_ coordinate: Coordinate) -> Piece? {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
     }
@@ -92,7 +79,14 @@ struct Board {
             return getPieceFromCoords(selectedTileCoordinate!)
         }
     }
+    func emptySquare(_ coordinate: Coordinate) -> Bool {
+        return getPieceFromCoords(coordinate) == nil
+    }
     func getPieceFromCoords(_ coordinate: Coordinate) -> Piece? {
+        if !coordinate.isValid() {
+            print("ERROR: Coordinate invalid:\(coordinate)")
+            return nil
+        }
         return gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
     }
     

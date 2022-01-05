@@ -8,7 +8,13 @@
 import SwiftUI
 
 protocol Piece {
-    func allPossibleMoves(_ start: Coordinate) -> [Coordinate]
-    func display() -> String
-    var color: Color { get }
+    func allPossibleMoves(from start: Coordinate, board: Board) -> [Coordinate]
+    var name: String { get }
+    var side: Game.Side { get }
+}
+extension Piece {
+    var image: Image {
+        let assetName = "\(side.abbreviation)_\(name)_shadow"
+        return Image(assetName)
+    }
 }

@@ -30,23 +30,50 @@ struct Coordinate: Equatable, Hashable {
         print("\(fileLetter)\(rankNum)", separator: "")
     }
     
-    func upRank() -> Coordinate {
-        return Coordinate(rankIndex: rankIndex+1, fileIndex: fileIndex)
+    func upRank() -> Coordinate? {
+        if rankIndex < 7 {
+            return Coordinate(rankIndex: rankIndex+1, fileIndex: fileIndex)
+        }
+        return nil
     }
+    func downRank() -> Coordinate? {
+        if rankIndex > 0 {
+            return Coordinate(rankIndex: rankIndex-1, fileIndex: fileIndex)
+        }
+        return nil
+    }
+    func upFile() -> Coordinate? {
+        if fileIndex < 7 {
+            return Coordinate(rankIndex: rankIndex, fileIndex: fileIndex+1)
+        }
+        return nil
+    }
+    func downFile() -> Coordinate? {
+        if fileIndex > 0 {
+            return Coordinate(rankIndex: rankIndex, fileIndex: fileIndex-1)
+        }
+        return nil
+    }
+
     func upOneDiagonals() -> [Coordinate] {
         var coords = [Coordinate]()
-        coords.append(Coordinate(rankIndex: rankIndex+1, fileIndex: fileIndex-1))
-        coords.append(Coordinate(rankIndex: rankIndex+1, fileIndex: fileIndex+1))
+        if let upLeft = self.upRank()?.downFile() {
+            coords.append(upLeft)
+        }
+        if let upRight = self.upRank()?.upFile() {
+            coords.append(upRight)
+        }
         return coords
     }
     func downOneDiagonals() -> [Coordinate] {
         var coords = [Coordinate]()
-        coords.append(Coordinate(rankIndex: rankIndex-1, fileIndex: fileIndex-1))
-        coords.append(Coordinate(rankIndex: rankIndex-1, fileIndex: fileIndex+1))
+        if let downLeft = self.downRank()?.downFile() {
+            coords.append(downLeft)
+        }
+        if let downRight = self.downRank()?.upFile() {
+            coords.append(downRight)
+        }
         return coords
-    }
-    func downRank() -> Coordinate {
-        return Coordinate(rankIndex: rankIndex-1, fileIndex: fileIndex)
     }
     
     func sameFile() -> [Coordinate] {
@@ -100,6 +127,9 @@ struct Coordinate: Equatable, Hashable {
             coord = Coordinate(rankIndex: rankIndex+i, fileIndex: fileIndex-i)
         }
         return coords
+    }
+    func isDiagonal(from end: Coordinate) -> Bool {
+        return self.sameDiagonal().contains(end)
     }
     func isValid() -> Bool {
         return rankIndex < Board.Constants.dimensions && fileIndex < Board.Constants.dimensions && fileIndex > -1 && rankIndex > -1
