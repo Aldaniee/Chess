@@ -8,9 +8,14 @@
 import SwiftUI
 
 struct Pawn: Piece {
-    var side: Game.Side
     
     let type = Game.PieceType.pawn
+    
+    let side: Game.Side
+    
+    init(side: Game.Side) {
+        self.side = side
+    }
     
     func allPossibleMoves(from start: Coordinate, board: Board) -> [Coordinate] {
         var moves = [Coordinate]()
@@ -74,9 +79,5 @@ struct Pawn: Piece {
             } )
         }
         return moves
-    }
-    
-    init(side: Game.Side) {
-        self.side = side
     }
 }

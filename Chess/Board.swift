@@ -30,9 +30,11 @@ struct Board {
         for index in 0..<Constants.dimensions {
             setPiece(Pawn(side: .white), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: 2))
         }
+        setPiece(King(side: .white), Coordinate(fileLetter: "E", rankNum: 1))
         
         for index in 0..<Constants.dimensions {
             setPiece(Pawn(side: .black), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: Constants.dimensions-1))
+            setPiece(King(side: .black), Coordinate(fileLetter: "E", rankNum: 8))
         }
     }
     mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
@@ -69,6 +71,13 @@ struct Board {
     // MARK: - Access Functions
     func getPiece(_ coordinate: Coordinate) -> Piece? {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
+    }
+    
+    func isOccupied(_ coordinate: Coordinate, _ side: Game.Side) -> Bool {
+        if let piece = getPiece(coordinate) {
+            return piece.side == side
+        }
+        return false
     }
     
     func getPieceFromSelectedTile() -> Piece? {

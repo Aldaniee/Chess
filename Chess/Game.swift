@@ -12,8 +12,6 @@ class Game: ObservableObject {
     
     var turn = Side.white
     var winner: Side?
-    var player1 = Side.white
-    var player2 = Side.black
     
     init() {
         newGame()
@@ -21,6 +19,7 @@ class Game: ObservableObject {
     
     func newGame() {
         board.setupPieces()
+        turn = Side.white
     }
     
     func selectTile(_ selection: Coordinate) {
@@ -31,16 +30,18 @@ class Game: ObservableObject {
             }
             else {
                 if let movingPiece = board.getPieceFromSelectedTile() {
-                    let moves = movingPiece.allPossibleMoves(from: oldSelection, board: board)
-                    if moves.contains(selection) {
-                        var capturedPiece = board.moveSelection(to: selection)
-                        
-                        // special case of En passant rule
-                        // if a pawn moves diagonal and does not land on a pawn it must be capturing en passant
-                        if movingPiece.type == .pawn && capturedPiece == nil && oldSelection.isDiagonal(from: selection) {
-                            capturedPiece = board.removePiece(Coordinate(rankIndex: oldSelection.rankIndex, fileIndex: selection.fileIndex))
+                    if movingPiece.side == turn {
+                        let moves = movingPiece.allPossibleMoves(from: oldSelection, board: board)
+                        if moves.contains(selection) {
+                            var capturedPiece = board.moveSelection(to: selection)
+                            
+                            // special case of En passant rule
+                            // if a pawn moves diagonal and does not land on a pawn it must be capturing en passant
+                            if movingPiece.type == .pawn && capturedPiece == nil && oldSelection.isDiagonal(from: selection) {
+                                capturedPiece = board.removePiece(Coordinate(rankIndex: oldSelection.rankIndex, fileIndex: selection.fileIndex))
+                            }
+                            nextTurn()
                         }
-                        nextTurn()
                     }
                 }
             }

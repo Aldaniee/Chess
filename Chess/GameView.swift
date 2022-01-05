@@ -91,7 +91,7 @@ struct GameView: View {
                 .foregroundColor(tile.color)
                 .colorInvert()
                 .opacity(0.8)
-                .font(.system(size: 10, weight: .heavy, design: .default))
+                .font(.system(size: 14, weight: .heavy, design: .default))
                 .padding(3)
             }
         }
