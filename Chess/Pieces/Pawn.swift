@@ -9,16 +9,19 @@ import SwiftUI
 
 struct Pawn: Piece {
     
-    func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate] {
-        return side == .white ? start.upOneDiagonals() : start.downOneDiagonals()
-    }
+    let num: Int
     
     let type = Game.PieceType.pawn
     
     let side: Game.Side
     
-    init(side: Game.Side) {
+    init(side: Game.Side, num: Int) {
         self.side = side
+        self.num = num
+    }
+    
+    func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate] {
+        return side == .white ? start.upOneDiagonals() : start.downOneDiagonals()
     }
     
     func allPossibleMoves(from start: Coordinate, _ board: Board) -> [Coordinate] {

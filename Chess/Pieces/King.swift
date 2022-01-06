@@ -9,12 +9,15 @@ import Foundation
 
 struct King: Piece {
     
+    var num: Int
+    
     let type = Game.PieceType.king
     
     let side: Game.Side
     
-    init(side: Game.Side) {
+    init(side: Game.Side, num: Int) {
         self.side = side
+        self.num = num
     }
     
     func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate] {

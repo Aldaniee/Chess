@@ -31,20 +31,20 @@ struct Board {
     // MARK: - Board Changing Actions
     mutating func setupPieces() {
         for index in 0..<Constants.dimensions {
-            setPiece(Pawn(side: .white), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: 2))
+            setPiece(Pawn(side: .white, num: index), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: 2))
         }
-        setPiece(King(side: .white), Coordinate(fileLetter: "E", rankNum: 1))
-        setPiece(Rook(side: .white), Coordinate(fileLetter: "A", rankNum: 1))
-        setPiece(Rook(side: .white), Coordinate(fileLetter: "H", rankNum: 1))
+        setPiece(King(side: .white, num: 0), Coordinate(fileLetter: "E", rankNum: 1))
+        setPiece(Rook(side: .white, num: 0), Coordinate(fileLetter: "A", rankNum: 1))
+        setPiece(Rook(side: .white, num: 1), Coordinate(fileLetter: "H", rankNum: 1))
 
         let baseIndex = Constants.dimensions + 1
         
         for index in 0..<Constants.dimensions {
-            setPiece(Pawn(side: .black), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: baseIndex-2))
+            setPiece(Pawn(side: .black, num: index), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: baseIndex-2))
         }
-        setPiece(King(side: .black), Coordinate(fileLetter: "E", rankNum: baseIndex-1))
-        setPiece(Rook(side: .black), Coordinate(fileLetter: "A", rankNum: baseIndex-1))
-        setPiece(Rook(side: .black), Coordinate(fileLetter: "H", rankNum: baseIndex-1))
+        setPiece(King(side: .black, num: 0), Coordinate(fileLetter: "E", rankNum: baseIndex-1))
+        setPiece(Rook(side: .black, num: 0), Coordinate(fileLetter: "A", rankNum: baseIndex-1))
+        setPiece(Rook(side: .black, num: 1), Coordinate(fileLetter: "H", rankNum: baseIndex-1))
     }
     private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece

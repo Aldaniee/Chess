@@ -9,13 +9,17 @@ import Foundation
 
 struct Rook: Piece {
     
+    let num: Int
+    
     let type = Game.PieceType.rook
     
     let side: Game.Side
     
-    init(side: Game.Side) {
+    init(side: Game.Side, num: Int) {
         self.side = side
+        self.num = num
     }
+    
     
     func allPossibleMoves(from start: Coordinate, _ board: Board) -> [Coordinate] {
         var moves = [Coordinate]()

@@ -30,7 +30,14 @@ class Game: ObservableObject {
         turn = Side.white
     }
     
+    func deselect() {
+        board.deselect()
+    }
+    
     func selectTile(_ selection: Coordinate) {
+        if !selection.isValid() {
+            return
+        }
         if let oldSelection = board.selectedTileCoordinate {
             let sameSelection = oldSelection == selection
             if sameSelection {

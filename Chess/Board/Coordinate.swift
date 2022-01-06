@@ -15,7 +15,17 @@ struct Coordinate: Equatable, Hashable {
     }
     init(fileLetter: Character, rankNum: Int) {
         self.rankIndex = rankNum - 1
-        self.fileIndex = fileLetter.alphabeticalIndex()
+        self.fileIndex = fileLetter.lowercased().alphabeticalIndex()
+    }
+    init(algebraicNotation: String) {
+        let fileLetter = algebraicNotation[0]
+        self.fileIndex = fileLetter.lowercased().alphabeticalIndex()
+        guard let rankNum = algebraicNotation[1].wholeNumberValue else {
+            print("ERROR: incorrect second character")
+            rankIndex = -1
+            return
+        }
+        self.rankIndex = rankNum - 1
     }
     var rankIndex: Int
     var fileIndex: Int
