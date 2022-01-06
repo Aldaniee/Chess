@@ -34,11 +34,17 @@ struct Board {
             setPiece(Pawn(side: .white), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: 2))
         }
         setPiece(King(side: .white), Coordinate(fileLetter: "E", rankNum: 1))
+        setPiece(Rook(side: .white), Coordinate(fileLetter: "A", rankNum: 1))
+        setPiece(Rook(side: .white), Coordinate(fileLetter: "H", rankNum: 1))
+
+        let baseIndex = Constants.dimensions + 1
         
         for index in 0..<Constants.dimensions {
-            setPiece(Pawn(side: .black), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: Constants.dimensions-1))
-            setPiece(King(side: .black), Coordinate(fileLetter: "E", rankNum: 8))
+            setPiece(Pawn(side: .black), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: baseIndex-2))
         }
+        setPiece(King(side: .black), Coordinate(fileLetter: "E", rankNum: baseIndex-1))
+        setPiece(Rook(side: .black), Coordinate(fileLetter: "A", rankNum: baseIndex-1))
+        setPiece(Rook(side: .black), Coordinate(fileLetter: "H", rankNum: baseIndex-1))
     }
     private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece
@@ -95,7 +101,7 @@ struct Board {
     }
     
     // Should never return nil as a king is always on the board
-    func getKingTile(color side: Game.Side) -> Tile? {
+    func getKingTile(_ side: Game.Side) -> Tile? {
         var king: Tile?
         asArray().forEach { tile in
             if let piece = tile.piece {
@@ -108,9 +114,6 @@ struct Board {
             print("ERROR: No \(side.abbreviation)_king found on the board")
         }
         return king
-    }
-    func getNewStateFromMove(from start: Coordinate, to end: Coordinate) {
-        return
     }
     
     func isOccupied(_ coordinate: Coordinate, _ side: Game.Side) -> Bool {

@@ -115,7 +115,7 @@ class Game: ObservableObject {
         let kingSide = turn
         let attackingSide = kingSide.opponent
         
-        guard let kingTile = state.getKingTile(color: turn) else { print("ERROR: No king on board"); return false }
+        guard let kingTile = state.getKingTile(kingSide) else { print("ERROR: No king on board"); return false }
 
         let attackingTiles = state.getAllTilesWithPieces(of: attackingSide)
         for tile in attackingTiles {
