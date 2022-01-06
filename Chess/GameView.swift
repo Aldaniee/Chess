@@ -37,8 +37,8 @@ struct GameView: View {
                     columns: columns,
                     spacing: 0
                 ) {
-                    ForEach(game.asArray()) { tile in
-                        TileView(tile: tile, selectedTile: game.selectedTile())
+                    ForEach(game.boardArray) { tile in
+                        TileView(tile: tile, selectedTile: game.selectedTile)
                             .aspectRatio(contentMode: .fill)
                             .onTapGesture {
                                 game.selectTile(tile.coordinate)

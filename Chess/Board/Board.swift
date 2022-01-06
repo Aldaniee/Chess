@@ -24,7 +24,7 @@ struct Board {
         }
         for rank in 0...Constants.maxIndex {
             for file in 0...Constants.maxIndex {
-                gameBoard[rank].append(Tile(coordinate: Coordinate(rankIndex: Constants.maxIndex-rank, fileIndex: file), piece: nil))
+                gameBoard[rank].append(Tile(Coordinate(rankIndex: Constants.maxIndex-rank, fileIndex: file), nil))
             }
         }
     }

@@ -21,7 +21,7 @@ struct Tile: Identifiable {
         return ((coordinate.fileIndex + coordinate.rankIndex) % 2 == 0) ? TileColor.dark.color : TileColor.light.color
     }
     
-    init(coordinate: Coordinate, piece: Piece? = nil) {
+    init(_ coordinate: Coordinate, _ piece: Piece? = nil) {
         self.coordinate = coordinate
         self.piece = piece
     }
