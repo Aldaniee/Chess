@@ -9,6 +9,10 @@ import SwiftUI
 
 struct Pawn: Piece {
     
+    func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate] {
+        return side == .white ? start.upOneDiagonals() : start.downOneDiagonals()
+    }
+    
     let type = Game.PieceType.pawn
     
     let side: Game.Side
@@ -17,22 +21,13 @@ struct Pawn: Piece {
         self.side = side
     }
     
-    func allPossibleMoves(from start: Coordinate, board: Board) -> [Coordinate] {
+    func allPossibleMoves(from start: Coordinate, _ board: Board) -> [Coordinate] {
         var moves = [Coordinate]()
-        var forward: Coordinate?
-        var forwardTwo: Coordinate?
-        var attacks = [Coordinate]()
+        let forward = side == .white ? start.upRank() : start.downRank()
+        let forwardTwo = side == .white ? forward?.upRank() : forward?.downRank()
+        let attacks = threatsCreated(from: start, board)
         
-        if side == .white {
-            forward = start.upRank()
-            forwardTwo = start.upRank()?.upRank()
-            attacks = start.upOneDiagonals()
-        }
-        else {
-            forward = start.downRank()
-            forwardTwo = start.downRank()?.downRank()
-            attacks = start.downOneDiagonals()
-        }
+        // move forward one or two swuares
         if let forward = forward {
             // Ensure the pawn only moves forward if the square ahead is empty
             if board.emptySquare(forward) {
@@ -45,17 +40,15 @@ struct Pawn: Piece {
             }
         }
         
-        // diagonal attacking
-        
-        attacks.forEach( {
-            if let pieceToAttack = board.getPieceFromCoords($0) {
+        // diagonal attacks
+        attacks.forEach( { end in
+            if let pieceToAttack = board.getPieceFromCoords(end) {
                 let isOppositeColor = pieceToAttack.side != side
                 if isOppositeColor {
-                    moves.append($0)
+                    moves.append(end)
                 }
             }
         } )
-        
         // en passant
         if start.rankNum == (side == .white ? 5 : 4) {
             var adjacent = [Coordinate]()

@@ -9,11 +9,14 @@ import Foundation
 
 struct Board {
     
-    private (set) var gameBoard = Array<Array<Tile>>()
+    private (set) var gameBoard = [[Tile]]()
     private (set) var selectedTileCoordinate: Coordinate?
 
     init() {
         buildBoard()
+    }
+    init(_ gameBoard: [[Tile]]) {
+        self.gameBoard = gameBoard
     }
     mutating func buildBoard() {
         for _ in 0...Constants.maxIndex {
@@ -37,11 +40,11 @@ struct Board {
             setPiece(King(side: .black), Coordinate(fileLetter: "E", rankNum: 8))
         }
     }
-    mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
+    private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece
     }
-    mutating func putPiece(_ piece: Piece?, _ coordinate: Coordinate) -> Piece? {
-        let oldPiece = getPiece(coordinate)
+    private mutating func putPiece(_ piece: Piece?, _ coordinate: Coordinate) -> Piece? {
+        let oldPiece = getPiece(from: coordinate)
         setPiece(piece, coordinate)
         return oldPiece
     }
@@ -56,25 +59,62 @@ struct Board {
         selectTile(nil)
     }
     
-    mutating func moveSelection(to coordinate: Coordinate) -> Piece? {
-        if let selectedTile = selectedTileCoordinate { // ensure a tile is selected
-            if let piece = getPieceFromSelectedTile() { // ensure a piece is on that tile
-                let capturedPiece = putPiece(piece, coordinate)
-                _ = removePiece(selectedTile)
-                selectedTileCoordinate = nil
-                return capturedPiece
-            }
+    mutating func moveSelectedPiece(to coordinate: Coordinate) -> Piece? {
+        if let selectedCoord = selectedTileCoordinate { // ensure a tile is selected
+            let capturedPiece = movePiece(from: selectedCoord, to: coordinate)
+            selectedTileCoordinate = nil
+            return capturedPiece
+        }
+        return nil
+    }
+    
+    mutating func movePiece(from start: Coordinate, to end: Coordinate) -> Piece? {
+        if let piece = getPiece(from: start) { // ensure a piece is on that tile
+            let capturedPiece = putPiece(piece, end)
+            _ = removePiece(start)
+            return capturedPiece
         }
         return nil
     }
     
     // MARK: - Access Functions
-    func getPiece(_ coordinate: Coordinate) -> Piece? {
+    func getPiece(from coordinate: Coordinate) -> Piece? {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
     }
     
+    func getAllTilesWithPieces(of side: Game.Side) -> [Tile] {
+        var tiles = [Tile]()
+        asArray().forEach { tile in
+            if let piece = tile.piece {
+                if piece.side == side {
+                    tiles.append(tile)
+                }
+            }
+        }
+        return tiles
+    }
+    
+    // Should never return nil as a king is always on the board
+    func getKingTile(color side: Game.Side) -> Tile? {
+        var king: Tile?
+        asArray().forEach { tile in
+            if let piece = tile.piece {
+                if piece.side == side && piece.type == .king {
+                    king = tile
+                }
+            }
+        }
+        if king == nil {
+            print("ERROR: No \(side.abbreviation)_king found on the board")
+        }
+        return king
+    }
+    func getNewStateFromMove(from start: Coordinate, to end: Coordinate) {
+        return
+    }
+    
     func isOccupied(_ coordinate: Coordinate, _ side: Game.Side) -> Bool {
-        if let piece = getPiece(coordinate) {
+        if let piece = getPiece(from: coordinate) {
             return piece.side == side
         }
         return false
@@ -101,6 +141,10 @@ struct Board {
     
     func asArray() -> Array<Tile> {
         return Array(gameBoard.joined())
+    }
+    
+    func copy() -> Board {
+        return Board(gameBoard)
     }
     
     func debugGameBoard() {

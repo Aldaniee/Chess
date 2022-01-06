@@ -8,10 +8,12 @@
 import SwiftUI
 
 protocol Piece {
-    func allPossibleMoves(from start: Coordinate, board: Board) -> [Coordinate]
+    func allPossibleMoves(from start: Coordinate, _ board: Board) -> [Coordinate]
+    func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate]
     var type: Game.PieceType { get }
     var side: Game.Side { get }
 }
+
 extension Piece {
     var image: Image {
         let assetName = "\(side.abbreviation)_\(type.name)_shadow"

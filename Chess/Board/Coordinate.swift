@@ -19,11 +19,15 @@ struct Coordinate: Equatable, Hashable {
     }
     var rankIndex: Int
     var fileIndex: Int
+    
     var rankNum: Int {
         return rankIndex + 1
     }
     var fileLetter: Character {
         return fileIndex.toLetterAtAlphabeticalIndex()
+    }
+    var algebraicNotation: String {
+        return "\(fileLetter.lowercased())\(rankNum)"
     }
     
     func debugPrint() {

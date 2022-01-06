@@ -50,6 +50,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		EA0F7AE127867A5F00E506E5 /* Pieces */ = {
+			isa = PBXGroup;
+			children = (
+				EA0F7ADF278633B000E506E5 /* King.swift */,
+				EA8CB6C0277DFD2C00CAF379 /* Piece.swift */,
+				EA8CB6C4277DFDFC00CAF379 /* Pawn.swift */,
+			);
+			path = Pieces;
+			sourceTree = "<group>";
+		};
+		EA0F7AE227867A9B00E506E5 /* Board */ = {
+			isa = PBXGroup;
+			children = (
+				EA8CB6BC277DFC2900CAF379 /* Board.swift */,
+				EA8CB6BE277DFCCF00CAF379 /* Tile.swift */,
+				EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */,
+			);
+			path = Board;
+			sourceTree = "<group>";
+		};
 		EA8CB6A2277DFBE000CAF379 = {
 			isa = PBXGroup;
 			children = (
@@ -71,17 +91,13 @@
 			children = (
 				EA8CB6AE277DFBE000CAF379 /* ChessApp.swift */,
 				EA8CB6C8277E55C000CAF379 /* Game.swift */,
-				EA0F7ADB27861D8500E506E5 /* Player.swift */,
 				EA8CB6B0277DFBE000CAF379 /* GameView.swift */,
-				EA0F7ADF278633B000E506E5 /* King.swift */,
-				EA8CB6C6277E038600CAF379 /* UtilityExtensions.swift */,
+				EA0F7AE227867A9B00E506E5 /* Board */,
+				EA0F7AE127867A5F00E506E5 /* Pieces */,
 				EA8CB6B2277DFBE400CAF379 /* Assets.xcassets */,
 				EA8CB6B4277DFBE400CAF379 /* Preview Content */,
-				EA8CB6BC277DFC2900CAF379 /* Board.swift */,
-				EA8CB6BE277DFCCF00CAF379 /* Tile.swift */,
-				EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */,
-				EA8CB6C0277DFD2C00CAF379 /* Piece.swift */,
-				EA8CB6C4277DFDFC00CAF379 /* Pawn.swift */,
+				EA8CB6C6277E038600CAF379 /* UtilityExtensions.swift */,
+				EA0F7ADB27861D8500E506E5 /* Player.swift */,
 			);
 			path = Chess;
 			sourceTree = "<group>";
