@@ -12,7 +12,7 @@ class Game: ObservableObject {
     @Published private var board = Board()
     
     private (set) var turn = Side.white
-    
+    private (set) var winner : String?
     var boardArray: Array<Tile> {
         board.asArray()
     }
@@ -26,8 +26,10 @@ class Game: ObservableObject {
     
     // MARK: - Intents
     func newGame() {
-        board.setupPieces()
+        board = Board()
+        winner = nil
         turn = Side.white
+        board.setupPieces()
     }
     
     func deselect() {
@@ -60,10 +62,10 @@ class Game: ObservableObject {
         turn = turn == .white ? .black : .white
         if hasNoMoves(turn) {
             if inCheck(board, turn) {
-                print("\(turn.opponent.name) won")
+                winner = turn.opponent.name
             }
             else {
-                print("draw")
+                winner = "draw"
             }
         }
     }

@@ -9,14 +9,26 @@ import SwiftUI
 
 struct GameView: View {
     @ObservedObject var game = Game()
+    
     var body: some View {
         GeometryReader { geometry in
             VStack {
                 Spacer()
+                Button("New Game") {
+                    game.newGame()
+                }
                 ZStack {
                     Rectangle()
                         .stroke(Color.black, lineWidth: 3)
                     board
+                    if let winner = game.winner {
+                        WinnerCard(width: geometry.minWidthHeight(), winner: winner)
+                            .frame(
+                                width: geometry.minWidthHeight() - 140,
+                                height: geometry.minWidthHeight() - 140,
+                                alignment: .center
+                            )
+                    }
                 }
                 .frame(
                     width: geometry.minWidthHeight(),
@@ -27,12 +39,14 @@ struct GameView: View {
             }
         }
     }
+    
     var board: some View {
         GeometryReader { geometry in
             VStack {
                 let width = geometry.size.width / CGFloat(Board.Constants.dimensions)
                 let columns =
                 Array(repeating: GridItem(.fixed(width), spacing: 0), count: Board.Constants.dimensions)
+                let top = geometry.frame(in: .global).minY
                 ZStack {
                     LazyVGrid(columns: columns, spacing: 0) {
                         ForEach(game.boardArray) { tile in
@@ -46,14 +60,39 @@ struct GameView: View {
                     Spacer(minLength: 0)
                     LazyVGrid(columns: columns, spacing: 0) {
                         ForEach(game.boardArray) { tile in
-                            Piece(tile: tile, game: game)
+                            Piece(tile: tile, game: game, boardTop: top, tileWidth: width)
                                 .aspectRatio(contentMode: .fill)
                                 .onTapGesture {
                                     game.selectTile(tile.coordinate)
                                 }
+                                .zIndex(game.selectedTile == tile.coordinate ? 1 : 0)
+
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    struct WinnerCard: View {
+        let width: CGFloat
+        let winner: String
+        
+        var body: some View {
+            ZStack {
+                let shape = RoundedRectangle(cornerSize: CGSize(width: 60, height: 60))
+                shape.fill().foregroundColor(.white).opacity(0.90)
+                shape.stroke(Color.black, lineWidth: 3)
+                Group {
+                    if winner == "draw" {
+                        Text("Draw!")
+                    }
+                    else {
+                        Text("\(winner) Won!")
+                    }
+                }
+                .font(.system(size: CGFloat(30)))
+                .foregroundColor(.black)
             }
         }
     }
@@ -63,35 +102,48 @@ struct GameView: View {
         let tile: Tile
         @ObservedObject var game: Game
         @State private var dragAmount = CGSize.zero
-
+        @State private var scaleAmount: CGFloat = 1.0
+        
+        let boardTop: CGFloat
+        let tileWidth: CGFloat
+        
+        let scaleFactor: CGFloat = 2
+        
         var body: some View {
+            let startCoord = tile.coordinate
+            let piece = tile.piece
+            let dragGesture = DragGesture(coordinateSpace: .global)
+                .onChanged { dragValue in
+                    if game.turn == piece?.side {
+                        scaleAmount = scaleFactor
+                        self.dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)
+                        game.selectTile(startCoord)
+                    }
+                }
+                .onEnded { dragValue in
+                    self.dragAmount = .zero
+                    scaleAmount = 1.0
+                    let rank = Board.Constants.maxIndex - Int((dragValue.location.y - boardTop) / tileWidth)
+                    let file = Int((dragValue.location.x) / tileWidth)
+                    game.selectTile(Coordinate(rankIndex: rank, fileIndex: file))
+                    game.deselect()
+                }
+            
             GeometryReader { geometry in
-                if tile.piece != nil {
-                    tile.piece!.image
+                if piece != nil {
+                    piece!.image
                         .resizable()
                         .scaledToFit()
                         .frame(
-                            width: geometry.size.height-10,
+                            width: (geometry.size.width-10),
                             height: geometry.size.width-10,
                             alignment: .center
                         )
                         .padding(5)
                         .offset(dragAmount)
-                        .gesture(
-                            DragGesture(coordinateSpace: .global)
-                                .onChanged {
-                                    self.dragAmount = CGSize(width: $0.translation.width, height: $0.translation.height)
-                                    game.deselect()
-                                }
-                                .onEnded { value in
-                                    self.dragAmount = .zero
-                                    let rankChange = -Int(value.translation.height / geometry.size.height)
-                                    let fileChange = Int(value.translation.width / geometry.size.width)
-                                    let start = tile.coordinate
-                                    game.selectTile(start)
-                                    game.selectTile(Coordinate(rankIndex: start.rankIndex + rankChange, fileIndex: start.fileIndex + fileChange))
-                                }
-                        )
+                        .scaleEffect(scaleAmount, anchor: .center)
+                        .animation(.easeInOut(duration: 0.1), value: scaleAmount)
+                        .gesture(dragGesture)
                 }
             }
         }
