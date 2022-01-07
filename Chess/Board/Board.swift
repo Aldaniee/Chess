@@ -36,7 +36,9 @@ struct Board {
         setPiece(King(side: .white, num: 0), Coordinate(fileLetter: "E", rankNum: 1))
         setPiece(Rook(side: .white, num: 0), Coordinate(fileLetter: "A", rankNum: 1))
         setPiece(Rook(side: .white, num: 1), Coordinate(fileLetter: "H", rankNum: 1))
-
+        setPiece(Knight(side: .white, num: 0), Coordinate(fileLetter: "B", rankNum: 1))
+        setPiece(Knight(side: .white, num: 1), Coordinate(fileLetter: "G", rankNum: 1))
+        
         let baseIndex = Constants.dimensions + 1
         
         for index in 0..<Constants.dimensions {
@@ -45,6 +47,8 @@ struct Board {
         setPiece(King(side: .black, num: 0), Coordinate(fileLetter: "E", rankNum: baseIndex-1))
         setPiece(Rook(side: .black, num: 0), Coordinate(fileLetter: "A", rankNum: baseIndex-1))
         setPiece(Rook(side: .black, num: 1), Coordinate(fileLetter: "H", rankNum: baseIndex-1))
+        setPiece(Knight(side: .black, num: 0), Coordinate(fileLetter: "B", rankNum: baseIndex-1))
+        setPiece(Knight(side: .black, num: 1), Coordinate(fileLetter: "G", rankNum: baseIndex-1))
     }
     private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece

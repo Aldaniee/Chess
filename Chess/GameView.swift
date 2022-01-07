@@ -142,7 +142,7 @@ struct GameView: View {
                         .padding(5)
                         .offset(dragAmount)
                         .scaleEffect(scaleAmount, anchor: .center)
-                        .animation(.easeInOut(duration: 0.1), value: scaleAmount)
+                        .animation(.easeInOut(duration: 0.05), value: scaleAmount)
                         .gesture(dragGesture)
                 }
             }
