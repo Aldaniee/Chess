@@ -10,16 +10,13 @@ import Foundation
 struct King: Piece {
     
     var hasMoved = false
-    
-    let num: Int
-    
+        
     let type = Game.PieceType.king
     
     let side: Game.Side
     
-    init(side: Game.Side, num: Int) {
+    init(_ side: Game.Side) {
         self.side = side
-        self.num = num
     }
     
     func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate] {

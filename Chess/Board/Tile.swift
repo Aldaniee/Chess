@@ -11,7 +11,7 @@ import SwiftUI
 struct Tile: Identifiable {
     
     var id: String {
-        return "\(coordinate.rankNum)\(coordinate.fileLetter)"
+        return "\(coordinate.fileLetter)\(coordinate.rankNum)"
     }
     let coordinate: Coordinate
     
@@ -32,9 +32,9 @@ struct Tile: Identifiable {
         var color: Color {
             switch self {
             case .light:
-                return Color.white
+                return .white
             case .dark:
-                return Color.black
+                return .black
             }
         }
     }

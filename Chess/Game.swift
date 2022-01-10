@@ -87,7 +87,7 @@ class Game: ObservableObject {
         if moves.contains(destination) {
             var capturedPiece = board.moveSelectedPiece(to: destination)
             
-            // Castle
+            // Determine if the king is castling inorder to move the rook
             if piece.type == .king && piece.hasMoved == false {
                 
                 // King-side/short castle
@@ -131,6 +131,7 @@ class Game: ObservableObject {
                 // king side
                 if let newRookCords = tile.coordinate.upFile(),
                    board.isEmpty(newRookCords),
+                   !doesMoveIntoCheck(from: tile.coordinate, to: newRookCords),
                    let newKingCords = newRookCords.upFile(),
                    board.isEmpty(newKingCords),
                    let rookCords = newKingCords.upFile(),
@@ -143,6 +144,7 @@ class Game: ObservableObject {
                 // queen side
                 if let newRookCords = tile.coordinate.downFile(),
                    board.isEmpty(newRookCords),
+                   !doesMoveIntoCheck(from: tile.coordinate, to: newRookCords),
                    let newKingCords = newRookCords.downFile(),
                    board.isEmpty(newKingCords),
                    let empty = newKingCords.downFile(),
@@ -159,9 +161,7 @@ class Game: ObservableObject {
             
             // Remove any moves that move into check
             for move in moves {
-                var newState = board.copy()
-                _ = newState.movePiece(from: tile.coordinate, to: move)
-                if inCheck(newState, turn) {
+                if doesMoveIntoCheck(from: tile.coordinate, to: move) {
                     moves.removeAll(where: { $0 == move })
                 }
             }
@@ -170,6 +170,11 @@ class Game: ObservableObject {
         return [Coordinate]()
     }
     
+    private func doesMoveIntoCheck(from start: Coordinate, to end: Coordinate) -> Bool {
+        var newState = board.copy()
+        _ = newState.movePiece(from: start, to: end)
+        return inCheck(newState, turn)
+    }
     
     /// Checks if the side whose turn it is is in check
     /// - Parameters:

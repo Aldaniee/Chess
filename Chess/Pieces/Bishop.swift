@@ -10,18 +10,15 @@ import Foundation
 class Bishop: RecursivePiece {
     
     var hasMoved = false
-    
-    let num: Int
-    
+        
     let type = Game.PieceType.bishop
     
     let side: Game.Side
     
     let moveType: MoveType = .diagonal
     
-    init(side: Game.Side, num: Int) {
+    init(_ side: Game.Side) {
         self.side = side
-        self.num = num
     }
         
 }

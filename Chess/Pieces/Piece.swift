@@ -13,18 +13,13 @@ protocol Piece {
     var hasMoved: Bool { get set }
 
     var type: Game.PieceType { get }
-    var side: Game.Side { get }
-    var num: Int { get }
-    
+    var side: Game.Side { get }    
 }
 
 extension Piece {
     var image: Image {
         let assetName = "\(side.abbreviation)_\(type.name)_shadow"
         return Image(assetName)
-    }
-    var id: String {
-        return "\(side.abbreviation)\(type.abbreviation)\(num)"
     }
     func getMovesFromThreats(from start: Coordinate, _ board: Board) -> [Coordinate] {
         var moves = threatsCreated(from: start, board)
