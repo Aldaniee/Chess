@@ -9,6 +9,8 @@ import Foundation
 
 class Knight: Piece {
     
+    var hasMoved = false
+    
     var num: Int
     
     let type = Game.PieceType.knight
@@ -60,12 +62,6 @@ class Knight: Piece {
     }
     
     func allPossibleMoves(from start: Coordinate, _ board: Board) -> [Coordinate] {
-        var moves = threatsCreated(from: start, board)
-        moves.forEach { move in
-            if board.isOccupied(move, side) {
-                moves.removeAll(where: {move == $0} )
-            }
-        }
-        return moves
+        self.getMovesFromThreats(from: start, board)
     }
 }

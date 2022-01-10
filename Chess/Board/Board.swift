@@ -38,7 +38,9 @@ struct Board {
         setPiece(Rook(side: .white, num: 1), Coordinate(fileLetter: "H", rankNum: 1))
         setPiece(Knight(side: .white, num: 0), Coordinate(fileLetter: "B", rankNum: 1))
         setPiece(Knight(side: .white, num: 1), Coordinate(fileLetter: "G", rankNum: 1))
-        
+        setPiece(Bishop(side: .white, num: 0), Coordinate(fileLetter: "C", rankNum: 1))
+        setPiece(Bishop(side: .white, num: 1), Coordinate(fileLetter: "F", rankNum: 1))
+        setPiece(Queen(side: .white, num: 1), Coordinate(fileLetter: "D", rankNum: 1))
         let baseIndex = Constants.dimensions + 1
         
         for index in 0..<Constants.dimensions {
@@ -49,6 +51,9 @@ struct Board {
         setPiece(Rook(side: .black, num: 1), Coordinate(fileLetter: "H", rankNum: baseIndex-1))
         setPiece(Knight(side: .black, num: 0), Coordinate(fileLetter: "B", rankNum: baseIndex-1))
         setPiece(Knight(side: .black, num: 1), Coordinate(fileLetter: "G", rankNum: baseIndex-1))
+        setPiece(Bishop(side: .black, num: 0), Coordinate(fileLetter: "C", rankNum: baseIndex-1))
+        setPiece(Bishop(side: .black, num: 1), Coordinate(fileLetter: "F", rankNum: baseIndex-1))
+        setPiece(Queen(side: .black, num: 1), Coordinate(fileLetter: "D", rankNum: baseIndex-1))
     }
     private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece
@@ -81,10 +86,17 @@ struct Board {
     mutating func movePiece(from start: Coordinate, to end: Coordinate) -> Piece? {
         if let piece = getPiece(from: start) { // ensure a piece is on that tile
             let capturedPiece = putPiece(piece, end)
+            markPieceAsMoved(at: end)
             _ = removePiece(start)
             return capturedPiece
         }
         return nil
+    }
+    
+    mutating func markPieceAsMoved(at coordinate: Coordinate) {
+        if getPiece(from: coordinate) != nil {
+            gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece!.hasMoved = true
+        }
     }
     
     // MARK: - Access Functions
@@ -132,18 +144,11 @@ struct Board {
             return nil
         }
         else {
-            return getPieceFromCoords(selectedTileCoordinate!)
+            return getPiece(from: selectedTileCoordinate!)
         }
     }
-    func emptySquare(_ coordinate: Coordinate) -> Bool {
-        return getPieceFromCoords(coordinate) == nil
-    }
-    func getPieceFromCoords(_ coordinate: Coordinate) -> Piece? {
-        if !coordinate.isValid() {
-            print("ERROR: Coordinate invalid:\(coordinate)")
-            return nil
-        }
-        return gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
+    func isEmpty(_ coordinate: Coordinate) -> Bool {
+        return getPiece(from: coordinate) == nil
     }
     
     func asArray() -> Array<Tile> {

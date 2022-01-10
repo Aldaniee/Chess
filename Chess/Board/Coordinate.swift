@@ -8,6 +8,38 @@
 import Foundation
 
 struct Coordinate: Equatable, Hashable {
+        
+    enum Direction {
+        case upRank
+        case downRank
+        case upFile
+        case downFile
+        case upRankUpFile
+        case upRankDownFile
+        case downRankUpFile
+        case downRankDownFile
+        
+        var compute: ((Coordinate) -> Coordinate?) {
+            switch self {
+            case .upRank:
+                return { (c: Coordinate) -> Coordinate? in c.upRank() }
+            case .downRank:
+                return { (c: Coordinate) -> Coordinate? in c.downRank() }
+            case .upFile:
+                return { (c: Coordinate) -> Coordinate? in c.upFile() }
+            case .downFile:
+                return { (c: Coordinate) -> Coordinate? in c.downFile() }
+            case .upRankUpFile:
+                return { (c: Coordinate) -> Coordinate? in c.upRankUpFile() }
+            case .upRankDownFile:
+                return { (c: Coordinate) -> Coordinate? in c.upRankDownFile() }
+            case .downRankUpFile:
+                return { (c: Coordinate) -> Coordinate? in c.downRankUpFile() }
+            case .downRankDownFile:
+                return { (c: Coordinate) -> Coordinate? in c.downRankDownFile() }
+            }
+        }
+    }
     
     init(rankIndex: Int, fileIndex: Int) {
         self.rankIndex = rankIndex
@@ -40,9 +72,7 @@ struct Coordinate: Equatable, Hashable {
         return "\(fileLetter.lowercased())\(rankNum)"
     }
     
-    func debugPrint() {
-        print("\(fileLetter)\(rankNum)", separator: "")
-    }
+    // MARK: Directions
     
     func upRank() -> Coordinate? {
         if rankIndex < 7 {
@@ -68,28 +98,42 @@ struct Coordinate: Equatable, Hashable {
         }
         return nil
     }
-
+    func upRankUpFile() -> Coordinate? {
+        return self.upRank()?.upFile()
+    }
+    func upRankDownFile() -> Coordinate? {
+        return self.upRank()?.downFile()
+    }
+    func downRankUpFile() -> Coordinate? {
+        return self.downRank()?.upFile()
+    }
+    func downRankDownFile() -> Coordinate? {
+        return self.downRank()?.downFile()
+    }
+    
+    // MARK: - Multiple Coordinates
+    
     func upOneDiagonals() -> [Coordinate] {
         var coords = [Coordinate]()
-        if let upLeft = self.upRank()?.downFile() {
-            coords.append(upLeft)
+        if let upRankUpFile = upRankUpFile() {
+            coords.append(upRankUpFile)
         }
-        if let upRight = self.upRank()?.upFile() {
-            coords.append(upRight)
+        if let upRankDownFile = upRankDownFile() {
+            coords.append(upRankDownFile)
         }
         return coords
     }
     func downOneDiagonals() -> [Coordinate] {
         var coords = [Coordinate]()
-        if let downLeft = self.downRank()?.downFile() {
-            coords.append(downLeft)
+        
+        if let downRankUpFile = downRankUpFile() {
+            coords.append(downRankUpFile)
         }
-        if let downRight = self.downRank()?.upFile() {
-            coords.append(downRight)
+        if let downRankDownFile = downRankDownFile() {
+            coords.append(downRankDownFile)
         }
         return coords
     }
-    
     func sameFile() -> [Coordinate] {
         var coords = [Coordinate]()
         for rank in 0..<Board.Constants.dimensions {
@@ -108,6 +152,80 @@ struct Coordinate: Equatable, Hashable {
         }
         return coords
     }
+    
+    /// Coords between self coordiante and given coordinate vertically, horizontally, or diagonally
+    /// - Parameter end: Second coordinate to use
+    /// - Returns: Array of coordinate between the two coordinates (empty if coordiantes are the same, adjacent, or not related in one of the three directions)
+    func coordsBetween(_ end: Coordinate) -> [Coordinate] {
+        var coords = [Coordinate]()
+        // Coords conneted on the same rank
+        if rankIndex == end.rankIndex {
+            if fileIndex < end.fileIndex {
+                return coordsBetween(to: end, in: .upRank)
+            }
+            if fileIndex > end.fileIndex {
+                var tempCord = self.downFile()
+                while tempCord! != end {
+                    coords.append(tempCord!)
+                    tempCord = tempCord!.downFile()
+                }
+            }
+        }
+        // Coords connected on the same file
+        else if fileIndex == end.fileIndex {
+            if rankIndex < end.rankIndex {
+                var tempCord = self.upRank()
+                while tempCord! != end {
+                    coords.append(tempCord!)
+                    tempCord = tempCord!.upRank()
+                }
+            }
+            if rankIndex > end.rankIndex {
+                var tempCord = self.downRank()
+                while tempCord! != end {
+                    coords.append(tempCord!)
+                    tempCord = tempCord!.downRank()
+                }
+            }
+        }
+        // Coords connected on a diagonal
+        else if self.sameDiagonal().contains(end) {
+            
+        }
+        return coords
+    }
+    
+    /// Coords between self coordiante and given coordinate in given direction
+    /// - Parameters:
+    ///   - end: Second coordinate to use
+    ///   - direction: Direction of second coordinate from first
+    /// - Returns: Array of coordinate between the two coordinates
+    func coordsBetween(to end: Coordinate, in direction: Direction) -> [Coordinate] {
+        var between = [Coordinate]()
+        
+        var next = direction.compute(self)
+        while next != nil && next! != end {
+            between.append(next!)
+            next = direction.compute(self)
+        }
+        return between
+    }
+    
+    /// Return all coords in a given direction
+    /// - Parameters:
+    ///   - direction: Direction in which to enumerate
+    /// - Returns: Array of all coordinates in that direction (not including self)
+    func allCoords(in direction: Direction) -> [Coordinate] {
+        var moves = [Coordinate]()
+        
+        var next = direction.compute(self)
+        while next != nil {
+            moves.append(next!)
+            next = direction.compute(next!)
+        }
+        return moves
+    }
+    
     func sameDiagonal() -> [Coordinate] {
         var coords = [Coordinate]()
         

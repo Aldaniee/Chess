@@ -9,7 +9,9 @@ import Foundation
 
 struct King: Piece {
     
-    var num: Int
+    var hasMoved = false
+    
+    let num: Int
     
     let type = Game.PieceType.king
     
@@ -42,12 +44,6 @@ struct King: Piece {
     }
     
     func allPossibleMoves(from start: Coordinate, _ board: Board) -> [Coordinate] {
-        var moves = threatsCreated(from: start, board)
-        moves.forEach { move in
-            if board.isOccupied(move, side) {
-                moves.removeAll(where: {move == $0} )
-            }
-        }
-        return moves
+        self.getMovesFromThreats(from: start, board)
     }
 }

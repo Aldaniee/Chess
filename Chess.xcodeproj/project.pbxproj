@@ -11,6 +11,7 @@
 		EA0F7AE0278633B000E506E5 /* King.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0F7ADF278633B000E506E5 /* King.swift */; };
 		EA0F7AE4278768F900E506E5 /* Rook.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0F7AE3278768F900E506E5 /* Rook.swift */; };
 		EA0F7AE62788D9C500E506E5 /* Knight.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0F7AE52788D9C500E506E5 /* Knight.swift */; };
+		EA0F7AE82788DC9A00E506E5 /* Bishop.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0F7AE72788DC9A00E506E5 /* Bishop.swift */; };
 		EA8CB6AF277DFBE000CAF379 /* ChessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6AE277DFBE000CAF379 /* ChessApp.swift */; };
 		EA8CB6B1277DFBE000CAF379 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6B0277DFBE000CAF379 /* GameView.swift */; };
 		EA8CB6B3277DFBE400CAF379 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA8CB6B2277DFBE400CAF379 /* Assets.xcassets */; };
@@ -22,6 +23,7 @@
 		EA8CB6C7277E038600CAF379 /* UtilityExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6C6277E038600CAF379 /* UtilityExtensions.swift */; };
 		EA8CB6C9277E55C000CAF379 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6C8277E55C000CAF379 /* Game.swift */; };
 		EA8CB6CB277F5DB100CAF379 /* Coordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */; };
+		EAA00F9A278A31E100F5BFF5 /* Queen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA00F99278A31E100F5BFF5 /* Queen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +31,7 @@
 		EA0F7ADF278633B000E506E5 /* King.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = King.swift; sourceTree = "<group>"; };
 		EA0F7AE3278768F900E506E5 /* Rook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rook.swift; sourceTree = "<group>"; };
 		EA0F7AE52788D9C500E506E5 /* Knight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Knight.swift; sourceTree = "<group>"; };
+		EA0F7AE72788DC9A00E506E5 /* Bishop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bishop.swift; sourceTree = "<group>"; };
 		EA8CB6AB277DFBE000CAF379 /* Chess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chess.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA8CB6AE277DFBE000CAF379 /* ChessApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessApp.swift; sourceTree = "<group>"; };
 		EA8CB6B0277DFBE000CAF379 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
@@ -41,6 +44,7 @@
 		EA8CB6C6277E038600CAF379 /* UtilityExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UtilityExtensions.swift; sourceTree = "<group>"; };
 		EA8CB6C8277E55C000CAF379 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinate.swift; sourceTree = "<group>"; };
+		EAA00F99278A31E100F5BFF5 /* Queen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Queen.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +66,8 @@
 				EA0F7AE52788D9C500E506E5 /* Knight.swift */,
 				EA8CB6C4277DFDFC00CAF379 /* Pawn.swift */,
 				EA0F7AE3278768F900E506E5 /* Rook.swift */,
+				EA0F7AE72788DC9A00E506E5 /* Bishop.swift */,
+				EAA00F99278A31E100F5BFF5 /* Queen.swift */,
 			);
 			path = Pieces;
 			sourceTree = "<group>";
@@ -192,8 +198,10 @@
 				EA8CB6C7277E038600CAF379 /* UtilityExtensions.swift in Sources */,
 				EA8CB6C9277E55C000CAF379 /* Game.swift in Sources */,
 				EA8CB6CB277F5DB100CAF379 /* Coordinate.swift in Sources */,
+				EAA00F9A278A31E100F5BFF5 /* Queen.swift in Sources */,
 				EA0F7AE0278633B000E506E5 /* King.swift in Sources */,
 				EA8CB6C1277DFD2C00CAF379 /* Piece.swift in Sources */,
+				EA0F7AE82788DC9A00E506E5 /* Bishop.swift in Sources */,
 				EA0F7AE62788D9C500E506E5 /* Knight.swift in Sources */,
 				EA0F7AE4278768F900E506E5 /* Rook.swift in Sources */,
 				EA8CB6BD277DFC2900CAF379 /* Board.swift in Sources */,

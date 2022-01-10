@@ -81,16 +81,36 @@ class Game: ObservableObject {
         return result
     }
     
-    private func move(_ piece: Piece, from location: Coordinate, to destination: Coordinate) {
-        let moves = legalMoves(from: Tile(location, piece))
+    private func move(_ piece: Piece, from start: Coordinate, to destination: Coordinate) {
+        let moves = legalMoves(from: Tile(start, piece))
         
         if moves.contains(destination) {
             var capturedPiece = board.moveSelectedPiece(to: destination)
             
-            // En passant special case
+            // Castle
+            if piece.type == .king && piece.hasMoved == false {
+                
+                // King-side/short castle
+                if start.upFile()?.upFile() == destination {
+                    if let rookLocation = start.upFile()?.upFile()?.upFile() {
+                        _ = board.movePiece(from: rookLocation, to: start.upFile()!)
+                    }
+                }
+                
+                // Queen-side/long castle
+                if start.downFile()?.downFile() == destination {
+                    if let rookLocation = start.downFile()?.downFile()?.downFile()?.downFile() {
+                        _ = board.movePiece(from: rookLocation, to: start.downFile()!)
+                    }
+                }
+                
+            }
+            
+            
+            // En Passant Special Case
             // if a pawn moves diagonal and does not land on a pawn it must be capturing a pawn via en passant
-            if piece.type == .pawn && capturedPiece == nil && location.isDiagonal(from: destination) {
-                capturedPiece = board.removePiece(Coordinate(rankIndex: location.rankIndex, fileIndex: destination.fileIndex))
+            if piece.type == .pawn && capturedPiece == nil && start.isDiagonal(from: destination) {
+                capturedPiece = board.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: destination.fileIndex))
             }
             nextTurn()
         }
@@ -101,18 +121,29 @@ class Game: ObservableObject {
     /// - Parameter tile: Tile that must contain a piece
     /// - Returns: Array of possible moves
     private func legalMoves(from tile: Tile) -> [Coordinate] {
-        var moves = tile.piece!.allPossibleMoves(from: tile.coordinate, board)
-        
-        // Prune moves that move into check
-        for move in moves {
-            var newState = board.copy()
-            _ = newState.movePiece(from: tile.coordinate, to: move)
-            if inCheck(newState, turn) {
-                moves.removeAll(where: { $0 == move })
+        if let piece = tile.piece {
+            var moves = tile.piece!.allPossibleMoves(from: tile.coordinate, board)
+            
+            if piece.type == .king && piece.hasMoved == false {
+                let kingRookCords = tile.coordinate.upFile()?.upFile()?.upFile()
+                if let kingRook = board.getPiece(from: kingRookCords!), kingRook.type == .rook, kingRook.hasMoved == false {
+                    
+                }
             }
+            
+            // Prune moves that move into check
+            for move in moves {
+                var newState = board.copy()
+                _ = newState.movePiece(from: tile.coordinate, to: move)
+                if inCheck(newState, turn) {
+                    moves.removeAll(where: { $0 == move })
+                }
+            }
+            return moves
         }
-        return moves
+        return [Coordinate]()
     }
+    
     
     /// Checks if the side whose turn it is is in check
     /// - Parameters:

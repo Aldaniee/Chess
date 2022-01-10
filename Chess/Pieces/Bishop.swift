@@ -1,27 +1,27 @@
 //
-//  Rook.swift
+//  Bishop.swift
 //  Chess
 //
-//  Created by Aidan Lee on 1/6/22.
+//  Created by Aidan Lee on 1/7/22.
 //
 
 import Foundation
 
-struct Rook: RecursivePiece {
-        
+class Bishop: RecursivePiece {
+    
     var hasMoved = false
     
     let num: Int
     
-    let type = Game.PieceType.rook
+    let type = Game.PieceType.bishop
     
     let side: Game.Side
     
-    let moveType: MoveType = .verticalHorizontal
+    let moveType: MoveType = .diagonal
     
     init(side: Game.Side, num: Int) {
         self.side = side
         self.num = num
     }
-
+        
 }

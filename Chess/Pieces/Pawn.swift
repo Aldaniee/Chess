@@ -9,6 +9,8 @@ import SwiftUI
 
 struct Pawn: Piece {
     
+    var hasMoved = false
+    
     let num: Int
     
     let type = Game.PieceType.pawn
@@ -33,10 +35,10 @@ struct Pawn: Piece {
         // move forward one or two swuares
         if let forward = forward {
             // Ensure the pawn only moves forward if the square ahead is empty
-            if board.emptySquare(forward) {
+            if board.isEmpty(forward) {
                 moves.append(forward)
                 if let forwardTwo = forwardTwo {
-                    if start.rankNum == (side == .white ? 2 : 7) && board.emptySquare(forwardTwo) {
+                    if hasMoved == false && board.isEmpty(forwardTwo) {
                         moves.append(forwardTwo)
                     }
                 }
@@ -45,7 +47,7 @@ struct Pawn: Piece {
         
         // diagonal attacks
         attacks.forEach( { end in
-            if let pieceToAttack = board.getPieceFromCoords(end) {
+            if let pieceToAttack = board.getPiece(from: end) {
                 let isOppositeColor = pieceToAttack.side != side
                 if isOppositeColor {
                     moves.append(end)
@@ -62,7 +64,7 @@ struct Pawn: Piece {
                 adjacent.append(downFile)
             }
             adjacent.forEach( {
-                if let pieceToAttack = board.getPieceFromCoords($0) {
+                if let pieceToAttack = board.getPiece(from: $0) {
                     let isOppositeColor = pieceToAttack.side != side
                     // TODO: Make En Passant only work when the piece just moved
                     let pieceToAttackJustMovedForwardTwo = true
