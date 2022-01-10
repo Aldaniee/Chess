@@ -150,6 +150,15 @@ struct Board {
     func isEmpty(_ coordinate: Coordinate) -> Bool {
         return getPiece(from: coordinate) == nil
     }
+    func isEmpty(_ coordinates: [Coordinate]) -> Bool {
+        var result = true
+        coordinates.forEach {
+            if !isEmpty($0) {
+                result = false
+            }
+        }
+        return result
+    }
     
     func asArray() -> Array<Tile> {
         return Array(gameBoard.joined())

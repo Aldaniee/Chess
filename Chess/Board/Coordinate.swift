@@ -153,46 +153,19 @@ struct Coordinate: Equatable, Hashable {
         return coords
     }
     
-    /// Coords between self coordiante and given coordinate vertically, horizontally, or diagonally
+    /// Coords between self coordiante and given coordinate horizontally
     /// - Parameter end: Second coordinate to use
-    /// - Returns: Array of coordinate between the two coordinates (empty if coordiantes are the same, adjacent, or not related in one of the three directions)
-    func coordsBetween(_ end: Coordinate) -> [Coordinate] {
-        var coords = [Coordinate]()
-        // Coords conneted on the same rank
-        if rankIndex == end.rankIndex {
+    /// - Returns: Array of coordinate between the two coordinates (empty if coordiantes are the same, adjacent, or not on the same rank
+    func horizontalCoordsBetween(to end: Coordinate) -> [Coordinate] {
+        if self.isHorizontal(from: end){
             if fileIndex < end.fileIndex {
-                return coordsBetween(to: end, in: .upRank)
+                return coordsBetween(to: end, in: .upFile)
             }
             if fileIndex > end.fileIndex {
-                var tempCord = self.downFile()
-                while tempCord! != end {
-                    coords.append(tempCord!)
-                    tempCord = tempCord!.downFile()
-                }
+                return coordsBetween(to: end, in: .downFile)
             }
         }
-        // Coords connected on the same file
-        else if fileIndex == end.fileIndex {
-            if rankIndex < end.rankIndex {
-                var tempCord = self.upRank()
-                while tempCord! != end {
-                    coords.append(tempCord!)
-                    tempCord = tempCord!.upRank()
-                }
-            }
-            if rankIndex > end.rankIndex {
-                var tempCord = self.downRank()
-                while tempCord! != end {
-                    coords.append(tempCord!)
-                    tempCord = tempCord!.downRank()
-                }
-            }
-        }
-        // Coords connected on a diagonal
-        else if self.sameDiagonal().contains(end) {
-            
-        }
-        return coords
+        return [Coordinate]()
     }
     
     /// Coords between self coordiante and given coordinate in given direction
@@ -200,7 +173,7 @@ struct Coordinate: Equatable, Hashable {
     ///   - end: Second coordinate to use
     ///   - direction: Direction of second coordinate from first
     /// - Returns: Array of coordinate between the two coordinates
-    func coordsBetween(to end: Coordinate, in direction: Direction) -> [Coordinate] {
+    private func coordsBetween(to end: Coordinate, in direction: Direction) -> [Coordinate] {
         var between = [Coordinate]()
         
         var next = direction.compute(self)
@@ -229,39 +202,21 @@ struct Coordinate: Equatable, Hashable {
     func sameDiagonal() -> [Coordinate] {
         var coords = [Coordinate]()
         
-        var i = 1
-        var coord = Coordinate(rankIndex: rankIndex+i, fileIndex: fileIndex+i)
-        while coord.isValid() {
-            coords.append(coord)
-            i += 1
-            coord = Coordinate(rankIndex: rankIndex+i, fileIndex: fileIndex+i)
-        }
-        i = 1
-        coord = Coordinate(rankIndex: rankIndex-i, fileIndex: fileIndex-i)
-        while coord.isValid() {
-            coords.append(coord)
-            i += 1
-            coord = Coordinate(rankIndex: rankIndex-i, fileIndex: fileIndex-i)
-        }
+        coords.append(contentsOf: allCoords(in: .upRankUpFile))
+        coords.append(contentsOf: allCoords(in: .upRankDownFile))
+        coords.append(contentsOf: allCoords(in: .downRankUpFile))
+        coords.append(contentsOf: allCoords(in: .downRankDownFile))
         
-        i = 1
-        coord = Coordinate(rankIndex: rankIndex-i, fileIndex: fileIndex+i)
-        while coord.isValid() {
-            coords.append(coord)
-            i += 1
-            coord = Coordinate(rankIndex: rankIndex-i, fileIndex: fileIndex+i)
-        }
-        i = 1
-        coord = Coordinate(rankIndex: rankIndex+i, fileIndex: fileIndex-i)
-        while coord.isValid() {
-            coords.append(coord)
-            i += 1
-            coord = Coordinate(rankIndex: rankIndex+i, fileIndex: fileIndex-i)
-        }
         return coords
     }
     func isDiagonal(from end: Coordinate) -> Bool {
         return self.sameDiagonal().contains(end)
+    }
+    func isHorizontal(from end: Coordinate) -> Bool {
+        return self.rankIndex == end.rankIndex
+    }
+    func isVertical(from end: Coordinate) -> Bool {
+        return self.fileIndex == end.fileIndex
     }
     func isValid() -> Bool {
         return rankIndex < Board.Constants.dimensions && fileIndex < Board.Constants.dimensions && fileIndex > -1 && rankIndex > -1

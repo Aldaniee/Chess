@@ -37,6 +37,7 @@ extension Piece {
     }
 }
 
+// Examples: Rook, Bishop, Queen
 protocol RecursivePiece : Piece {
     var moveType: MoveType { get }
 }
@@ -50,22 +51,6 @@ extension RecursivePiece {
                 if !board.isEmpty(move) {
                     break
                 }
-            }
-        }
-        return moves
-    }
-    /// Simplifies code for recursive moving pieces like Rook, Bishop, and Queen. These piece move in given directions until a piece blocks their way. Add all the empty squares in the given direction **INCLUDING** the blocking piece (friend or foe).
-    /// - Parameters:
-    ///   - start: position of piece
-    ///   - direction: direction piece can attack
-    ///   - board: board piece is on
-    /// - Returns: Array of potential moves
-    func getThreats(from start: Coordinate, in direction: Coordinate.Direction, on board: Board) -> [Coordinate] {
-        var moves = [Coordinate]()
-        for move in start.allCoords(in: direction) {
-            moves.append(move)
-            if !board.isEmpty(move) {
-                break
             }
         }
         return moves

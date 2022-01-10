@@ -124,14 +124,40 @@ class Game: ObservableObject {
         if let piece = tile.piece {
             var moves = tile.piece!.allPossibleMoves(from: tile.coordinate, board)
             
-            if piece.type == .king && piece.hasMoved == false {
-                let kingRookCords = tile.coordinate.upFile()?.upFile()?.upFile()
-                if let kingRook = board.getPiece(from: kingRookCords!), kingRook.type == .rook, kingRook.hasMoved == false {
-                    
+            // Add castling moves
+            if piece.type == .king
+                && piece.hasMoved == false
+                && !inCheck(board, turn) {
+                // king side
+                if let newRookCords = tile.coordinate.upFile(),
+                   board.isEmpty(newRookCords),
+                   let newKingCords = newRookCords.upFile(),
+                   board.isEmpty(newKingCords),
+                   let rookCords = newKingCords.upFile(),
+                   let piece = board.getPiece(from: rookCords),
+                   piece.type == .rook,
+                   piece.hasMoved == false
+                {
+                    moves.append(newKingCords)
+                }
+                // queen side
+                if let newRookCords = tile.coordinate.downFile(),
+                   board.isEmpty(newRookCords),
+                   let newKingCords = newRookCords.downFile(),
+                   board.isEmpty(newKingCords),
+                   let empty = newKingCords.downFile(),
+                   board.isEmpty(empty),
+                   let rookCords = empty.downFile(),
+                   let piece = board.getPiece(from: rookCords),
+                   piece.type == .rook,
+                   piece.hasMoved == false
+                {
+                    moves.append(newKingCords)
                 }
             }
             
-            // Prune moves that move into check
+            
+            // Remove any moves that move into check
             for move in moves {
                 var newState = board.copy()
                 _ = newState.movePiece(from: tile.coordinate, to: move)
