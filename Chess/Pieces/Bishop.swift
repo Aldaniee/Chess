@@ -11,7 +11,7 @@ class Bishop: RecursivePiece {
     
     var hasMoved = false
         
-    let type = Game.PieceType.bishop
+    let type = PieceType.bishop
     
     let side: Game.Side
     

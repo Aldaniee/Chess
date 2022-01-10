@@ -11,7 +11,7 @@ struct King: Piece {
     
     var hasMoved = false
         
-    let type = Game.PieceType.king
+    let type = PieceType.king
     
     let side: Game.Side
     

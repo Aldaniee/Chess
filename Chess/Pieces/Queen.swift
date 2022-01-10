@@ -11,7 +11,7 @@ class Queen: RecursivePiece {
     
     var hasMoved = false
         
-    let type = Game.PieceType.queen
+    let type = PieceType.queen
     
     let side: Game.Side
     

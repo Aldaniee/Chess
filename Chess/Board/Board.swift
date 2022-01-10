@@ -11,7 +11,7 @@ struct Board {
     
     private (set) var gameBoard = [[Tile]]()
     private (set) var selectedTileCoordinate: Coordinate?
-
+    
     init() {
         buildBoard()
     }
@@ -180,4 +180,5 @@ struct Board {
         static let dimensions = 8
         static let maxIndex = dimensions - 1
     }
+    
 }

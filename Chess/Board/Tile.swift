@@ -5,7 +5,6 @@
 //  Created by Aidan Lee on 12/30/21.
 //
 
-import Foundation
 import SwiftUI
 
 struct Tile: Identifiable {
@@ -17,8 +16,8 @@ struct Tile: Identifiable {
     
     var piece: Piece?
     
-    var color: Color {
-        return ((coordinate.fileIndex + coordinate.rankIndex) % 2 == 0) ? TileColor.dark.color : TileColor.light.color
+    var display: TileColor {
+        return ((coordinate.fileIndex + coordinate.rankIndex) % 2 == 0) ? TileColor.dark : TileColor.light
     }
     
     init(_ coordinate: Coordinate, _ piece: Piece? = nil) {
@@ -29,12 +28,21 @@ struct Tile: Identifiable {
     enum TileColor {
         case dark
         case light
+        
         var color: Color {
             switch self {
             case .light:
                 return .white
             case .dark:
                 return .black
+            }
+        }
+        var inverseColor: Color {
+            switch self {
+            case .light:
+                return .black
+            case .dark:
+                return .white
             }
         }
     }

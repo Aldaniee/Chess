@@ -159,7 +159,7 @@ struct GameView: View {
                 ZStack {
                     Group {
                         Rectangle()
-                            .foregroundColor(tile.color)
+                            .foregroundColor(tile.display.color)
                         if tile.coordinate == selectedTile {
                         Rectangle()
                             .foregroundColor(.orange)
@@ -187,8 +187,7 @@ struct GameView: View {
                             .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height, alignment: .topLeading)
                     }
                 }
-                .foregroundColor(tile.color)
-                .colorInvert()
+                .foregroundColor(tile.display.inverseColor)
                 .opacity(0.8)
                 .font(.system(size: 14, weight: .heavy, design: .default))
                 .padding(3)

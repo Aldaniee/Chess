@@ -7,12 +7,53 @@
 
 import SwiftUI
 
+enum PieceType {
+    case pawn
+    case rook
+    case knight
+    case bishop
+    case king
+    case queen
+    
+    var name: String {
+        switch self {
+        case .pawn:
+            return "pawn"
+        case .rook:
+            return "rook"
+        case .knight:
+            return "knight"
+        case .bishop:
+            return "bishop"
+        case .king:
+            return "king"
+        case .queen:
+            return "queen"
+        }
+    }
+    var abbreviation: Character {
+        switch self {
+        case .pawn:
+            return "P"
+        case .rook:
+            return "R"
+        case .knight:
+            return "N"
+        case .bishop:
+            return "B"
+        case .king:
+            return "K"
+        case .queen:
+            return "Q"
+        }
+    }
+}
+
 protocol Piece {
     func allPossibleMoves(from start: Coordinate, _ board: Board) -> [Coordinate]
     func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate]
     var hasMoved: Bool { get set }
-
-    var type: Game.PieceType { get }
+    var type: PieceType { get }
     var side: Game.Side { get }    
 }
 

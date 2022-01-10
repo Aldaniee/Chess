@@ -11,7 +11,7 @@ struct Pawn: Piece {
     
     var hasMoved = false
         
-    let type = Game.PieceType.pawn
+    let type = PieceType.pawn
     
     let side: Game.Side
     

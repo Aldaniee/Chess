@@ -13,6 +13,10 @@ class Game: ObservableObject {
     
     private (set) var turn = Side.white
     private (set) var winner : String?
+    
+    typealias FullMove = (white: Move, black: Move?)
+    private (set) var pgn = [FullMove]() // portable game notation
+    
     var boardArray: Array<Tile> {
         board.asArray()
     }
@@ -29,6 +33,7 @@ class Game: ObservableObject {
         board = Board()
         winner = nil
         turn = Side.white
+        pgn = [FullMove]()
         board.setupPieces()
     }
     
@@ -90,14 +95,14 @@ class Game: ObservableObject {
             // Determine if the king is castling inorder to move the rook
             if piece.type == .king && piece.hasMoved == false {
                 
-                // King-side/short castle
+                // Kingside/short castle
                 if start.upFile()?.upFile() == destination {
                     if let rookLocation = start.upFile()?.upFile()?.upFile() {
                         _ = board.movePiece(from: rookLocation, to: start.upFile()!)
                     }
                 }
                 
-                // Queen-side/long castle
+                // Queenside/long castle
                 if start.downFile()?.downFile() == destination {
                     if let rookLocation = start.downFile()?.downFile()?.downFile()?.downFile() {
                         _ = board.movePiece(from: rookLocation, to: start.downFile()!)
@@ -112,10 +117,21 @@ class Game: ObservableObject {
             if piece.type == .pawn && capturedPiece == nil && start.isDiagonal(from: destination) {
                 capturedPiece = board.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: destination.fileIndex))
             }
+            recordMove(Move(from: start, to: destination, with: piece.type))
             nextTurn()
         }
     }
     
+    private func recordMove(_ move: Move) {
+        if turn == .white {
+            pgn.append(FullMove(white: move, black: nil))
+        } else {
+            let fullMove = FullMove(white: pgn.last!.white, black: move)
+            pgn.removeLast()
+            pgn.append(fullMove)
+        }
+        print(pgn)
+    }
     
     /// Get all legal moves for a piece from a tile that contains that piece
     /// - Parameter tile: Tile that must contain a piece
@@ -229,47 +245,6 @@ class Game: ObservableObject {
             return "w"
             case .black:
             return "b"
-            }
-        }
-    }
-    enum PieceType {
-        case pawn
-        case rook
-        case knight
-        case bishop
-        case king
-        case queen
-        
-        var name: String {
-            switch self {
-            case .pawn:
-                return "pawn"
-            case .rook:
-                return "rook"
-            case .knight:
-                return "knight"
-            case .bishop:
-                return "bishop"
-            case .king:
-                return "king"
-            case .queen:
-                return "queen"
-            }
-        }
-        var abbreviation: Character {
-            switch self {
-            case .pawn:
-                return "P"
-            case .rook:
-                return "R"
-            case .knight:
-                return "N"
-            case .bishop:
-                return "B"
-            case .king:
-                return "K"
-            case .queen:
-                return "Q"
             }
         }
     }

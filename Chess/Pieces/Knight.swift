@@ -11,7 +11,7 @@ class Knight: Piece {
     
     var hasMoved = false
         
-    let type = Game.PieceType.knight
+    let type = PieceType.knight
     
     let side: Game.Side
     

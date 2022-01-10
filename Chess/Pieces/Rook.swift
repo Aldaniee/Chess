@@ -11,7 +11,7 @@ struct Rook: RecursivePiece {
         
     var hasMoved = false
         
-    let type = Game.PieceType.rook
+    let type = PieceType.rook
     
     let side: Game.Side
     
