@@ -8,12 +8,11 @@
 import Foundation
 import SwiftUI
 
-extension GeometryProxy {
-    func minWidthHeight() -> CGFloat {
-        return min(self.size.width, self.size.height)
-    }
+extension UIScreen {
+   static let screenWidth = UIScreen.main.bounds.size.width
+   static let screenHeight = UIScreen.main.bounds.size.height
+   static let screenSize = UIScreen.main.bounds.size
 }
-
 extension Int {
     func toLetterAtAlphabeticalIndex() -> Character {
         let startingValue = Int(("a" as UnicodeScalar).value)

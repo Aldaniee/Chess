@@ -10,8 +10,8 @@ import Foundation
 struct Board {
     
     private (set) var gameBoard = [[Tile]]()
-    private (set) var selectedTileCoordinate: Coordinate?
-    
+    private (set) var selectedTileCoordinate: Coordinate? = nil
+
     init() {
         buildBoard()
     }
@@ -66,6 +66,8 @@ struct Board {
     mutating func removePiece(_ coordinate: Coordinate) -> Piece? {
         putPiece(nil, coordinate)
     }
+    
+
     mutating func selectTile(_ coordinate: Coordinate?) {
         selectedTileCoordinate = coordinate
     }

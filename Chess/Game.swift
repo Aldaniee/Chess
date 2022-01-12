@@ -14,8 +14,25 @@ class Game: ObservableObject {
     private (set) var turn = Side.white
     private (set) var winner : String?
     
-    typealias FullMove = (white: Move, black: Move?)
+    struct FullMove {
+        var white: Move
+        var black: Move?
+        
+        var display: String {
+            "\(white.fullAlgebraicNotation) \(black?.fullAlgebraicNotation ?? "") "
+        }
+    }
+    
     private (set) var pgn = [FullMove]() // portable game notation
+    
+    var pgnString: String {
+        var pgnString = ""
+        for index in 0..<pgn.count {
+            pgnString.append("\(index+1). ")
+            pgnString.append(pgn[index].display)
+        }
+        return pgnString
+    }
     
     var boardArray: Array<Tile> {
         board.asArray()
@@ -117,7 +134,7 @@ class Game: ObservableObject {
             if piece.type == .pawn && capturedPiece == nil && start.isDiagonal(from: destination) {
                 capturedPiece = board.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: destination.fileIndex))
             }
-            recordMove(Move(from: start, to: destination, with: piece.type))
+            recordMove(Move(from: start, to: destination, with: piece.type, capturing: capturedPiece?.type, withCheck: inCheck(board, turn.opponent)))
             nextTurn()
         }
     }
@@ -130,7 +147,7 @@ class Game: ObservableObject {
             pgn.removeLast()
             pgn.append(fullMove)
         }
-        print(pgn)
+        print(move.fullAlgebraicNotation)
     }
     
     /// Get all legal moves for a piece from a tile that contains that piece

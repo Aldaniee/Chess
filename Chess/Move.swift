@@ -22,4 +22,12 @@ struct Move {
         self.isCheck = isCheck
     }
     
+    var fullAlgebraicNotation: String {
+        var notation = piece != .pawn ? "\(piece.abbreviation)" : ""
+        if capturedPiece != nil { notation.append("x")}
+        notation.append(end.algebraicNotation)
+        if isCheck { notation.append("+")}
+        return notation
+    }
+    
 }
