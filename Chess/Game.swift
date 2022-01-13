@@ -37,9 +37,6 @@ class Game: ObservableObject {
     var boardArray: Array<Tile> {
         board.asArray()
     }
-    var selectedTile: Coordinate? {
-        board.selectedTileCoordinate
-    }
     
     init() {
         newGame()
@@ -54,29 +51,44 @@ class Game: ObservableObject {
         board.setupPieces()
     }
     
-    func deselect() {
-        board.deselect()
+    func getPiece(from coordinate: Coordinate) -> Piece? {
+        return board.getPiece(from: coordinate)
     }
     
-    func selectTile(_ selection: Coordinate) {
-        if !selection.isValid() {
-            return
-        }
-        if let oldSelection = board.selectedTileCoordinate {
-            let sameSelection = oldSelection == selection
-            if sameSelection {
-                board.deselect()
-            }
-            else {
-                let newSelection = selection
-                if let movingPiece = board.getPieceFromSelectedTile() {
-                    if movingPiece.side == turn {
-                        move(movingPiece, from: oldSelection, to: newSelection)
+    func move(_ piece: Piece, from start: Coordinate, to end: Coordinate) {
+        let moves = legalMoves(from: Tile(start, piece))
+        
+        if moves.contains(end) {
+            var capturedPiece = board.movePiece(from: start, to: end)
+            
+            // Determine if the king is castling inorder to move the rook
+            if piece.type == .king && piece.hasMoved == false {
+                
+                // Kingside/short castle
+                if start.upFile()?.upFile() == end {
+                    if let rookLocation = start.upFile()?.upFile()?.upFile() {
+                        _ = board.movePiece(from: rookLocation, to: start.upFile()!)
                     }
                 }
+                
+                // Queenside/long castle
+                if start.downFile()?.downFile() == end {
+                    if let rookLocation = start.downFile()?.downFile()?.downFile()?.downFile() {
+                        _ = board.movePiece(from: rookLocation, to: start.downFile()!)
+                    }
+                }
+                
             }
+            
+            
+            // En Passant Special Case
+            // if a pawn moves diagonal and does not land on a pawn it must be capturing a pawn via en passant
+            if piece.type == .pawn && capturedPiece == nil && start.isDiagonal(from: end) {
+                capturedPiece = board.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex))
+            }
+            recordMove(Move(from: start, to: end, with: piece.type, capturing: capturedPiece?.type, withCheck: inCheck(board, turn.opponent)))
+            nextTurn()
         }
-        board.selectTile(selection)
     }
     
     // MARK: - Private
@@ -103,41 +115,6 @@ class Game: ObservableObject {
         return result
     }
     
-    private func move(_ piece: Piece, from start: Coordinate, to destination: Coordinate) {
-        let moves = legalMoves(from: Tile(start, piece))
-        
-        if moves.contains(destination) {
-            var capturedPiece = board.moveSelectedPiece(to: destination)
-            
-            // Determine if the king is castling inorder to move the rook
-            if piece.type == .king && piece.hasMoved == false {
-                
-                // Kingside/short castle
-                if start.upFile()?.upFile() == destination {
-                    if let rookLocation = start.upFile()?.upFile()?.upFile() {
-                        _ = board.movePiece(from: rookLocation, to: start.upFile()!)
-                    }
-                }
-                
-                // Queenside/long castle
-                if start.downFile()?.downFile() == destination {
-                    if let rookLocation = start.downFile()?.downFile()?.downFile()?.downFile() {
-                        _ = board.movePiece(from: rookLocation, to: start.downFile()!)
-                    }
-                }
-                
-            }
-            
-            
-            // En Passant Special Case
-            // if a pawn moves diagonal and does not land on a pawn it must be capturing a pawn via en passant
-            if piece.type == .pawn && capturedPiece == nil && start.isDiagonal(from: destination) {
-                capturedPiece = board.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: destination.fileIndex))
-            }
-            recordMove(Move(from: start, to: destination, with: piece.type, capturing: capturedPiece?.type, withCheck: inCheck(board, turn.opponent)))
-            nextTurn()
-        }
-    }
     
     private func recordMove(_ move: Move) {
         if turn == .white {

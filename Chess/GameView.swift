@@ -13,6 +13,47 @@ struct GameView: View {
     
     @ObservedObject var game = Game()
     @State var highlightedTile: Coordinate? = nil
+    @State var selectedTile: Coordinate? = nil
+
+    private func clickToSelectTile(at newSelection: Coordinate?) {
+        let sameSelection = selectedTile != nil && selectedTile == newSelection
+        if sameSelection {
+            selectedTile = nil
+        }
+        else {
+            dropToSelectTile(at: newSelection)
+        }
+    }
+    
+    private func dropToSelectTile(at newSelection: Coordinate?) {
+        if makeMoveIfValid(from: selectedTile, to: newSelection) {
+            selectedTile = nil
+        }
+        else {
+            selectedTile = newSelection
+        }
+    }
+    
+    private func selectTile(at newSelection: Coordinate?) {
+        if selectedTile != newSelection {
+            selectedTile = newSelection
+        }
+    }
+    
+    private func makeMoveIfValid(from oldSelection: Coordinate?, to newSelection: Coordinate?) -> Bool {
+        if let start = oldSelection {
+            if let end = newSelection {
+                if let movingPiece = game.getPiece(from: start) {
+                    if movingPiece.side == game.turn {
+                        game.move(movingPiece, from: start, to: end)
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+    
     let boardWidth = UIScreen.screenWidth
     let tileWidth = UIScreen.screenWidth / CGFloat(Board.Constants.dimensions)
 
@@ -24,8 +65,7 @@ struct GameView: View {
                 game.newGame()
             }
             ZStack {
-                board
-                dragIndicationCircle
+                activeGameView
                 winnerCard
             }
             .frame(
@@ -40,7 +80,6 @@ struct GameView: View {
                     .padding()
             }.frame(width: boardWidth, height: 100, alignment: .topLeading)
             Spacer()
-
         }
     }
     var dragIndicationCircle: some View {
@@ -80,7 +119,7 @@ struct GameView: View {
             }
         }
     }
-    var board: some View {
+    var activeGameView: some View {
         GeometryReader { geometry in
             ZStack {
                 Rectangle()
@@ -91,23 +130,23 @@ struct GameView: View {
                     ZStack {
                         LazyVGrid(columns: columns, spacing: 0) {
                             ForEach(game.boardArray) { tile in
-                                TileView(tile: tile, selectedTile: game.selectedTile)
+                                TileView(tile: tile, selectedTile: selectedTile)
                                     .aspectRatio(contentMode: .fill)
                                     .onTapGesture {
-                                        game.selectTile(tile.coordinate)
+                                        clickToSelectTile(at: tile.coordinate)
                                     }
                             }
                         }
                         Spacer(minLength: 0)
+                        dragIndicationCircle
                         LazyVGrid(columns: columns, spacing: 0) {
                             ForEach(game.boardArray) { tile in
-                                Piece(tile: tile, game: game, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
+                                PieceView(tile: tile, game: game, dropToSelectTile: dropToSelectTile(at:), selectedTile: $selectedTile, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
                                     .aspectRatio(contentMode: .fill)
                                     .onTapGesture {
-                                        game.selectTile(tile.coordinate)
+                                        clickToSelectTile(at: tile.coordinate)
                                     }
-                                    .zIndex(game.selectedTile == tile.coordinate ? 1 : 0)
-
+                                    .zIndex(selectedTile == tile.coordinate ? 1 : 0)
                             }
                         }
                     }
@@ -138,12 +177,15 @@ struct GameView: View {
         }
     }
     
-    struct Piece: View {
+    struct PieceView: View {
         
         let tile: Tile
         @ObservedObject var game: Game
         @State private var dragAmount = CGSize.zero
         @State private var scaleAmount: CGFloat = 1.0
+        
+        var dropToSelectTile: (Coordinate?) -> Void
+        @Binding var selectedTile: Coordinate?
         @Binding var highlightedTile: Coordinate?
 
         let boardTop: CGFloat
@@ -152,14 +194,14 @@ struct GameView: View {
         let scaleFactor: CGFloat = 3
         
         var body: some View {
-            let startCoord = tile.coordinate
+            let startCoordinate = tile.coordinate
             let piece = tile.piece
             let dragGesture = DragGesture(coordinateSpace: .global)
                 .onChanged { dragValue in
                     if game.turn == piece?.side {
                         scaleAmount = scaleFactor
+                        selectedTile = startCoordinate
                         self.dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)
-                        game.selectTile(startCoord)
                         let rank = Board.Constants.maxIndex - Int((dragValue.location.y - boardTop) / tileWidth)
                         let file = Int((dragValue.location.x) / tileWidth)
                         highlightedTile = Coordinate(rankIndex: rank, fileIndex: file)
@@ -169,10 +211,9 @@ struct GameView: View {
                     self.dragAmount = .zero
                     scaleAmount = 1.0
                     if let highlightedTile = highlightedTile {
-                        game.selectTile(highlightedTile)
+                        dropToSelectTile(highlightedTile)
                     }
                     highlightedTile = nil
-                    game.deselect()
                 }
             
             GeometryReader { geometry in

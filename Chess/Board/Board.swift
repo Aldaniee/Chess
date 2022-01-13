@@ -10,7 +10,6 @@ import Foundation
 struct Board {
     
     private (set) var gameBoard = [[Tile]]()
-    private (set) var selectedTileCoordinate: Coordinate? = nil
 
     init() {
         buildBoard()
@@ -67,24 +66,6 @@ struct Board {
         putPiece(nil, coordinate)
     }
     
-
-    mutating func selectTile(_ coordinate: Coordinate?) {
-        selectedTileCoordinate = coordinate
-    }
-    
-    mutating func deselect() {
-        selectTile(nil)
-    }
-    
-    mutating func moveSelectedPiece(to coordinate: Coordinate) -> Piece? {
-        if let selectedCoord = selectedTileCoordinate { // ensure a tile is selected
-            let capturedPiece = movePiece(from: selectedCoord, to: coordinate)
-            selectedTileCoordinate = nil
-            return capturedPiece
-        }
-        return nil
-    }
-    
     mutating func movePiece(from start: Coordinate, to end: Coordinate) -> Piece? {
         if let piece = getPiece(from: start) { // ensure a piece is on that tile
             let capturedPiece = putPiece(piece, end)
@@ -139,15 +120,6 @@ struct Board {
             return piece.side == side
         }
         return false
-    }
-    
-    func getPieceFromSelectedTile() -> Piece? {
-        if selectedTileCoordinate == nil {
-            return nil
-        }
-        else {
-            return getPiece(from: selectedTileCoordinate!)
-        }
     }
     func isEmpty(_ coordinate: Coordinate) -> Bool {
         return getPiece(from: coordinate) == nil
