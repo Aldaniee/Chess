@@ -25,6 +25,8 @@
 		EA8CB6CB277F5DB100CAF379 /* Coordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */; };
 		EAA00F9A278A31E100F5BFF5 /* Queen.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA00F99278A31E100F5BFF5 /* Queen.swift */; };
 		EAA00FA0278CE2E200F5BFF5 /* Move.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA00F9F278CE2E200F5BFF5 /* Move.swift */; };
+		EAA00FA927908C1300F5BFF5 /* PieceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA00FA827908C1300F5BFF5 /* PieceView.swift */; };
+		EAA00FAB27908C1B00F5BFF5 /* TileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA00FAA27908C1B00F5BFF5 /* TileView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +49,8 @@
 		EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinate.swift; sourceTree = "<group>"; };
 		EAA00F99278A31E100F5BFF5 /* Queen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Queen.swift; sourceTree = "<group>"; };
 		EAA00F9F278CE2E200F5BFF5 /* Move.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Move.swift; sourceTree = "<group>"; };
+		EAA00FA827908C1300F5BFF5 /* PieceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieceView.swift; sourceTree = "<group>"; };
+		EAA00FAA27908C1B00F5BFF5 /* TileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,7 +110,7 @@
 				EA8CB6AE277DFBE000CAF379 /* ChessApp.swift */,
 				EA8CB6C8277E55C000CAF379 /* Game.swift */,
 				EAA00F9F278CE2E200F5BFF5 /* Move.swift */,
-				EA8CB6B0277DFBE000CAF379 /* GameView.swift */,
+				EAA00FAC27908C9D00F5BFF5 /* Views */,
 				EA0F7AE227867A9B00E506E5 /* Board */,
 				EA0F7AE127867A5F00E506E5 /* Pieces */,
 				EA8CB6B2277DFBE400CAF379 /* Assets.xcassets */,
@@ -123,6 +127,16 @@
 				EA8CB6B5277DFBE400CAF379 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		EAA00FAC27908C9D00F5BFF5 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				EA8CB6B0277DFBE000CAF379 /* GameView.swift */,
+				EAA00FA827908C1300F5BFF5 /* PieceView.swift */,
+				EAA00FAA27908C1B00F5BFF5 /* TileView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -197,7 +211,9 @@
 			files = (
 				EA8CB6B1277DFBE000CAF379 /* GameView.swift in Sources */,
 				EA8CB6C5277DFDFC00CAF379 /* Pawn.swift in Sources */,
+				EAA00FA927908C1300F5BFF5 /* PieceView.swift in Sources */,
 				EA8CB6AF277DFBE000CAF379 /* ChessApp.swift in Sources */,
+				EAA00FAB27908C1B00F5BFF5 /* TileView.swift in Sources */,
 				EA8CB6C7277E038600CAF379 /* UtilityExtensions.swift in Sources */,
 				EA8CB6C9277E55C000CAF379 /* Game.swift in Sources */,
 				EA8CB6CB277F5DB100CAF379 /* Coordinate.swift in Sources */,
