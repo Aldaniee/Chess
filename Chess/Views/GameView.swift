@@ -44,7 +44,7 @@ struct GameView: View {
         if let start = oldSelection {
             if let end = newSelection {
                 if let movingPiece = game.getPiece(from: start) {
-                    if movingPiece.side == game.turn {
+                    if movingPiece.side == game.getTurn() {
                         game.move(movingPiece, from: start, to: end)
                         return true
                     }
@@ -56,11 +56,13 @@ struct GameView: View {
     
     let boardWidth = UIScreen.screenWidth
     let tileWidth = UIScreen.screenWidth / CGFloat(Board.Constants.dimensions)
-
+    let captureTrayHeight = CGFloat(40)
     var body: some View {
         VStack {
             Spacer()
             Spacer(minLength: 100)
+            CapturedPieceTray(capturedPiece: game.whiteCapturedPieces)
+                .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
             Button("New Game") {
                 game.newGame()
             }
@@ -73,6 +75,8 @@ struct GameView: View {
                 height: boardWidth,
                 alignment: .center
             )
+            CapturedPieceTray(capturedPiece: game.blackCapturedPieces)
+                .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
             ScrollView {
                 Text(game.pgnString)
                     .multilineTextAlignment(.leading)
@@ -80,6 +84,19 @@ struct GameView: View {
                     .padding()
             }.frame(width: boardWidth, height: 100, alignment: .topLeading)
             Spacer()
+        }
+    }
+    struct CapturedPieceTray: View {
+        let capturedPiece: [Piece]
+        var body: some View {
+            HStack {
+                ForEach(capturedPiece, id: \.id) { piece in
+                    piece.image
+                        .resizable()
+                        .frame(width: 30, height: 30, alignment: .leading)
+                }
+                
+            }
         }
     }
     var dragIndicationCircle: some View {

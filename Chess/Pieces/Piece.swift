@@ -54,7 +54,8 @@ protocol Piece {
     func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate]
     var hasMoved: Bool { get set }
     var type: PieceType { get }
-    var side: Game.Side { get }    
+    var side: Side { get }
+    var id: Int { get }
 }
 
 extension Piece {

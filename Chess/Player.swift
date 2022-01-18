@@ -8,9 +8,9 @@
 import Foundation
 
 class Player {
-    var side: Game.Side
+    var side: Side
     
-    init(side: Game.Side) {
+    init(side: Side) {
         self.side = side
     }
     

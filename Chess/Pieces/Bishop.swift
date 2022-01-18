@@ -9,15 +9,17 @@ import Foundation
 
 class Bishop: RecursivePiece {
     
+    let id = UUID().hashValue
+    
     var hasMoved = false
         
     let type = PieceType.bishop
     
-    let side: Game.Side
+    let side: Side
     
     let moveType: MoveType = .diagonal
     
-    init(_ side: Game.Side) {
+    init(_ side: Side) {
         self.side = side
     }
         

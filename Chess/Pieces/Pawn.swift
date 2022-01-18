@@ -9,13 +9,15 @@ import SwiftUI
 
 struct Pawn: Piece {
     
+    let id = UUID().hashValue
+
     var hasMoved = false
         
     let type = PieceType.pawn
     
-    let side: Game.Side
+    let side: Side
     
-    init(_ side: Game.Side) {
+    init(_ side: Side) {
         self.side = side
     }
     

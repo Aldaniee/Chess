@@ -10,14 +10,17 @@ import Foundation
 struct Board {
     
     private (set) var gameBoard = [[Tile]]()
+    var turn = Side.white
 
     init() {
         buildBoard()
     }
     init(_ gameBoard: [[Tile]]) {
         self.gameBoard = gameBoard
+        turn = Side.white
     }
     mutating func buildBoard() {
+        turn = Side.white
         for _ in 0...Constants.maxIndex {
             gameBoard.append(Array<Tile>())
         }
@@ -87,7 +90,7 @@ struct Board {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
     }
     
-    func getAllTilesWithPieces(of side: Game.Side) -> [Tile] {
+    func getAllTilesWithPieces(of side: Side) -> [Tile] {
         var tiles = [Tile]()
         asArray().forEach { tile in
             if let piece = tile.piece {
@@ -100,7 +103,7 @@ struct Board {
     }
     
     // Should never return nil as a king is always on the board
-    func getKingTile(_ side: Game.Side) -> Tile? {
+    func getKingTile(_ side: Side) -> Tile? {
         var king: Tile?
         asArray().forEach { tile in
             if let piece = tile.piece {
@@ -115,7 +118,7 @@ struct Board {
         return king
     }
     
-    func isOccupied(_ coordinate: Coordinate, _ side: Game.Side) -> Bool {
+    func isOccupied(_ coordinate: Coordinate, _ side: Side) -> Bool {
         if let piece = getPiece(from: coordinate) {
             return piece.side == side
         }

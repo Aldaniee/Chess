@@ -28,7 +28,7 @@ struct PieceView: View {
         let piece = tile.piece
         let dragGesture = DragGesture(coordinateSpace: .global)
             .onChanged { dragValue in
-                if game.turn == piece?.side {
+                if game.getTurn() == piece?.side {
                     scaleAmount = scaleFactor
                     selectedTile = startCoordinate
                     self.dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)

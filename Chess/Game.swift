@@ -11,9 +11,11 @@ class Game: ObservableObject {
     
     @Published private var board = Board()
     
-    private (set) var turn = Side.white
     private (set) var winner : String?
     
+    var whiteCapturedPieces = [Piece]()
+    var blackCapturedPieces = [Piece]()
+
     struct FullMove {
         var white: Move
         var black: Move?
@@ -46,13 +48,8 @@ class Game: ObservableObject {
     func newGame() {
         board = Board()
         winner = nil
-        turn = Side.white
         pgn = [FullMove]()
         board.setupPieces()
-    }
-    
-    func getPiece(from coordinate: Coordinate) -> Piece? {
-        return board.getPiece(from: coordinate)
     }
     
     func move(_ piece: Piece, from start: Coordinate, to end: Coordinate) {
@@ -60,7 +57,6 @@ class Game: ObservableObject {
         
         if moves.contains(end) {
             var capturedPiece = board.movePiece(from: start, to: end)
-            
             // Determine if the king is castling inorder to move the rook
             if piece.type == .king && piece.hasMoved == false {
                 
@@ -86,17 +82,30 @@ class Game: ObservableObject {
             if piece.type == .pawn && capturedPiece == nil && start.isDiagonal(from: end) {
                 capturedPiece = board.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex))
             }
-            recordMove(Move(from: start, to: end, with: piece.type, capturing: capturedPiece?.type, withCheck: inCheck(board, turn.opponent)))
+            if let capturedPiece = capturedPiece {
+                if board.turn == .white {
+                    blackCapturedPieces.append(capturedPiece)
+                } else {
+                    whiteCapturedPieces.append(capturedPiece)
+                }
+            }
+            recordMove(Move(from: start, to: end, with: piece.type, capturing: capturedPiece?.type, withCheck: inCheck(board, board.turn.opponent)))
             nextTurn()
         }
+    }
+    func getPiece(from coordinate: Coordinate) -> Piece? {
+        return board.getPiece(from: coordinate)
+    }
+    func getTurn() -> Side {
+        return board.turn
     }
     
     // MARK: - Private
     private func nextTurn() {
-        turn = turn == .white ? .black : .white
-        if hasNoMoves(turn) {
-            if inCheck(board, turn) {
-                winner = turn.opponent.name
+        board.turn = board.turn == .white ? .black : .white
+        if hasNoMoves(board.turn) {
+            if inCheck(board, board.turn) {
+                winner = board.turn.opponent.name
             }
             else {
                 winner = "draw"
@@ -117,7 +126,7 @@ class Game: ObservableObject {
     
     
     private func recordMove(_ move: Move) {
-        if turn == .white {
+        if board.turn == .white {
             pgn.append(FullMove(white: move, black: nil))
         } else {
             let fullMove = FullMove(white: pgn.last!.white, black: move)
@@ -137,7 +146,7 @@ class Game: ObservableObject {
             // Add castling moves
             if piece.type == .king
                 && piece.hasMoved == false
-                && !inCheck(board, turn) {
+                && !inCheck(board, board.turn) {
                 // king side
                 if let newRookCords = tile.coordinate.upFile(),
                    board.isEmpty(newRookCords),
@@ -183,7 +192,7 @@ class Game: ObservableObject {
     private func doesMoveIntoCheck(from start: Coordinate, to end: Coordinate) -> Bool {
         var newState = board.copy()
         _ = newState.movePiece(from: start, to: end)
-        return inCheck(newState, turn)
+        return inCheck(newState, board.turn)
     }
     
     /// Checks if the side whose turn it is is in check
@@ -209,37 +218,5 @@ class Game: ObservableObject {
             }
         }
         return false
-    }
-    
-    // MARK: - Type Definitions
-
-    enum Side {
-        case white
-        case black
-        
-        var opponent: Side {
-            switch self {
-            case .white:
-                return .black
-            case .black:
-                return .white
-            }
-        }
-        var name: String {
-            switch self {
-            case .white:
-                return "white"
-            case .black:
-                return "black"
-            }
-        }
-        var abbreviation: String {
-            switch self {
-            case .white:
-            return "w"
-            case .black:
-            return "b"
-            }
-        }
     }
 }

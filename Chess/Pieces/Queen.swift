@@ -9,15 +9,17 @@ import Foundation
 
 class Queen: RecursivePiece {
     
+    let id = UUID().hashValue
+    
     var hasMoved = false
         
     let type = PieceType.queen
     
-    let side: Game.Side
+    let side: Side
     
     let moveType: MoveType = .both
     
-    init(_ side: Game.Side) {
+    init(_ side: Side) {
         self.side = side
     }
     
