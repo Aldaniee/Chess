@@ -17,7 +17,7 @@ extension Board: Codable, Identifiable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         let state = try values.decode(String.self, forKey: .state)
         id = try values.decode(UUID.self, forKey: .id)
-        turn = try values.decode(Side.self, forKey: .state)
+        turn = try values.decode(Side.self, forKey: .turn)
         gameBoard = FEN.shared.makeBoard(from: state)
     }
     func encode(to encoder: Encoder) throws {

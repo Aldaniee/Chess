@@ -8,7 +8,10 @@
 import Foundation
 
 enum HttpMethods: String {
-    case POST, GET, PUT, DELETE
+    case POST = "POST",
+         GET = "GET",
+         PUT = "PUT",
+         DELETE = "DELETE"
 }
 
 enum MIMEType: String {

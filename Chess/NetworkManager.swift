@@ -25,19 +25,17 @@ class NetworkManager: ObservableObject {
             self.boards = boardResponse
         }
     }
-    func updateGames() async throws {
+    func newGame() async {
         let urlString = Constants.baseURL + Endpoints.games
         
         guard let url = URL(string: urlString) else {
-            throw HttpError.badURL
+            print("Error: \(HttpError.badURL)")
+            return
         }
-        
-        try await HttpClient.shared.sendData(to: url, object: boards, httpMethod: .PUT)
-    }
-    func newGame() async {
         boards.append(Board())
         do {
-            try await updateGames()
+            try await HttpClient.shared.sendData(to: url, object: Board(), httpMethod: .POST)
+            try await fetchGames()
         } catch {
             print("Error: \(error)")
         }
