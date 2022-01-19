@@ -7,55 +7,44 @@
 
 import Foundation
 
+extension Board: Codable, Identifiable {
+    enum CodingKeys: String, CodingKey {
+        case state
+        case turn
+        case id
+    }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let state = try values.decode(String.self, forKey: .state)
+        id = try values.decode(UUID.self, forKey: .id)
+        turn = try values.decode(Side.self, forKey: .state)
+        gameBoard = FEN.shared.makeBoard(from: state)
+    }
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        let state = FEN.shared.makeString(from: gameBoard)
+        try container.encode(state, forKey: .state)
+        try container.encode(id, forKey: .id)
+        try container.encode(turn.rawValue, forKey: .turn)
+    }
+}
+
 struct Board {
     
     private (set) var gameBoard = [[Tile]]()
     var turn = Side.white
-
+    var id: UUID?
+    
     init() {
-        buildBoard()
+        setupBoard()
     }
     init(_ gameBoard: [[Tile]]) {
         self.gameBoard = gameBoard
         turn = Side.white
     }
-    mutating func buildBoard() {
-        turn = Side.white
-        for _ in 0...Constants.maxIndex {
-            gameBoard.append(Array<Tile>())
-        }
-        for rank in 0...Constants.maxIndex {
-            for file in 0...Constants.maxIndex {
-                gameBoard[rank].append(Tile(Coordinate(rankIndex: Constants.maxIndex-rank, fileIndex: file), nil))
-            }
-        }
-    }
     // MARK: - Board Changing Actions
-    mutating func setupPieces() {
-        for index in 0..<Constants.dimensions {
-            setPiece(Pawn(.white), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: 2))
-        }
-        setPiece(King(.white), Coordinate(fileLetter: "E", rankNum: 1))
-        setPiece(Rook(.white), Coordinate(fileLetter: "A", rankNum: 1))
-        setPiece(Rook(.white), Coordinate(fileLetter: "H", rankNum: 1))
-        setPiece(Knight(.white), Coordinate(fileLetter: "B", rankNum: 1))
-        setPiece(Knight(.white), Coordinate(fileLetter: "G", rankNum: 1))
-        setPiece(Bishop(.white), Coordinate(fileLetter: "C", rankNum: 1))
-        setPiece(Bishop(.white), Coordinate(fileLetter: "F", rankNum: 1))
-        setPiece(Queen(.white), Coordinate(fileLetter: "D", rankNum: 1))
-        let baseIndex = Constants.dimensions + 1
-        
-        for index in 0..<Constants.dimensions {
-            setPiece(Pawn(.black), Coordinate(fileLetter: index.toLetterAtAlphabeticalIndex(), rankNum: baseIndex-2))
-        }
-        setPiece(King(.black), Coordinate(fileLetter: "E", rankNum: baseIndex-1))
-        setPiece(Rook(.black), Coordinate(fileLetter: "A", rankNum: baseIndex-1))
-        setPiece(Rook(.black), Coordinate(fileLetter: "H", rankNum: baseIndex-1))
-        setPiece(Knight(.black), Coordinate(fileLetter: "B", rankNum: baseIndex-1))
-        setPiece(Knight(.black), Coordinate(fileLetter: "G", rankNum: baseIndex-1))
-        setPiece(Bishop(.black), Coordinate(fileLetter: "C", rankNum: baseIndex-1))
-        setPiece(Bishop(.black), Coordinate(fileLetter: "F", rankNum: baseIndex-1))
-        setPiece(Queen(.black), Coordinate(fileLetter: "D", rankNum: baseIndex-1))
+    mutating func setupBoard(from fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") {
+        gameBoard = FEN.shared.makeBoard(from: fen)
     }
     private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
         gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece
@@ -70,6 +59,7 @@ struct Board {
     }
     
     mutating func movePiece(from start: Coordinate, to end: Coordinate) -> Piece? {
+        print(FEN.shared.makeString(from: gameBoard))
         if let piece = getPiece(from: start) { // ensure a piece is on that tile
             let capturedPiece = putPiece(piece, end)
             markPieceAsMoved(at: end)
@@ -149,7 +139,7 @@ struct Board {
         for file in gameBoard {
             print()
             for tile in file {
-                print(tile.id, terminator: "")
+                print(tile.coordinate.algebraicNotation, terminator: "")
             }
         }
     }

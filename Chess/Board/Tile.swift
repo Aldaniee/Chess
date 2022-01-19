@@ -9,9 +9,7 @@ import SwiftUI
 
 struct Tile: Identifiable {
     
-    var id: String {
-        return "\(coordinate.fileLetter)\(coordinate.rankNum)"
-    }
+    let id = UUID()
     let coordinate: Coordinate
     
     var piece: Piece?

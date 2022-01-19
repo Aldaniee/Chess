@@ -49,7 +49,9 @@ class Game: ObservableObject {
         board = Board()
         winner = nil
         pgn = [FullMove]()
-        board.setupPieces()
+        board.setupBoard()
+        whiteCapturedPieces = [Piece]()
+        blackCapturedPieces = [Piece]()
     }
     
     func move(_ piece: Piece, from start: Coordinate, to end: Coordinate) {
@@ -105,7 +107,7 @@ class Game: ObservableObject {
         board.turn = board.turn == .white ? .black : .white
         if hasNoMoves(board.turn) {
             if inCheck(board, board.turn) {
-                winner = board.turn.opponent.name
+                winner = board.turn.opponent.rawValue
             }
             else {
                 winner = "draw"

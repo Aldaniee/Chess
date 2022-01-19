@@ -23,7 +23,7 @@ struct Move {
     }
     
     var fullAlgebraicNotation: String {
-        var notation = piece != .pawn ? "\(piece.abbreviation)" : ""
+        var notation = piece != .pawn ? "\(piece.rawValue)" : ""
         if capturedPiece != nil { notation.append("x")}
         notation.append(end.algebraicNotation)
         if isCheck { notation.append("+")}

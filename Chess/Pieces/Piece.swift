@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-enum PieceType {
-    case pawn
-    case rook
-    case knight
-    case bishop
-    case king
-    case queen
+enum PieceType : String {
+    case pawn = "P"
+    case rook = "R"
+    case knight = "N"
+    case bishop = "B"
+    case king = "K"
+    case queen = "Q"
     
     var name: String {
         switch self {
@@ -29,22 +29,6 @@ enum PieceType {
             return "king"
         case .queen:
             return "queen"
-        }
-    }
-    var abbreviation: Character {
-        switch self {
-        case .pawn:
-            return "P"
-        case .rook:
-            return "R"
-        case .knight:
-            return "N"
-        case .bishop:
-            return "B"
-        case .king:
-            return "K"
-        case .queen:
-            return "Q"
         }
     }
 }

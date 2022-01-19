@@ -58,32 +58,43 @@ struct GameView: View {
     let tileWidth = UIScreen.screenWidth / CGFloat(Board.Constants.dimensions)
     let captureTrayHeight = CGFloat(40)
     var body: some View {
-        VStack {
-            Spacer()
-            Spacer(minLength: 100)
-            CapturedPieceTray(capturedPiece: game.whiteCapturedPieces)
-                .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
-            Button("New Game") {
-                game.newGame()
+        NavigationView {
+            VStack {
+                Spacer()
+                Spacer(minLength: 100)
+                CapturedPieceTray(capturedPiece: game.whiteCapturedPieces)
+                    .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
+                Button("New Game") {
+                    game.newGame()
+                }
+                ZStack {
+                    activeGameView
+                    winnerCard
+                }
+                .frame(
+                    width: boardWidth,
+                    height: boardWidth,
+                    alignment: .center
+                )
+                CapturedPieceTray(capturedPiece: game.blackCapturedPieces)
+                    .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
+                ScrollView {
+                    Text(game.pgnString)
+                        .multilineTextAlignment(.leading)
+                        .foregroundColor(colorScheme == .light ? .black : .white)
+                        .padding()
+                }.frame(width: boardWidth, height: 100, alignment: .topLeading)
+                Spacer()
             }
-            ZStack {
-                activeGameView
-                winnerCard
-            }
-            .frame(
-                width: boardWidth,
-                height: boardWidth,
-                alignment: .center
-            )
-            CapturedPieceTray(capturedPiece: game.blackCapturedPieces)
-                .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
-            ScrollView {
-                Text(game.pgnString)
-                    .multilineTextAlignment(.leading)
-                    .foregroundColor(colorScheme == .light ? .black : .white)
-                    .padding()
-            }.frame(width: boardWidth, height: 100, alignment: .topLeading)
-            Spacer()
+        }
+        .onAppear {
+//            Task {
+//                do {
+//                    try await game.fetchGames()
+//                } catch {
+//                    print("Error: \(error)")
+//                }
+//            }
         }
     }
     struct CapturedPieceTray: View {
