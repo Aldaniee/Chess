@@ -11,26 +11,23 @@ struct GameView: View {
     
     @Environment(\.colorScheme) var colorScheme
     
-    @ObservedObject var game = Game()
+    @ObservedObject var game: GameViewModel = GameViewModel()
     @State var highlightedTile: Coordinate? = nil
     @State var selectedTile: Coordinate? = nil
 
-    private func clickToSelectTile(at newSelection: Coordinate?) {
+    private func clickToSelectTile(at newSelection: Coordinate?) async {
         let sameSelection = selectedTile != nil && selectedTile == newSelection
         if sameSelection {
             selectedTile = nil
         }
         else {
-            dropToSelectTile(at: newSelection)
+            await makeSecondSelection(at: newSelection)
         }
     }
     
-    private func dropToSelectTile(at newSelection: Coordinate?) {
-        if makeMoveIfValid(from: selectedTile, to: newSelection) {
+    private func makeSecondSelection(at newSelection: Coordinate?) async {
+        if await makeMoveIfValid(from: selectedTile, to: newSelection) {
             selectedTile = nil
-        }
-        else {
-            selectedTile = newSelection
         }
     }
     
@@ -40,12 +37,13 @@ struct GameView: View {
         }
     }
     
-    private func makeMoveIfValid(from oldSelection: Coordinate?, to newSelection: Coordinate?) -> Bool {
+    private func makeMoveIfValid(from oldSelection: Coordinate?, to newSelection: Coordinate?) async -> Bool {
         if let start = oldSelection {
             if let end = newSelection {
                 if let movingPiece = game.getPiece(from: start) {
                     if movingPiece.side == game.getTurn() {
                         game.move(movingPiece, from: start, to: end)
+                        await NetworkManager.shared.updateGame(game.board)
                         return true
                     }
                 }
@@ -158,23 +156,29 @@ struct GameView: View {
                     ZStack {
                         LazyVGrid(columns: columns, spacing: 0) {
                             ForEach(game.boardArray) { tile in
-                                TileView(tile: tile, selectedTile: selectedTile)
-                                    .aspectRatio(contentMode: .fill)
-                                    .onTapGesture {
-                                        clickToSelectTile(at: tile.coordinate)
+                                Button {
+                                    Task {
+                                        await clickToSelectTile(at: tile.coordinate)
                                     }
+                                } label: {
+                                    TileView(tile: tile, selectedTile: selectedTile)
+                                        .aspectRatio(contentMode: .fill)
+                                }
                             }
                         }
                         Spacer(minLength: 0)
                         dragIndicationCircle
                         LazyVGrid(columns: columns, spacing: 0) {
                             ForEach(game.boardArray) { tile in
-                                PieceView(tile: tile, game: game, dropToSelectTile: dropToSelectTile(at:), selectedTile: $selectedTile, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
-                                    .aspectRatio(contentMode: .fill)
-                                    .onTapGesture {
-                                        clickToSelectTile(at: tile.coordinate)
+                                Button {
+                                    Task {
+                                        await clickToSelectTile(at: tile.coordinate)
                                     }
-                                    .zIndex(selectedTile == tile.coordinate ? 1 : 0)
+                                } label: {
+                                    PieceView(tile: tile, game: game, dropToSelectTile: makeSecondSelection(at:), selectedTile: $selectedTile, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
+                                        .aspectRatio(contentMode: .fill)
+                                        .zIndex(selectedTile == tile.coordinate ? 1 : 0)
+                                }
                             }
                         }
                     }

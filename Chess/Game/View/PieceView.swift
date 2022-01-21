@@ -10,11 +10,11 @@ import SwiftUI
 struct PieceView: View {
     
     let tile: Tile
-    @ObservedObject var game: Game
+    @ObservedObject var game: GameViewModel
     @State private var dragAmount = CGSize.zero
     @State private var scaleAmount: CGFloat = 1.0
     
-    var dropToSelectTile: (Coordinate?) -> Void
+    var dropToSelectTile: (Coordinate?) async -> Void
     @Binding var selectedTile: Coordinate?
     @Binding var highlightedTile: Coordinate?
 
@@ -41,7 +41,9 @@ struct PieceView: View {
                 self.dragAmount = .zero
                 scaleAmount = 1.0
                 if let highlightedTile = highlightedTile {
-                    dropToSelectTile(highlightedTile)
+                    Task {
+                        await dropToSelectTile(highlightedTile)
+                    }
                 }
                 highlightedTile = nil
             }
@@ -52,7 +54,7 @@ struct PieceView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(
-                        width: (geometry.size.width-10),
+                        width: geometry.size.width-10,
                         height: geometry.size.width-10,
                         alignment: .center
                     )

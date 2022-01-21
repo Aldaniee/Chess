@@ -7,9 +7,14 @@
 
 import Foundation
 
-class Game: ObservableObject {
+class GameViewModel: ObservableObject {
     
-    @Published private var board = Board()
+    init(_ board: Board = Board()) {
+        self.board = board
+        newGame(board: board)
+    }
+    
+    @Published private (set) var board : Board
     
     private (set) var winner : String?
     
@@ -40,16 +45,13 @@ class Game: ObservableObject {
         board.asArray()
     }
     
-    init() {
-        newGame()
-    }
-    
     // MARK: - Intents
-    func newGame() {
-        board = Board()
+    
+    func newGame(board: Board = Board()) {
+        self.board = board
         winner = nil
         pgn = [FullMove]()
-        board.setupBoard()
+        self.board.setupBoard()
         whiteCapturedPieces = [Piece]()
         blackCapturedPieces = [Piece]()
     }
@@ -103,6 +105,7 @@ class Game: ObservableObject {
     }
     
     // MARK: - Private
+    
     private func nextTurn() {
         board.turn = board.turn == .white ? .black : .white
         if hasNoMoves(board.turn) {

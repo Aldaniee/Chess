@@ -9,38 +9,38 @@ import SwiftUI
 
 struct MenuView: View {
     
-    @StateObject var viewModel = NetworkManager()
-    
+    @StateObject var viewModel = MenuViewModel()
     var body: some View {
         NavigationView {
             List {
                 Button {
                     Task {
-                        await viewModel.newGame()
+                        await viewModel.createGame()
                     }
                 } label: {
                     Text("Create Game")
                 }
                 ForEach(viewModel.boards) { board in
-
-                    Button {
-                        
-                    } label: {
-                        Text(board.id?.description ?? "")
+                    NavigationLink(destination: GameView(game: GameViewModel(board))) {
+                        Text(board.id.description)
                     }
                 }
+                .onDelete(perform: delete)
             }
-            
         }
         .onAppear {
             Task {
-                do {
-                    try await viewModel.fetchGames()
-                } catch {
-                    print("Error: \(error)")
-                }
+                await viewModel.fetchGames()
             }
         }
+    }
+    func delete(at offsets: IndexSet) {
+        offsets.forEach { i in
+            Task {
+                await viewModel.deleteGame(i)
+            }
+        }
+
     }
 }
 

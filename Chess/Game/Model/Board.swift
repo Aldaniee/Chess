@@ -33,7 +33,7 @@ struct Board {
     
     private (set) var gameBoard = [[Tile]]()
     var turn = Side.white
-    var id: UUID?
+    var id = UUID()
     
     init() {
         setupBoard()
