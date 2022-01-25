@@ -27,6 +27,7 @@ struct MenuView: View {
                 }
                 .onDelete(perform: delete)
             }
+            .navigationTitle("Chess")
         }
         .onAppear {
             Task {

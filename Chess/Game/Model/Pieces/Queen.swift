@@ -15,6 +15,8 @@ class Queen: RecursivePiece {
     
     let side: Side
     
+    let points = 9
+    
     let moveType: MoveType = .both
     
     init(_ side: Side) {

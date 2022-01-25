@@ -39,11 +39,16 @@ protocol Piece {
     var type: PieceType { get }
     var side: Side { get }
     var id: Int { get }
+    var points: Int { get}
 }
 
 extension Piece {
     var image: Image {
         let assetName = "\(side.rawValue)_\(type.name)_shadow"
+        return Image(assetName)
+    }
+    var capturedImage: Image {
+        let assetName = "\(side.rawValue)_\(type.name)"
         return Image(assetName)
     }
     func getMovesFromThreats(from start: Coordinate, _ board: Game) -> [Coordinate] {

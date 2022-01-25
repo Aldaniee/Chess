@@ -56,7 +56,6 @@ class FEN {
         guard fields.count == 6 else {
             throw FENError.decodingError
         }
-        print(fields[0])
         var game = Game(makeBoard(from: fields[0].description))
         guard let side = Side(rawValue: fields[1].description) else {
             throw FENError.decodingError
@@ -82,10 +81,12 @@ class FEN {
     private func decodeCastlingAvailability(from fenSubstring: String ) -> (white: (queenSide: Bool, kingSide: Bool), black: (queenSide: Bool, kingSide: Bool)) {
         var white = (queenSide: false, kingSide: false)
         var black = (queenSide: false, kingSide: false)
-        if fenSubstring.contains("Q") { white.queenSide = true }
-        if fenSubstring.contains("K") { white.kingSide = true }
-        if fenSubstring.contains("k") { black.kingSide = true }
-        if fenSubstring.contains("q") { black.queenSide = true }
+        if fenSubstring != "-" {
+            if fenSubstring.contains("Q") { white.queenSide = true }
+            if fenSubstring.contains("K") { white.kingSide = true }
+            if fenSubstring.contains("k") { black.kingSide = true }
+            if fenSubstring.contains("q") { black.queenSide = true }
+        }
         return (white, black)
     }
     
@@ -95,6 +96,7 @@ class FEN {
         if white.queenSide { castlingAvailability.append(contentsOf: "Q") }
         if black.kingSide { castlingAvailability.append(contentsOf: "k") }
         if black.queenSide { castlingAvailability.append(contentsOf: "q") }
+        if castlingAvailability == "" { return "-" }
         return castlingAvailability
     }
     

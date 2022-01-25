@@ -18,8 +18,8 @@ class GameViewModel: ObservableObject {
     
     private (set) var winner : String?
     
-    var whiteCapturedPieces = [Piece]()
-    var blackCapturedPieces = [Piece]()
+    var whiteCapturedPieces = [(piece: Piece, count: Int)]()
+    var blackCapturedPieces = [(piece: Piece, count: Int)]()
 
     struct FullMove {
         var white: Move
@@ -51,18 +51,17 @@ class GameViewModel: ObservableObject {
         winner = nil
         pgn = [FullMove]()
         self.game.setupBoard()
-        whiteCapturedPieces = [Piece]()
-        blackCapturedPieces = [Piece]()
+        whiteCapturedPieces = [(piece: Piece, count: Int)]()
+        blackCapturedPieces = [(piece: Piece, count: Int)]()
     }
     
     func move(_ piece: Piece, from start: Coordinate, to end: Coordinate) {
         let moves = legalMoves(from: Tile(start, piece))
-        let side = piece.side
         
         if moves.contains(end) {
             var capturedPiece = game.movePiece(from: start, to: end)
             // Determine if the king is castling inorder to move the rook
-            if piece.type == .king && game.hasCastlingRights(side) {
+            if piece.type == .king {
                 // Kingside/short castle
                 if start.upFile()?.upFile() == end {
                     if let rookLocation = start.upFile()?.upFile()?.upFile() {
@@ -87,15 +86,17 @@ class GameViewModel: ObservableObject {
             }
             if let capturedPiece = capturedPiece {
                 if game.turn == .white {
-                    blackCapturedPieces.append(capturedPiece)
+                    blackCapturedPieces = blackCapturedPieces.appendAndSort(piece: capturedPiece)
                 } else {
-                    whiteCapturedPieces.append(capturedPiece)
+                    whiteCapturedPieces = whiteCapturedPieces.appendAndSort(piece: capturedPiece)
                 }
             }
             recordMove(Move(from: start, to: end, with: piece.type, capturing: capturedPiece?.type, withCheck: inCheck(game, game.turn.opponent)))
             nextTurn()
         }
     }
+    
+    
     func getPiece(from coordinate: Coordinate) -> Piece? {
         return game.getPiece(from: coordinate)
     }

@@ -15,6 +15,8 @@ struct King: Piece {
     
     let side: Side
     
+    let points = 100
+    
     init(_ side: Side) {
         self.side = side
     }

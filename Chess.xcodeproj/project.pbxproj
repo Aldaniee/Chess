@@ -119,10 +119,10 @@
 			children = (
 				EA8CB6C0277DFD2C00CAF379 /* Piece.swift */,
 				EA0F7ADF278633B000E506E5 /* King.swift */,
-				EA0F7AE52788D9C500E506E5 /* Knight.swift */,
 				EA8CB6C4277DFDFC00CAF379 /* Pawn.swift */,
-				EA0F7AE3278768F900E506E5 /* Rook.swift */,
+				EA0F7AE52788D9C500E506E5 /* Knight.swift */,
 				EA0F7AE72788DC9A00E506E5 /* Bishop.swift */,
+				EA0F7AE3278768F900E506E5 /* Rook.swift */,
 				EAA00F99278A31E100F5BFF5 /* Queen.swift */,
 			);
 			path = Pieces;

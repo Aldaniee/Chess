@@ -55,56 +55,59 @@ struct GameView: View {
     let boardWidth = UIScreen.screenWidth
     let tileWidth = UIScreen.screenWidth / CGFloat(Game.Constants.dimensions)
     let captureTrayHeight = CGFloat(40)
+    let pgnMode = false
     var body: some View {
-        NavigationView {
-            VStack {
-                Spacer()
+        VStack {
+            Spacer()
+            if pgnMode {
                 Spacer(minLength: 100)
-                CapturedPieceTray(capturedPiece: game.whiteCapturedPieces)
-                    .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
-                Button("New Game") {
-                    game.newGame()
-                }
-                ZStack {
-                    activeGameView
-                    winnerCard
-                }
-                .frame(
-                    width: boardWidth,
-                    height: boardWidth,
-                    alignment: .center
-                )
-                CapturedPieceTray(capturedPiece: game.blackCapturedPieces)
-                    .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
+            }
+            CapturedPieceTray(capturedPieces: game.whiteCapturedPieces)
+                .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
+            ZStack {
+                activeGameView
+                winnerCard
+            }
+            .frame(
+                width: boardWidth,
+                height: boardWidth,
+                alignment: .center
+            )
+            CapturedPieceTray(capturedPieces: game.blackCapturedPieces)
+                .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
+            if pgnMode {
                 ScrollView {
                     Text(game.pgnString)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(colorScheme == .light ? .black : .white)
                         .padding()
                 }.frame(width: boardWidth, height: 100, alignment: .topLeading)
-                Spacer()
             }
-        }
-        .onAppear {
-//            Task {
-//                do {
-//                    try await game.fetchGames()
-//                } catch {
-//                    print("Error: \(error)")
-//                }
-//            }
+            Spacer()
         }
     }
     struct CapturedPieceTray: View {
-        let capturedPiece: [Piece]
+        let capturedPieces: [(piece: Piece, count: Int)]
         var body: some View {
             HStack {
-                ForEach(capturedPiece, id: \.id) { piece in
-                    piece.image
-                        .resizable()
-                        .frame(width: 30, height: 30, alignment: .leading)
+                ForEach(capturedPieces, id: \.piece.id) { capturedPiece in
+                    CapturedPiece(piece: capturedPiece.piece, count: capturedPiece.count)
+                        .padding(2)
                 }
-                
+            }
+        }
+    }
+    struct CapturedPiece: View {
+        let piece: Piece
+        let count: Int
+        var body: some View {
+            ZStack {
+                ForEach(0..<count, id: \.self) { index in
+                    piece.capturedImage
+                        .resizable()
+                        .frame(width: 15, height: 15, alignment: .leading)
+                        .offset(x: CGFloat(index*5), y: 0)
+                }
             }
         }
     }

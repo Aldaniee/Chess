@@ -15,6 +15,8 @@ struct Pawn: Piece {
     
     let side: Side
     
+    let points = 1
+    
     init(_ side: Side) {
         self.side = side
     }

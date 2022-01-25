@@ -41,25 +41,12 @@ struct Game {
     var halfMoveClock = 0 // used for 50 move rule
     var fullMoveNumber = 1 // move counter
     
-    func hasCastlingRights(_ side: Side) -> Bool {
-        return canLongCastle(side) || canShortCastle(side)
-    }
     func canLongCastle(_ side: Side) -> Bool {
-        if side == .white {
-            return whiteCanCastle.queenSide
-        }
-        else {
-            return blackCanCastle.kingSide
-        }
+        return side == .white ? whiteCanCastle.queenSide :  blackCanCastle.queenSide
     }
     
     func canShortCastle(_ side: Side) -> Bool {
-        if side == .white {
-            return whiteCanCastle.kingSide
-        }
-        else {
-            return blackCanCastle.kingSide
-        }
+        return side == .white ? whiteCanCastle.kingSide :  blackCanCastle.kingSide
     }
     
     init() {

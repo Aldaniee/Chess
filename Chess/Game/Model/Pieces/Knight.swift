@@ -15,6 +15,8 @@ class Knight: Piece {
     
     let side: Side
     
+    let points = 3
+
     init(_ side: Side) {
         self.side = side
     }
