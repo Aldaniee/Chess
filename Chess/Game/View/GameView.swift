@@ -43,7 +43,7 @@ struct GameView: View {
                 if let movingPiece = game.getPiece(from: start) {
                     if movingPiece.side == game.getTurn() {
                         game.move(movingPiece, from: start, to: end)
-                        await NetworkManager.shared.updateGame(game.board)
+                        await NetworkManager.shared.updateGame(game.game)
                         return true
                     }
                 }
@@ -53,7 +53,7 @@ struct GameView: View {
     }
     
     let boardWidth = UIScreen.screenWidth
-    let tileWidth = UIScreen.screenWidth / CGFloat(Board.Constants.dimensions)
+    let tileWidth = UIScreen.screenWidth / CGFloat(Game.Constants.dimensions)
     let captureTrayHeight = CGFloat(40)
     var body: some View {
         NavigationView {
@@ -152,7 +152,7 @@ struct GameView: View {
                     .stroke(colorScheme == .light ? .black : .white, lineWidth: 5)
                 VStack {
                     let columns =
-                    Array(repeating: GridItem(.fixed(tileWidth), spacing: 0), count: Board.Constants.dimensions)
+                    Array(repeating: GridItem(.fixed(tileWidth), spacing: 0), count: Game.Constants.dimensions)
                     ZStack {
                         LazyVGrid(columns: columns, spacing: 0) {
                             ForEach(game.boardArray) { tile in

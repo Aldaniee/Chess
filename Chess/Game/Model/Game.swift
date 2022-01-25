@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Board: Codable, Identifiable {
+extension Game: Codable, Identifiable {
     enum CodingKeys: String, CodingKey {
         case state
         case turn
@@ -16,38 +16,65 @@ extension Board: Codable, Identifiable {
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         let state = try values.decode(String.self, forKey: .state)
+        self = try FEN.shared.makeGame(from: state)
         id = try values.decode(UUID.self, forKey: .id)
-        turn = try values.decode(Side.self, forKey: .turn)
-        gameBoard = FEN.shared.makeBoard(from: state)
     }
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        let state = FEN.shared.makeString(from: gameBoard)
+        let state = FEN.shared.makeString(from: self)
         try container.encode(state, forKey: .state)
         try container.encode(id, forKey: .id)
-        try container.encode(turn.rawValue, forKey: .turn)
     }
 }
 
-struct Board {
-    
-    private (set) var gameBoard = [[Tile]]()
-    var turn = Side.white
+
+struct Game {
+
     var id = UUID()
+    
+    private (set) var board = [[Tile]]()
+    var turn = Side.white
+    var whiteCanCastle = (queenSide: true, kingSide: true)
+    var blackCanCastle = (queenSide: true, kingSide: true)
+
+    var enPassantTarget: Coordinate? = nil
+    var halfMoveClock = 0 // used for 50 move rule
+    var fullMoveNumber = 1 // move counter
+    
+    func hasCastlingRights(_ side: Side) -> Bool {
+        return canLongCastle(side) || canShortCastle(side)
+    }
+    func canLongCastle(_ side: Side) -> Bool {
+        if side == .white {
+            return whiteCanCastle.queenSide
+        }
+        else {
+            return blackCanCastle.kingSide
+        }
+    }
+    
+    func canShortCastle(_ side: Side) -> Bool {
+        if side == .white {
+            return whiteCanCastle.kingSide
+        }
+        else {
+            return blackCanCastle.kingSide
+        }
+    }
     
     init() {
         setupBoard()
     }
     init(_ gameBoard: [[Tile]]) {
-        self.gameBoard = gameBoard
+        self.board = gameBoard
         turn = Side.white
     }
     // MARK: - Board Changing Actions
-    mutating func setupBoard(from fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") {
-        gameBoard = FEN.shared.makeBoard(from: fen)
+    mutating func setupBoard(from fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
+        board = FEN.shared.makeBoard(from: fen)
     }
     private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
-        gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece
+        board[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece
     }
     private mutating func putPiece(_ piece: Piece?, _ coordinate: Coordinate) -> Piece? {
         let oldPiece = getPiece(from: coordinate)
@@ -59,25 +86,47 @@ struct Board {
     }
     
     mutating func movePiece(from start: Coordinate, to end: Coordinate) -> Piece? {
-        print(FEN.shared.makeString(from: gameBoard))
         if let piece = getPiece(from: start) { // ensure a piece is on that tile
             let capturedPiece = putPiece(piece, end)
-            markPieceAsMoved(at: end)
             _ = removePiece(start)
+            changeCastlingRightsAfterMove(from: start, to: end)
             return capturedPiece
         }
         return nil
     }
     
-    mutating func markPieceAsMoved(at coordinate: Coordinate) {
-        if getPiece(from: coordinate) != nil {
-            gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece!.hasMoved = true
+    mutating func changeCastlingRightsAfterMove(from start: Coordinate, to end: Coordinate) {
+        if let piece = getPiece(from: end) {
+            let side = piece.side
+            if piece.type == .king {
+                if side == .white {
+                    whiteCanCastle = (false, false)
+                } else {
+                    blackCanCastle = (false, false)
+                }
+            } else if piece.type == .rook {
+                if side == .white {
+                    if start.algebraicNotation == "A1" {
+                        whiteCanCastle.queenSide = false
+                    }
+                    if start.algebraicNotation == "H1" {
+                        whiteCanCastle.kingSide = false
+                    }
+                } else {
+                    if start.algebraicNotation == "A8" {
+                        blackCanCastle.queenSide = false
+                    }
+                    if start.algebraicNotation == "H8" {
+                        blackCanCastle.kingSide = false
+                    }
+                }
+            }
         }
     }
     
     // MARK: - Access Functions
     func getPiece(from coordinate: Coordinate) -> Piece? {
-        gameBoard[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
+        board[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
     }
     
     func getAllTilesWithPieces(of side: Side) -> [Tile] {
@@ -103,7 +152,7 @@ struct Board {
             }
         }
         if king == nil {
-            print("ERROR: No \(side.abbreviation)_king found on the board")
+            print("ERROR: No \(side.rawValue)_king found on the board")
         }
         return king
     }
@@ -128,15 +177,15 @@ struct Board {
     }
     
     func asArray() -> Array<Tile> {
-        return Array(gameBoard.joined())
+        return Array(board.joined())
     }
     
-    func copy() -> Board {
-        return Board(gameBoard)
+    func copy() -> Game {
+        return Game(board)
     }
     
     func debugGameBoard() {
-        for file in gameBoard {
+        for file in board {
             print()
             for tile in file {
                 print(tile.coordinate.algebraicNotation, terminator: "")

@@ -12,7 +12,7 @@ class NetworkManager {
 
     static let shared = NetworkManager()
     
-    func fetchGames() async -> [Board]? {
+    func fetchGames() async -> [Game]? {
         guard let url = URL(string: Constants.baseURL + Endpoints.games) else {
             print("Error: \(HttpError.badURL)")
             return nil
@@ -26,7 +26,7 @@ class NetworkManager {
         }
     }
     
-    func fetchGame(_ board: Board) async -> Board? {
+    func fetchGame(_ board: Game) async -> Game? {
         guard let url = URL(string: (Constants.baseURL + Endpoints.games + "/\(board.id)")) else {
             print("Error: \(HttpError.invalidURL)")
             return nil
@@ -40,7 +40,7 @@ class NetworkManager {
         }
     }
     
-    func pushGame(_ board: Board) async {
+    func pushGame(_ board: Game) async {
         let urlString = Constants.baseURL + Endpoints.games
         
         guard let url = URL(string: urlString) else {
@@ -55,7 +55,7 @@ class NetworkManager {
         }
     }
     
-    func updateGame(_ board: Board) async {
+    func updateGame(_ board: Game) async {
         let urlString = Constants.baseURL + Endpoints.games
         
         guard let url = URL(string: urlString) else {
@@ -69,7 +69,7 @@ class NetworkManager {
         }
     }
     
-    func deleteGame(_ board: Board) async {        
+    func deleteGame(_ board: Game) async {        
         guard let url = URL(string: Constants.baseURL + Endpoints.games + "/\(board.id)") else {
             print("Error: \(HttpError.badURL)")
             return

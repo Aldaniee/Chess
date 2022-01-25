@@ -25,7 +25,7 @@
 		EA8CB6B1277DFBE000CAF379 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6B0277DFBE000CAF379 /* GameView.swift */; };
 		EA8CB6B3277DFBE400CAF379 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA8CB6B2277DFBE400CAF379 /* Assets.xcassets */; };
 		EA8CB6B6277DFBE400CAF379 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA8CB6B5277DFBE400CAF379 /* Preview Assets.xcassets */; };
-		EA8CB6BD277DFC2900CAF379 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6BC277DFC2900CAF379 /* Board.swift */; };
+		EA8CB6BD277DFC2900CAF379 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6BC277DFC2900CAF379 /* Game.swift */; };
 		EA8CB6BF277DFCCF00CAF379 /* Tile.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6BE277DFCCF00CAF379 /* Tile.swift */; };
 		EA8CB6C1277DFD2C00CAF379 /* Piece.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6C0277DFD2C00CAF379 /* Piece.swift */; };
 		EA8CB6C5277DFDFC00CAF379 /* Pawn.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6C4277DFDFC00CAF379 /* Pawn.swift */; };
@@ -76,7 +76,7 @@
 		EA8CB6B0277DFBE000CAF379 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		EA8CB6B2277DFBE400CAF379 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EA8CB6B5277DFBE400CAF379 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		EA8CB6BC277DFC2900CAF379 /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
+		EA8CB6BC277DFC2900CAF379 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
 		EA8CB6BE277DFCCF00CAF379 /* Tile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tile.swift; sourceTree = "<group>"; };
 		EA8CB6C0277DFD2C00CAF379 /* Piece.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Piece.swift; sourceTree = "<group>"; };
 		EA8CB6C4277DFDFC00CAF379 /* Pawn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pawn.swift; sourceTree = "<group>"; };
@@ -170,7 +170,7 @@
 		EA171289279B18240090D9EF /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				EA8CB6BC277DFC2900CAF379 /* Board.swift */,
+				EA8CB6BC277DFC2900CAF379 /* Game.swift */,
 				EA1712522793433C0090D9EF /* Side.swift */,
 				EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */,
 				EAA00F9F278CE2E200F5BFF5 /* Move.swift */,
@@ -408,7 +408,7 @@
 				EA0F7AE62788D9C500E506E5 /* Knight.swift in Sources */,
 				EA0F7AE4278768F900E506E5 /* Rook.swift in Sources */,
 				EAA00FA0278CE2E200F5BFF5 /* Move.swift in Sources */,
-				EA8CB6BD277DFC2900CAF379 /* Board.swift in Sources */,
+				EA8CB6BD277DFC2900CAF379 /* Game.swift in Sources */,
 				EA8CB6BF277DFCCF00CAF379 /* Tile.swift in Sources */,
 				EA17125A279766120090D9EF /* FEN.swift in Sources */,
 			);

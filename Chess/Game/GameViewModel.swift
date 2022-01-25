@@ -9,12 +9,12 @@ import Foundation
 
 class GameViewModel: ObservableObject {
     
-    init(_ board: Board = Board()) {
-        self.board = board
-        newGame(board: board)
+    init(_ game: Game = Game()) {
+        self.game = game
+        newGame(board: game)
     }
     
-    @Published private (set) var board : Board
+    @Published private (set) var game: Game
     
     private (set) var winner : String?
     
@@ -42,39 +42,39 @@ class GameViewModel: ObservableObject {
     }
     
     var boardArray: Array<Tile> {
-        board.asArray()
+        game.asArray()
     }
     
     // MARK: - Intents
     
-    func newGame(board: Board = Board()) {
-        self.board = board
+    func newGame(board: Game = Game()) {
+        self.game = board
         winner = nil
         pgn = [FullMove]()
-        self.board.setupBoard()
+        self.game.setupBoard()
         whiteCapturedPieces = [Piece]()
         blackCapturedPieces = [Piece]()
     }
     
     func move(_ piece: Piece, from start: Coordinate, to end: Coordinate) {
         let moves = legalMoves(from: Tile(start, piece))
+        let side = piece.side
         
         if moves.contains(end) {
-            var capturedPiece = board.movePiece(from: start, to: end)
+            var capturedPiece = game.movePiece(from: start, to: end)
             // Determine if the king is castling inorder to move the rook
-            if piece.type == .king && piece.hasMoved == false {
-                
+            if piece.type == .king && game.hasCastlingRights(side) {
                 // Kingside/short castle
                 if start.upFile()?.upFile() == end {
                     if let rookLocation = start.upFile()?.upFile()?.upFile() {
-                        _ = board.movePiece(from: rookLocation, to: start.upFile()!)
+                        _ = game.movePiece(from: rookLocation, to: start.upFile()!)
                     }
                 }
                 
                 // Queenside/long castle
                 if start.downFile()?.downFile() == end {
                     if let rookLocation = start.downFile()?.downFile()?.downFile()?.downFile() {
-                        _ = board.movePiece(from: rookLocation, to: start.downFile()!)
+                        _ = game.movePiece(from: rookLocation, to: start.downFile()!)
                     }
                 }
                 
@@ -84,33 +84,33 @@ class GameViewModel: ObservableObject {
             // En Passant Special Case
             // if a pawn moves diagonal and does not land on a pawn it must be capturing a pawn via en passant
             if piece.type == .pawn && capturedPiece == nil && start.isDiagonal(from: end) {
-                capturedPiece = board.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex))
+                capturedPiece = game.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex))
             }
             if let capturedPiece = capturedPiece {
-                if board.turn == .white {
+                if game.turn == .white {
                     blackCapturedPieces.append(capturedPiece)
                 } else {
                     whiteCapturedPieces.append(capturedPiece)
                 }
             }
-            recordMove(Move(from: start, to: end, with: piece.type, capturing: capturedPiece?.type, withCheck: inCheck(board, board.turn.opponent)))
+            recordMove(Move(from: start, to: end, with: piece.type, capturing: capturedPiece?.type, withCheck: inCheck(game, game.turn.opponent)))
             nextTurn()
         }
     }
     func getPiece(from coordinate: Coordinate) -> Piece? {
-        return board.getPiece(from: coordinate)
+        return game.getPiece(from: coordinate)
     }
     func getTurn() -> Side {
-        return board.turn
+        return game.turn
     }
     
     // MARK: - Private
     
     private func nextTurn() {
-        board.turn = board.turn == .white ? .black : .white
-        if hasNoMoves(board.turn) {
-            if inCheck(board, board.turn) {
-                winner = board.turn.opponent.rawValue
+        game.turn = game.turn == .white ? .black : .white
+        if hasNoMoves(game.turn) {
+            if inCheck(game, game.turn) {
+                winner = game.turn.opponent.rawValue
             }
             else {
                 winner = "draw"
@@ -120,7 +120,7 @@ class GameViewModel: ObservableObject {
     
     private func hasNoMoves(_ side: Side) -> Bool {
         var result = true
-        board.getAllTilesWithPieces(of: side).forEach { tile in
+        game.getAllTilesWithPieces(of: side).forEach { tile in
             if !legalMoves(from: tile).isEmpty {
                 result = false
                 return
@@ -131,7 +131,7 @@ class GameViewModel: ObservableObject {
     
     
     private func recordMove(_ move: Move) {
-        if board.turn == .white {
+        if game.turn == .white {
             pgn.append(FullMove(white: move, black: nil))
         } else {
             let fullMove = FullMove(white: pgn.last!.white, black: move)
@@ -146,37 +146,36 @@ class GameViewModel: ObservableObject {
     /// - Returns: Array of possible moves
     private func legalMoves(from tile: Tile) -> [Coordinate] {
         if let piece = tile.piece {
-            var moves = tile.piece!.allPossibleMoves(from: tile.coordinate, board)
+            let side = piece.side
+            var moves = tile.piece!.allPossibleMoves(from: tile.coordinate, game)
             
             // Add castling moves
-            if piece.type == .king
-                && piece.hasMoved == false
-                && !inCheck(board, board.turn) {
+            if piece.type == .king && !inCheck(game, game.turn) {
                 // king side
                 if let newRookCords = tile.coordinate.upFile(),
-                   board.isEmpty(newRookCords),
+                   game.canShortCastle(side),
+                   game.isEmpty(newRookCords),
                    !doesMoveIntoCheck(from: tile.coordinate, to: newRookCords),
                    let newKingCords = newRookCords.upFile(),
-                   board.isEmpty(newKingCords),
+                   game.isEmpty(newKingCords),
                    let rookCords = newKingCords.upFile(),
-                   let piece = board.getPiece(from: rookCords),
-                   piece.type == .rook,
-                   piece.hasMoved == false
+                   let piece = game.getPiece(from: rookCords),
+                   piece.type == .rook
                 {
                     moves.append(newKingCords)
                 }
                 // queen side
                 if let newRookCords = tile.coordinate.downFile(),
-                   board.isEmpty(newRookCords),
+                   game.canLongCastle(side),
+                   game.isEmpty(newRookCords),
                    !doesMoveIntoCheck(from: tile.coordinate, to: newRookCords),
                    let newKingCords = newRookCords.downFile(),
-                   board.isEmpty(newKingCords),
+                   game.isEmpty(newKingCords),
                    let empty = newKingCords.downFile(),
-                   board.isEmpty(empty),
+                   game.isEmpty(empty),
                    let rookCords = empty.downFile(),
-                   let piece = board.getPiece(from: rookCords),
-                   piece.type == .rook,
-                   piece.hasMoved == false
+                   let piece = game.getPiece(from: rookCords),
+                   piece.type == .rook
                 {
                     moves.append(newKingCords)
                 }
@@ -195,9 +194,9 @@ class GameViewModel: ObservableObject {
     }
     
     private func doesMoveIntoCheck(from start: Coordinate, to end: Coordinate) -> Bool {
-        var newState = board.copy()
+        var newState = game.copy()
         _ = newState.movePiece(from: start, to: end)
-        return inCheck(newState, board.turn)
+        return inCheck(newState, game.turn)
     }
     
     /// Checks if the side whose turn it is is in check
@@ -205,7 +204,7 @@ class GameViewModel: ObservableObject {
     ///   - state: Board state to check
     ///   - turn: Side whose turn it is
     /// - Returns: if the side whose turn it is is in check
-    private func inCheck(_ state: Board, _ turn: Side) -> Bool {
+    private func inCheck(_ state: Game, _ turn: Side) -> Bool {
         // define sides
         let kingSide = turn
         let attackingSide = kingSide.opponent

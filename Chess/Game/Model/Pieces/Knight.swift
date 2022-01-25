@@ -10,9 +10,7 @@ import Foundation
 class Knight: Piece {
     
     let id = UUID().hashValue
-    
-    var hasMoved = false
-        
+            
     let type = PieceType.knight
     
     let side: Side
@@ -21,7 +19,7 @@ class Knight: Piece {
         self.side = side
     }
     
-    func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate] {
+    func threatsCreated(from start: Coordinate, _ board: Game) -> [Coordinate] {
         var moves = [Coordinate]()
         
         if let upTwo = start.upRank()?.upRank() {
@@ -60,7 +58,7 @@ class Knight: Piece {
         return moves
     }
     
-    func allPossibleMoves(from start: Coordinate, _ board: Board) -> [Coordinate] {
+    func allPossibleMoves(from start: Coordinate, _ board: Game) -> [Coordinate] {
         self.getMovesFromThreats(from: start, board)
     }
 }

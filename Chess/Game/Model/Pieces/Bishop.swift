@@ -10,9 +10,7 @@ import Foundation
 class Bishop: RecursivePiece {
     
     let id = UUID().hashValue
-    
-    var hasMoved = false
-        
+            
     let type = PieceType.bishop
     
     let side: Side

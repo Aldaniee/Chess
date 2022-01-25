@@ -10,7 +10,7 @@ import SwiftUI
 
 @MainActor class MenuViewModel: ObservableObject {
 
-    @Published private (set) var boards = [Board]()
+    @Published private (set) var boards = [Game]()
 
     // MARK: - Intents
     
@@ -23,7 +23,7 @@ import SwiftUI
             }
         }
     }
-    func fetchGame(_ board: Board) async {
+    func fetchGame(_ board: Game) async {
         do {
             if let game = await NetworkManager.shared.fetchGame(board) {
                 DispatchQueue.main.async {
@@ -38,7 +38,7 @@ import SwiftUI
         }
     }
     func createGame() async {
-        let board = Board()
+        let board = Game()
         self.boards.append(board)
         await NetworkManager.shared.pushGame(board)
         await fetchGame(board)

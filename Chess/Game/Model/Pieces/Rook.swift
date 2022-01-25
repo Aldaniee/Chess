@@ -10,9 +10,7 @@ import Foundation
 struct Rook: RecursivePiece {
     
     let id = UUID().hashValue
-    
-    var hasMoved = false
-        
+            
     let type = PieceType.rook
     
     let side: Side

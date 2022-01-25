@@ -8,6 +8,10 @@
 
 import Foundation
 
+enum FENError: Error {
+    case decodingError, encodingError
+}
+
 class FEN {
     static let shared = FEN()
     
@@ -37,7 +41,63 @@ class FEN {
         return gameBoard
     }
     
-    func makeString(from board: [[Tile]]) -> String {
+    func makeString(from game: Game) -> String {
+        let piecePlacement = makeString(from: game.board)
+        let activeColor = game.turn.rawValue
+        let castlingAvailability = encodeCastlingAvailability(white: game.whiteCanCastle, black: game.blackCanCastle)
+        let enPassantTargetSquare = game.enPassantTarget?.algebraicNotation ?? "-"
+        let halfMoveClock = "\(game.halfMoveClock)"
+        let fullMoveClock = "\(game.fullMoveNumber)"
+        return piecePlacement + " " + activeColor + " " + castlingAvailability + " " + enPassantTargetSquare + " " + halfMoveClock + " " + fullMoveClock
+    }
+    
+    func makeGame(from string: String) throws -> Game {
+        let fields = string.split(separator: " ")
+        guard fields.count == 6 else {
+            throw FENError.decodingError
+        }
+        var game = Game(makeBoard(from: fields[0].description))
+        guard let side = Side(rawValue: fields[1].description) else {
+            throw FENError.decodingError
+        }
+        game.turn = side
+        let canCastle = decodeCastlingAvailability(from: fields[2].description)
+        game.whiteCanCastle = canCastle.white
+        game.blackCanCastle = canCastle.black
+        let enPassantTargetSquare = fields[3].description
+        if enPassantTargetSquare == "-" {
+            game.enPassantTarget = nil
+        }
+        else {
+            game.enPassantTarget = Coordinate(algebraicNotation: enPassantTargetSquare)
+        }
+        let halfMoveClock = fields[4].description
+        game.halfMoveClock = Int(halfMoveClock) ?? 0
+        let fullMoveNumber = fields[5].description
+        game.fullMoveNumber = Int(fullMoveNumber) ?? 0
+        return game
+    }
+    
+    private func decodeCastlingAvailability(from fenSubstring: String ) -> (white: (queenSide: Bool, kingSide: Bool), black: (queenSide: Bool, kingSide: Bool)) {
+        var white = (queenSide: false, kingSide: false)
+        var black = (queenSide: false, kingSide: false)
+        if fenSubstring.contains("Q") { white.queenSide = true }
+        if fenSubstring.contains("K") { white.kingSide = true }
+        if fenSubstring.contains("k") { black.kingSide = true }
+        if fenSubstring.contains("q") { black.queenSide = true }
+        return (white, black)
+    }
+    
+    private func encodeCastlingAvailability(white: (queenSide: Bool, kingSide: Bool), black: (queenSide: Bool, kingSide: Bool)) -> String {
+        var castlingAvailability = ""
+        if white.kingSide { castlingAvailability.append(contentsOf: "K") }
+        if white.queenSide { castlingAvailability.append(contentsOf: "Q") }
+        if black.kingSide { castlingAvailability.append(contentsOf: "k") }
+        if black.queenSide { castlingAvailability.append(contentsOf: "q") }
+        return castlingAvailability
+    }
+    
+    private func makeString(from board: [[Tile]]) -> String {
         var FENstring = ""
         for rank in 0..<board.count {
             var numEmpty = 0

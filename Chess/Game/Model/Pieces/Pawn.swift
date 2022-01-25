@@ -10,8 +10,6 @@ import SwiftUI
 struct Pawn: Piece {
     
     let id = UUID().hashValue
-
-    var hasMoved = false
         
     let type = PieceType.pawn
     
@@ -21,29 +19,27 @@ struct Pawn: Piece {
         self.side = side
     }
     
-    func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate] {
+    func threatsCreated(from start: Coordinate, _ board: Game) -> [Coordinate] {
         return side == .white ? start.upOneDiagonals() : start.downOneDiagonals()
     }
     
-    func allPossibleMoves(from start: Coordinate, _ board: Board) -> [Coordinate] {
+    func allPossibleMoves(from start: Coordinate, _ board: Game) -> [Coordinate] {
         var moves = [Coordinate]()
-        let forward = side == .white ? start.upRank() : start.downRank()
-        let forwardTwo = side == .white ? forward?.upRank() : forward?.downRank()
-        let attacks = threatsCreated(from: start, board)
-        
         // move forward one or two swuares
-        if let forward = forward {
+        if let forward = side == .white ? start.upRank() : start.downRank() {
             // Ensure the pawn only moves forward if the square ahead is empty
             if board.isEmpty(forward) {
                 moves.append(forward)
-                if let forwardTwo = forwardTwo {
-                    if hasMoved == false && board.isEmpty(forwardTwo) {
+                if let forwardTwo = side == .white ? forward.upRank() : forward.downRank() {
+                    let onStartRank = side == .white ? start.rankNum == 2 : start.rankNum == 7
+                    if board.isEmpty(forwardTwo) && onStartRank {
                         moves.append(forwardTwo)
                     }
                 }
             }
         }
         
+        let attacks = threatsCreated(from: start, board)
         // diagonal attacks
         attacks.forEach( { end in
             if let pieceToAttack = board.getPiece(from: end) {

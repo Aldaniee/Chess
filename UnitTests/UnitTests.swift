@@ -19,11 +19,11 @@ class UnitTests: XCTestCase {
     }
 
     func testDecodeBoardFromMockJson() {
-        var board: Board?
+        var board: Game?
         if let path = Bundle.main.path(forResource: "MockJSONBoard", ofType: "json") {
             do {
                 let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-                board = try JSONDecoder().decode(Board.self, from: data)
+                board = try JSONDecoder().decode(Game.self, from: data)
             }
             catch {
                 print(error)
@@ -37,7 +37,7 @@ class UnitTests: XCTestCase {
     func testEncodeMockJSONFromBoard() {
         var result: Data?
         do {
-            result = try JSONEncoder().encode(Board())
+            result = try JSONEncoder().encode(Game())
         }
         catch {
             print(error)
@@ -46,8 +46,8 @@ class UnitTests: XCTestCase {
     }
     func testEncodeMockJSONFromBoards() {
         var result: Data?
-        var boards = [Board]()
-        boards.append(Board())
+        var boards = [Game]()
+        boards.append(Game())
         do {
             result = try JSONEncoder().encode(boards)
         }

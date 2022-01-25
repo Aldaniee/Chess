@@ -9,8 +9,8 @@ import Foundation
 
 enum Side : String, Codable {
     
-    case white = "white"
-    case black = "black"
+    case white = "w"
+    case black = "b"
     
     var opponent: Side {
         switch self {
@@ -18,14 +18,6 @@ enum Side : String, Codable {
             return .black
         case .black:
             return .white
-        }
-    }
-    var abbreviation: String {
-        switch self {
-        case .white:
-        return "w"
-        case .black:
-        return "b"
         }
     }
 }

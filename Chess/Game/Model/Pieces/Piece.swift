@@ -34,9 +34,8 @@ enum PieceType : String {
 }
 
 protocol Piece {
-    func allPossibleMoves(from start: Coordinate, _ board: Board) -> [Coordinate]
-    func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate]
-    var hasMoved: Bool { get set }
+    func allPossibleMoves(from start: Coordinate, _ board: Game) -> [Coordinate]
+    func threatsCreated(from start: Coordinate, _ board: Game) -> [Coordinate]
     var type: PieceType { get }
     var side: Side { get }
     var id: Int { get }
@@ -44,10 +43,10 @@ protocol Piece {
 
 extension Piece {
     var image: Image {
-        let assetName = "\(side.abbreviation)_\(type.name)_shadow"
+        let assetName = "\(side.rawValue)_\(type.name)_shadow"
         return Image(assetName)
     }
-    func getMovesFromThreats(from start: Coordinate, _ board: Board) -> [Coordinate] {
+    func getMovesFromThreats(from start: Coordinate, _ board: Game) -> [Coordinate] {
         var moves = threatsCreated(from: start, board)
         moves.forEach { move in
             if board.isOccupied(move, side) {
@@ -64,7 +63,7 @@ protocol RecursivePiece : Piece {
 }
 extension RecursivePiece {
     
-    func threatsCreated(from start: Coordinate, _ board: Board) -> [Coordinate] {
+    func threatsCreated(from start: Coordinate, _ board: Game) -> [Coordinate] {
         var moves = [Coordinate]()
         for direction in moveType.directions {
             for move in start.allCoords(in: direction) {
@@ -77,7 +76,7 @@ extension RecursivePiece {
         return moves
     }
     
-    func allPossibleMoves(from start: Coordinate, _ board: Board) -> [Coordinate] {
+    func allPossibleMoves(from start: Coordinate, _ board: Game) -> [Coordinate] {
         self.getMovesFromThreats(from: start, board)
     }
 }
