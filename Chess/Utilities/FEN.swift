@@ -56,6 +56,7 @@ class FEN {
         guard fields.count == 6 else {
             throw FENError.decodingError
         }
+        print(fields[0])
         var game = Game(makeBoard(from: fields[0].description))
         guard let side = Side(rawValue: fields[1].description) else {
             throw FENError.decodingError

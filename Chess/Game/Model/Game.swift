@@ -70,7 +70,7 @@ struct Game {
         turn = Side.white
     }
     // MARK: - Board Changing Actions
-    mutating func setupBoard(from fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
+    mutating func setupBoard(from fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") {
         board = FEN.shared.makeBoard(from: fen)
     }
     private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {

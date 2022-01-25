@@ -46,7 +46,6 @@ class GameViewModel: ObservableObject {
     }
     
     // MARK: - Intents
-    
     func newGame(board: Game = Game()) {
         self.game = board
         winner = nil

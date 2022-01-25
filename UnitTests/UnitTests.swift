@@ -18,17 +18,17 @@ class UnitTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testDecodeBoardFromMockJson() {
-        var board: Game?
+    func testDecodeGameFromMockJson() {
+        var game: Game?
         if let path = Bundle.main.path(forResource: "MockJSONBoard", ofType: "json") {
             do {
                 let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-                board = try JSONDecoder().decode(Game.self, from: data)
+                game = try JSONDecoder().decode(Game.self, from: data)
             }
             catch {
                 print(error)
             }
-            XCTAssertNotNil(board)
+            XCTAssertNotNil(game)
         }
         else {
             XCTFail("Error in MockJSON Path")

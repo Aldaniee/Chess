@@ -14,28 +14,28 @@ class NetworkManager {
     
     func fetchGames() async -> [Game]? {
         guard let url = URL(string: Constants.baseURL + Endpoints.games) else {
-            print("Error: \(HttpError.badURL)")
+            print("Error fetchGames: \(HttpError.badURL)")
             return nil
         }
         
         do {
             return try await HttpClient.shared.fetch(url: url)
         } catch {
-            print("Error: \(error)")
+            print("Error fetchGames: \(error)")
             return nil
         }
     }
     
     func fetchGame(_ board: Game) async -> Game? {
         guard let url = URL(string: (Constants.baseURL + Endpoints.games + "/\(board.id)")) else {
-            print("Error: \(HttpError.invalidURL)")
+            print("Error fetchGame: \(HttpError.invalidURL)")
             return nil
         }
         do {
             return try await HttpClient.shared.fetchSingle(url: url)
         }
         catch {
-            print("Error: \(error)")
+            print("Error fetchGame: \(error)")
             return nil
         }
     }
@@ -44,13 +44,13 @@ class NetworkManager {
         let urlString = Constants.baseURL + Endpoints.games
         
         guard let url = URL(string: urlString) else {
-            print("Error: \(HttpError.badURL)")
+            print("Error pushGame: \(HttpError.badURL)")
             return
         }
         do {
             try await HttpClient.shared.send(to: url, object: board, httpMethod: .POST)
         } catch {
-            print("Error: \(error)")
+            print("Error pushGame: \(error)")
             return
         }
     }
@@ -59,25 +59,25 @@ class NetworkManager {
         let urlString = Constants.baseURL + Endpoints.games
         
         guard let url = URL(string: urlString) else {
-            print("Error: \(HttpError.badURL)")
+            print("Error updateGame: \(HttpError.badURL)")
             return
         }
         do {
             try await HttpClient.shared.send(to: url, object: board, httpMethod: .PUT)
         } catch {
-            print("Error: \(error)")
+            print("Error updateGame: \(error)")
         }
     }
     
     func deleteGame(_ board: Game) async {        
         guard let url = URL(string: Constants.baseURL + Endpoints.games + "/\(board.id)") else {
-            print("Error: \(HttpError.badURL)")
+            print("Error deleteGame: \(HttpError.badURL)")
             return
         }
         do {
             try await HttpClient.shared.send(to: url, object: board, httpMethod: .DELETE)
         } catch {
-            print("Error: \(error)")
+            print("Error deleteGame: \(error)")
         }
     }
 }
