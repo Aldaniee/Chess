@@ -47,7 +47,7 @@ extension Piece {
         let assetName = "\(side.rawValue)_\(type.name)_shadow"
         return Image(assetName)
     }
-    var capturedImage: Image {
+    var imageNoShadow: Image {
         let assetName = "\(side.rawValue)_\(type.name)"
         return Image(assetName)
     }

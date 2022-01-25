@@ -55,6 +55,16 @@ class GameViewModel: ObservableObject {
         blackCapturedPieces = [(piece: Piece, count: Int)]()
     }
     
+    func isValidMove(_ piece: Piece, from start: Coordinate, to end: Coordinate) -> Bool {
+        return legalMoves(from: Tile(start, piece)).contains(end)
+    }
+    
+    func promotePawn(from start: Coordinate, to end: Coordinate, into piece: Piece) {
+        let pawn = Pawn(end.rankNum == 8 ? .white : .black)
+        move(pawn, from: start, to: end)
+        _ = game.putPiece(piece, end)
+    }
+    
     func move(_ piece: Piece, from start: Coordinate, to end: Coordinate) {
         let moves = legalMoves(from: Tile(start, piece))
         
@@ -78,11 +88,16 @@ class GameViewModel: ObservableObject {
                 
             }
             
-            
-            // En Passant Special Case
-            // if a pawn moves diagonal and does not land on a pawn it must be capturing a pawn via en passant
-            if piece.type == .pawn && capturedPiece == nil && start.isDiagonal(from: end) {
-                capturedPiece = game.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex))
+            if piece.type == .pawn && capturedPiece == nil {
+                if end.rankNum == 1 || end.rankNum == 8 {
+                    promotePawn(end)
+                    print("HERE")
+                }
+                // En Passant Special Case
+                // if a pawn moves diagonal and does not land on a pawn it must be capturing a pawn via en passant
+                if start.isDiagonal(from: end) {
+                    capturedPiece = game.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex))
+                }
             }
             if let capturedPiece = capturedPiece {
                 if game.turn == .white {
@@ -105,6 +120,10 @@ class GameViewModel: ObservableObject {
     }
     
     // MARK: - Private
+    
+    private func promotePawn(_ coordinate: Coordinate) {
+        
+    }
     
     private func nextTurn() {
         game.turn = game.turn == .white ? .black : .white

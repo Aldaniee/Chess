@@ -46,7 +46,6 @@ extension StringProtocol {
 extension Array where Element == (piece: Piece, count: Int) {
 
     mutating func appendAndSort(piece: Piece) -> [(piece: Piece, count: Int)] {
-        var newArray = self
         if let index = self.firstIndex(where: {$0.piece.type == piece.type}) {
             self[index].count += 1
         }

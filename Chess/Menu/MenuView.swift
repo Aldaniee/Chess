@@ -21,7 +21,7 @@ struct MenuView: View {
                     Text("Create Game")
                 }
                 ForEach(viewModel.boards) { board in
-                    NavigationLink(destination: GameView(game: GameViewModel(board))) {
+                    NavigationLink(destination: GameView(viewModel: GameViewModel(board))) {
                         Text(board.id.description)
                     }
                 }

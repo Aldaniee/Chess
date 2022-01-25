@@ -63,7 +63,7 @@ struct Game {
     private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
         board[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece
     }
-    private mutating func putPiece(_ piece: Piece?, _ coordinate: Coordinate) -> Piece? {
+    mutating func putPiece(_ piece: Piece?, _ coordinate: Coordinate) -> Piece? {
         let oldPiece = getPiece(from: coordinate)
         setPiece(piece, coordinate)
         return oldPiece

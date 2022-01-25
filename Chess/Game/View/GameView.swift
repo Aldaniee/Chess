@@ -11,9 +11,11 @@ struct GameView: View {
     
     @Environment(\.colorScheme) var colorScheme
     
-    @ObservedObject var game: GameViewModel = GameViewModel()
+    @ObservedObject var viewModel: GameViewModel = GameViewModel()
     @State var highlightedTile: Coordinate? = nil
     @State var selectedTile: Coordinate? = nil
+    @State var promotionSquare: Coordinate? = nil
+    @State var promotionStart: Coordinate? = nil
 
     private func clickToSelectTile(at newSelection: Coordinate?) async {
         let sameSelection = selectedTile != nil && selectedTile == newSelection
@@ -40,11 +42,21 @@ struct GameView: View {
     private func makeMoveIfValid(from oldSelection: Coordinate?, to newSelection: Coordinate?) async -> Bool {
         if let start = oldSelection {
             if let end = newSelection {
-                if let movingPiece = game.getPiece(from: start) {
-                    if movingPiece.side == game.getTurn() {
-                        game.move(movingPiece, from: start, to: end)
-                        await NetworkManager.shared.updateGame(game.game)
-                        return true
+                if let movingPiece = viewModel.getPiece(from: start) {
+                    if movingPiece.side == viewModel.getTurn() {
+                        if movingPiece.type == .pawn
+                            && (end.rankNum == 8 || end.rankNum == 1)
+                            && viewModel.isValidMove(movingPiece, from: start, to: end)
+                        {
+                            print("HERE")
+                            promotionStart = start
+                            promotionSquare = end
+                        }
+                        else {
+                            viewModel.move(movingPiece, from: start, to: end)
+                            await NetworkManager.shared.updateGame(viewModel.game)
+                            return true
+                        }
                     }
                 }
             }
@@ -62,22 +74,23 @@ struct GameView: View {
             if pgnMode {
                 Spacer(minLength: 100)
             }
-            CapturedPieceTray(capturedPieces: game.whiteCapturedPieces)
+            CapturedPieceTray(capturedPieces: viewModel.whiteCapturedPieces)
                 .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
             ZStack {
                 activeGameView
                 winnerCard
+                ChoosePromotionView(promotionSquare: $promotionSquare, promotionStart: $promotionStart, promotePawn: viewModel.promotePawn(from:to:into:), tileWidth: tileWidth)
             }
             .frame(
                 width: boardWidth,
                 height: boardWidth,
                 alignment: .center
             )
-            CapturedPieceTray(capturedPieces: game.blackCapturedPieces)
+            CapturedPieceTray(capturedPieces: viewModel.blackCapturedPieces)
                 .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
             if pgnMode {
                 ScrollView {
-                    Text(game.pgnString)
+                    Text(viewModel.pgnString)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(colorScheme == .light ? .black : .white)
                         .padding()
@@ -103,7 +116,7 @@ struct GameView: View {
         var body: some View {
             ZStack {
                 ForEach(0..<count, id: \.self) { index in
-                    piece.capturedImage
+                    piece.imageNoShadow
                         .resizable()
                         .frame(width: 15, height: 15, alignment: .leading)
                         .offset(x: CGFloat(index*5), y: 0)
@@ -129,9 +142,74 @@ struct GameView: View {
             }
         }
     }
+    struct ChoosePromotionView: View {
+        @Binding var promotionSquare: Coordinate?
+        @Binding var promotionStart: Coordinate?
+        let promotePawn: (Coordinate, Coordinate, Piece) -> Void
+        let tileWidth: CGFloat
+        var side: Side? {
+            promotionSquare?.rankNum == 8 ? .white : .black
+        }
+        var pieceSize: CGFloat {
+            CGFloat(tileWidth * 0.9)
+        }
+        var body: some View {
+            ZStack {
+                if promotionSquare != nil && promotionStart != nil && side != nil {
+                    RoundedRectangle(cornerSize: CGSize(width: 3.0, height: 3.0))
+                        .frame(
+                            width: tileWidth*2.25,
+                            height: tileWidth*2.25,
+                            alignment: .center
+                        )
+                        .foregroundColor(.white)
+                        .opacity(0.95)
+                    VStack {
+                        HStack {
+                            Button {
+                                promotePawn(promotionStart!, promotionSquare!, Queen(side!))
+                                promotionSquare = nil
+                            } label: {
+                                Queen(side!).imageNoShadow
+                                    .resizable()
+                            }
+                            .frame(width: pieceSize, height: pieceSize, alignment: .center)
+                            Button {
+                                promotePawn(promotionStart!, promotionSquare!, Bishop(side!))
+                                promotionSquare = nil
+                            } label: {
+                                Bishop(side!).imageNoShadow
+                                    .resizable()
+                            }
+                            .frame(width: pieceSize, height: pieceSize, alignment: .center)
+                        }
+                        HStack {
+                            Button {
+                                promotePawn(promotionStart!, promotionSquare!, Rook(side!))
+                                promotionSquare = nil
+                            } label: {
+                                Rook(side!).imageNoShadow
+                                    .resizable()
+                            }
+                            .frame(width: pieceSize, height: pieceSize, alignment: .center)
+                            Button {
+                                promotePawn(promotionStart!, promotionSquare!, Knight(side!))
+                                promotionSquare = nil
+                            } label: {
+                                Knight(side!).imageNoShadow
+                                    .resizable()
+                            }
+                            .frame(width: pieceSize, height: pieceSize, alignment: .center)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     var winnerCard: some View {
         ZStack {
-            if let winner = game.winner {
+            if let winner = viewModel.winner {
                 let shape = RoundedRectangle(cornerSize: CGSize(width: 60, height: 60))
                 shape.fill().foregroundColor(.white).opacity(0.90)
                 shape.stroke(Color.black, lineWidth: 3)
@@ -158,7 +236,7 @@ struct GameView: View {
                     Array(repeating: GridItem(.fixed(tileWidth), spacing: 0), count: Game.Constants.dimensions)
                     ZStack {
                         LazyVGrid(columns: columns, spacing: 0) {
-                            ForEach(game.boardArray) { tile in
+                            ForEach(viewModel.boardArray) { tile in
                                 Button {
                                     Task {
                                         await clickToSelectTile(at: tile.coordinate)
@@ -172,13 +250,13 @@ struct GameView: View {
                         Spacer(minLength: 0)
                         dragIndicationCircle
                         LazyVGrid(columns: columns, spacing: 0) {
-                            ForEach(game.boardArray) { tile in
+                            ForEach(viewModel.boardArray) { tile in
                                 Button {
                                     Task {
                                         await clickToSelectTile(at: tile.coordinate)
                                     }
                                 } label: {
-                                    PieceView(tile: tile, game: game, dropToSelectTile: makeSecondSelection(at:), selectedTile: $selectedTile, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
+                                    PieceView(tile: tile, game: viewModel, dropToSelectTile: makeSecondSelection(at:), selectedTile: $selectedTile, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
                                         .aspectRatio(contentMode: .fill)
                                         .zIndex(selectedTile == tile.coordinate ? 1 : 0)
                                 }

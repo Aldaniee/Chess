@@ -13,7 +13,6 @@ import SwiftUI
     @Published private (set) var boards = [Game]()
 
     // MARK: - Intents
-    
     func fetchGames() async {
         do {
             if let games = await NetworkManager.shared.fetchGames() {
