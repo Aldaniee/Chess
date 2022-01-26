@@ -27,6 +27,14 @@ extension Game: Codable, Identifiable {
     }
 }
 
+struct FullMove {
+    var white: Move
+    var black: Move?
+    
+    var display: String {
+        "\(white.fullAlgebraicNotation) \(black?.fullAlgebraicNotation ?? "") "
+    }
+}
 
 struct Game {
 
@@ -41,6 +49,22 @@ struct Game {
     var halfMoveClock = 0 // used for 50 move rule
     var fullMoveNumber = 1 // move counter
     
+    var winner : String?
+    
+    var whiteCapturedPieces = [(piece: Piece, count: Int)]()
+    var blackCapturedPieces = [(piece: Piece, count: Int)]()
+    
+    private (set) var pgn = [FullMove]() // portable game notation
+    
+    var pgnString: String {
+        var pgnString = ""
+        for index in 0..<pgn.count {
+            pgnString.append("\(index+1). ")
+            pgnString.append(pgn[index].display)
+        }
+        return pgnString
+    }
+    
     func canLongCastle(_ side: Side) -> Bool {
         return side == .white ? whiteCanCastle.queenSide :  blackCanCastle.queenSide
     }
@@ -51,10 +75,18 @@ struct Game {
     
     init() {
         setupBoard()
+        winner = nil
+        pgn = [FullMove]()
+        whiteCapturedPieces = [(piece: Piece, count: Int)]()
+        blackCapturedPieces = [(piece: Piece, count: Int)]()
     }
     init(_ gameBoard: [[Tile]]) {
         self.board = gameBoard
         turn = Side.white
+        winner = nil
+        pgn = [FullMove]()
+        whiteCapturedPieces = [(piece: Piece, count: Int)]()
+        blackCapturedPieces = [(piece: Piece, count: Int)]()
     }
     // MARK: - Board Changing Actions
     mutating func setupBoard(from fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") {
@@ -144,6 +176,23 @@ struct Game {
         return king
     }
     
+    mutating func capture(piece: Piece) {
+        if piece.side == .white {
+            self.blackCapturedPieces = self.blackCapturedPieces.appendAndSort(piece: piece)
+        } else {
+            self.whiteCapturedPieces = self.whiteCapturedPieces.appendAndSort(piece: piece)
+        }
+    }
+    mutating func recordMove(_ move: Move) {
+        if turn == .white {
+            pgn.append(FullMove(white: move, black: nil))
+        } else {
+            let fullMove = FullMove(white: pgn.last!.white, black: move)
+            pgn.removeLast()
+            pgn.append(fullMove)
+        }
+        print(move.fullAlgebraicNotation)
+    }
     func isOccupied(_ coordinate: Coordinate, _ side: Side) -> Bool {
         if let piece = getPiece(from: coordinate) {
             return piece.side == side

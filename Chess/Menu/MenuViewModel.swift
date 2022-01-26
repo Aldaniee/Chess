@@ -11,8 +11,9 @@ import SwiftUI
 @MainActor class MenuViewModel: ObservableObject {
 
     @Published private (set) var boards = [Game]()
-
+    @Published private (set) var offlineMode = true
     // MARK: - Intents
+    
     func fetchGames() async {
         do {
             if let games = await NetworkManager.shared.fetchGames() {

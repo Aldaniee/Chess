@@ -11,48 +11,18 @@ class GameViewModel: ObservableObject {
     
     init(_ game: Game = Game()) {
         self.game = game
-        newGame(board: game)
+        newGame(game)
     }
     
-    @Published private (set) var game: Game
-    
-    private (set) var winner : String?
-    
-    var whiteCapturedPieces = [(piece: Piece, count: Int)]()
-    var blackCapturedPieces = [(piece: Piece, count: Int)]()
-
-    struct FullMove {
-        var white: Move
-        var black: Move?
-        
-        var display: String {
-            "\(white.fullAlgebraicNotation) \(black?.fullAlgebraicNotation ?? "") "
-        }
-    }
-    
-    private (set) var pgn = [FullMove]() // portable game notation
-    
-    var pgnString: String {
-        var pgnString = ""
-        for index in 0..<pgn.count {
-            pgnString.append("\(index+1). ")
-            pgnString.append(pgn[index].display)
-        }
-        return pgnString
-    }
+    @Published var game: Game
     
     var boardArray: Array<Tile> {
         game.asArray()
     }
     
     // MARK: - Intents
-    func newGame(board: Game = Game()) {
-        self.game = board
-        winner = nil
-        pgn = [FullMove]()
-        self.game.setupBoard()
-        whiteCapturedPieces = [(piece: Piece, count: Int)]()
-        blackCapturedPieces = [(piece: Piece, count: Int)]()
+    func newGame(_ game: Game = Game()) {
+        self.game = game
     }
     
     func isValidMove(_ piece: Piece, from start: Coordinate, to end: Coordinate) -> Bool {
@@ -89,10 +59,6 @@ class GameViewModel: ObservableObject {
             }
             
             if piece.type == .pawn && capturedPiece == nil {
-                if end.rankNum == 1 || end.rankNum == 8 {
-                    promotePawn(end)
-                    print("HERE")
-                }
                 // En Passant Special Case
                 // if a pawn moves diagonal and does not land on a pawn it must be capturing a pawn via en passant
                 if start.isDiagonal(from: end) {
@@ -100,13 +66,9 @@ class GameViewModel: ObservableObject {
                 }
             }
             if let capturedPiece = capturedPiece {
-                if game.turn == .white {
-                    blackCapturedPieces = blackCapturedPieces.appendAndSort(piece: capturedPiece)
-                } else {
-                    whiteCapturedPieces = whiteCapturedPieces.appendAndSort(piece: capturedPiece)
-                }
+                game.capture(piece: capturedPiece)
             }
-            recordMove(Move(from: start, to: end, with: piece.type, capturing: capturedPiece?.type, withCheck: inCheck(game, game.turn.opponent)))
+            game.recordMove(Move(from: start, to: end, with: piece.type, capturing: capturedPiece?.type, withCheck: inCheck(game, game.turn.opponent)))
             nextTurn()
         }
     }
@@ -121,18 +83,14 @@ class GameViewModel: ObservableObject {
     
     // MARK: - Private
     
-    private func promotePawn(_ coordinate: Coordinate) {
-        
-    }
-    
     private func nextTurn() {
         game.turn = game.turn == .white ? .black : .white
         if hasNoMoves(game.turn) {
             if inCheck(game, game.turn) {
-                winner = game.turn.opponent.rawValue
+                game.winner = game.turn.opponent.name
             }
             else {
-                winner = "draw"
+                game.winner = "draw"
             }
         }
     }
@@ -148,17 +106,6 @@ class GameViewModel: ObservableObject {
         return result
     }
     
-    
-    private func recordMove(_ move: Move) {
-        if game.turn == .white {
-            pgn.append(FullMove(white: move, black: nil))
-        } else {
-            let fullMove = FullMove(white: pgn.last!.white, black: move)
-            pgn.removeLast()
-            pgn.append(fullMove)
-        }
-        print(move.fullAlgebraicNotation)
-    }
     
     /// Get all legal moves for a piece from a tile that contains that piece
     /// - Parameter tile: Tile that must contain a piece

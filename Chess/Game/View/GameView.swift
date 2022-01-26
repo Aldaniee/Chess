@@ -48,7 +48,6 @@ struct GameView: View {
                             && (end.rankNum == 8 || end.rankNum == 1)
                             && viewModel.isValidMove(movingPiece, from: start, to: end)
                         {
-                            print("HERE")
                             promotionStart = start
                             promotionSquare = end
                         }
@@ -74,7 +73,7 @@ struct GameView: View {
             if pgnMode {
                 Spacer(minLength: 100)
             }
-            CapturedPieceTray(capturedPieces: viewModel.whiteCapturedPieces)
+            CapturedPieceTray(capturedPieces: viewModel.game.whiteCapturedPieces)
                 .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
             ZStack {
                 activeGameView
@@ -86,11 +85,11 @@ struct GameView: View {
                 height: boardWidth,
                 alignment: .center
             )
-            CapturedPieceTray(capturedPieces: viewModel.blackCapturedPieces)
+            CapturedPieceTray(capturedPieces: viewModel.game.blackCapturedPieces)
                 .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
             if pgnMode {
                 ScrollView {
-                    Text(viewModel.pgnString)
+                    Text(viewModel.game.pgnString)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(colorScheme == .light ? .black : .white)
                         .padding()
@@ -105,7 +104,7 @@ struct GameView: View {
             HStack {
                 ForEach(capturedPieces, id: \.piece.id) { capturedPiece in
                     CapturedPiece(piece: capturedPiece.piece, count: capturedPiece.count)
-                        .padding(2)
+                        .padding(CGFloat(capturedPiece.count))
                 }
             }
         }
@@ -122,6 +121,7 @@ struct GameView: View {
                         .offset(x: CGFloat(index*5), y: 0)
                 }
             }
+            .padding(CGFloat(count))
         }
     }
     var dragIndicationCircle: some View {
@@ -209,9 +209,9 @@ struct GameView: View {
     
     var winnerCard: some View {
         ZStack {
-            if let winner = viewModel.winner {
-                let shape = RoundedRectangle(cornerSize: CGSize(width: 60, height: 60))
-                shape.fill().foregroundColor(.white).opacity(0.90)
+            if let winner = viewModel.game.winner {
+                let shape = RoundedRectangle(cornerSize: CGSize(width: 50, height: 50))
+                shape.fill().foregroundColor(.white).opacity(0.95)
                 shape.stroke(Color.black, lineWidth: 3)
                 Group {
                     if winner == "draw" {
