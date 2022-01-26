@@ -49,7 +49,7 @@ struct Game {
     var halfMoveClock = 0 // used for 50 move rule
     var fullMoveNumber = 1 // move counter
     
-    var winner : String?
+    var winner: String?
     
     var whiteCapturedPieces = [(piece: Piece, count: Int)]()
     var blackCapturedPieces = [(piece: Piece, count: Int)]()
@@ -106,43 +106,45 @@ struct Game {
     
     mutating func movePiece(from start: Coordinate, to end: Coordinate) -> Piece? {
         if let piece = getPiece(from: start) { // ensure a piece is on that tile
-            let capturedPiece = putPiece(piece, end)
             _ = removePiece(start)
-            changeCastlingRightsAfterMove(from: start, to: end)
-            return capturedPiece
+            return putPiece(piece, end)
         }
         return nil
     }
     
-    mutating func changeCastlingRightsAfterMove(from start: Coordinate, to end: Coordinate) {
-        if let piece = getPiece(from: end) {
-            let side = piece.side
-            if piece.type == .king {
-                if side == .white {
-                    whiteCanCastle = (false, false)
-                } else {
-                    blackCanCastle = (false, false)
-                }
-            } else if piece.type == .rook {
-                if side == .white {
-                    if start.algebraicNotation == "A1" {
-                        whiteCanCastle.queenSide = false
-                    }
-                    if start.algebraicNotation == "H1" {
-                        whiteCanCastle.kingSide = false
-                    }
-                } else {
-                    if start.algebraicNotation == "A8" {
-                        blackCanCastle.queenSide = false
-                    }
-                    if start.algebraicNotation == "H8" {
-                        blackCanCastle.kingSide = false
-                    }
-                }
+    mutating func capture(piece: Piece) {
+        if piece.side == .white {
+            self.blackCapturedPieces = self.blackCapturedPieces.appendAndSort(piece: piece)
+        } else {
+            self.whiteCapturedPieces = self.whiteCapturedPieces.appendAndSort(piece: piece)
+        }
+    }
+    mutating func recordMove(_ move: Move) {
+        if turn == .white {
+            pgn.append(FullMove(white: move, black: nil))
+            fullMoveNumber += 1
+        } else {
+            let fullMove = FullMove(white: pgn.last!.white, black: move)
+            pgn.removeLast()
+            pgn.append(fullMove)
+        }
+        halfMoveClock += 1
+        if move.piece.type == .pawn || move.capturedPiece != nil {
+            halfMoveClock = 0
+        }
+    }
+    mutating func removeRecordedMove() {
+        if let fullMoveToRemove = pgn.last {
+            if turn == .white {
+                let fullMove = FullMove(white: pgn.last!.white, black: nil)
+                pgn.removeLast()
+                pgn.append(fullMove)
+            } else {
+                pgn.removeLast()
+                fullMoveNumber -= 1
             }
         }
     }
-    
     // MARK: - Access Functions
     func getPiece(from coordinate: Coordinate) -> Piece? {
         board[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
@@ -175,24 +177,6 @@ struct Game {
         }
         return king
     }
-    
-    mutating func capture(piece: Piece) {
-        if piece.side == .white {
-            self.blackCapturedPieces = self.blackCapturedPieces.appendAndSort(piece: piece)
-        } else {
-            self.whiteCapturedPieces = self.whiteCapturedPieces.appendAndSort(piece: piece)
-        }
-    }
-    mutating func recordMove(_ move: Move) {
-        if turn == .white {
-            pgn.append(FullMove(white: move, black: nil))
-        } else {
-            let fullMove = FullMove(white: pgn.last!.white, black: move)
-            pgn.removeLast()
-            pgn.append(fullMove)
-        }
-        print(move.fullAlgebraicNotation)
-    }
     func isOccupied(_ coordinate: Coordinate, _ side: Side) -> Bool {
         if let piece = getPiece(from: coordinate) {
             return piece.side == side
@@ -201,15 +185,6 @@ struct Game {
     }
     func isEmpty(_ coordinate: Coordinate) -> Bool {
         return getPiece(from: coordinate) == nil
-    }
-    func isEmpty(_ coordinates: [Coordinate]) -> Bool {
-        var result = true
-        coordinates.forEach {
-            if !isEmpty($0) {
-                result = false
-            }
-        }
-        return result
     }
     
     func asArray() -> Array<Tile> {

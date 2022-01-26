@@ -41,11 +41,14 @@ class FEN {
         return gameBoard
     }
     
-    func makeString(from game: Game) -> String {
+    func makeString(from game: Game, withoutClocks: Bool = false) -> String {
         let piecePlacement = makeString(from: game.board)
         let activeColor = game.turn.rawValue
         let castlingAvailability = encodeCastlingAvailability(white: game.whiteCanCastle, black: game.blackCanCastle)
         let enPassantTargetSquare = game.enPassantTarget?.algebraicNotation ?? "-"
+        if withoutClocks {
+            return piecePlacement + " " + activeColor + " " + castlingAvailability + " " + enPassantTargetSquare
+        }
         let halfMoveClock = "\(game.halfMoveClock)"
         let fullMoveClock = "\(game.fullMoveNumber)"
         return piecePlacement + " " + activeColor + " " + castlingAvailability + " " + enPassantTargetSquare + " " + halfMoveClock + " " + fullMoveClock

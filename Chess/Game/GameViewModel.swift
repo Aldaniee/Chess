@@ -37,15 +37,17 @@ class GameViewModel: ObservableObject {
     
     func move(_ piece: Piece, from start: Coordinate, to end: Coordinate) {
         let moves = legalMoves(from: Tile(start, piece))
-        
         if moves.contains(end) {
-            var capturedPiece = game.movePiece(from: start, to: end)
-            // Determine if the king is castling inorder to move the rook
+            var capturedPiece = game.putPiece(piece, end)
+            _ = game.removePiece(start)
+            var isReversible = true
+            
             if piece.type == .king {
                 // Kingside/short castle
                 if start.upFile()?.upFile() == end {
                     if let rookLocation = start.upFile()?.upFile()?.upFile() {
                         _ = game.movePiece(from: rookLocation, to: start.upFile()!)
+                        isReversible = false
                     }
                 }
                 
@@ -53,26 +55,63 @@ class GameViewModel: ObservableObject {
                 if start.downFile()?.downFile() == end {
                     if let rookLocation = start.downFile()?.downFile()?.downFile()?.downFile() {
                         _ = game.movePiece(from: rookLocation, to: start.downFile()!)
+                        isReversible = false
                     }
                 }
                 
             }
-            
-            if piece.type == .pawn && capturedPiece == nil {
+            if piece.type == .pawn {
+                isReversible = false
                 // En Passant Special Case
-                // if a pawn moves diagonal and does not land on a pawn it must be capturing a pawn via en passant
-                if start.isDiagonal(from: end) {
+                if start.isDiagonal(from: end) && capturedPiece == nil {
+                    // When a pawn moves diagonally and landed on a piece it must be En Passant capturing
                     capturedPiece = game.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex))
                 }
             }
             if let capturedPiece = capturedPiece {
                 game.capture(piece: capturedPiece)
             }
-            game.recordMove(Move(from: start, to: end, with: piece.type, capturing: capturedPiece?.type, withCheck: inCheck(game, game.turn.opponent)))
+            changeCastlingRightsAfterMove(from: start, to: end)
+            let move = Move(
+                from: start,
+                to: end,
+                with: piece,
+                capturing: capturedPiece,
+                withCheck: inCheck(game, game.turn.opponent),
+                isReversible: isReversible
+            )
+            game.recordMove(move)
             nextTurn()
         }
     }
-    
+    func changeCastlingRightsAfterMove(from start: Coordinate, to end: Coordinate) {
+        if let piece = getPiece(from: end) {
+            let side = piece.side
+            if piece.type == .king {
+                if side == .white {
+                    game.whiteCanCastle = (false, false)
+                } else {
+                    game.blackCanCastle = (false, false)
+                }
+            } else if piece.type == .rook {
+                if side == .white {
+                    if start.algebraicNotation == "A1" {
+                        game.whiteCanCastle.queenSide = false
+                    }
+                    if start.algebraicNotation == "H1" {
+                        game.whiteCanCastle.kingSide = false
+                    }
+                } else {
+                    if start.algebraicNotation == "A8" {
+                        game.blackCanCastle.queenSide = false
+                    }
+                    if start.algebraicNotation == "H8" {
+                        game.blackCanCastle.kingSide = false
+                    }
+                }
+            }
+        }
+    }
     
     func getPiece(from coordinate: Coordinate) -> Piece? {
         return game.getPiece(from: coordinate)
@@ -93,6 +132,45 @@ class GameViewModel: ObservableObject {
                 game.winner = "draw"
             }
         }
+        if isThreefoldRepetition() {
+            game.winner = "draw"
+        }
+    }
+    
+    private func moveBackwards(game: Game) -> Game {
+        var pastGame = game.copy()
+        if let lastMove = pastGame.pgn.last {
+            let lastHalfMove = lastMove.black ?? lastMove.white
+            _ = pastGame.movePiece(from: lastHalfMove.end, to: lastHalfMove.start)
+            _ = pastGame.putPiece(lastHalfMove.capturedPiece, lastHalfMove.end)
+            pastGame.removeRecordedMove()
+        }
+        return pastGame
+    }
+    
+    private func isThreefoldRepetition() -> Bool {
+        var tempGame = game.copy()
+        var pastStates = [(state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1)]
+        while tempGame.pgn.count != 0 {
+            if let lastFull = tempGame.pgn.last {
+                let last = lastFull.black ?? lastFull.white
+                if last.isReversible != false {
+                    tempGame = moveBackwards(game: tempGame)
+                    if let index = pastStates.firstIndex(where: { $0.state == FEN.shared.makeString(from: tempGame, withoutClocks: true) }) {
+                        pastStates[index].appearances += 1
+                        if pastStates[index].appearances == 3 {
+                            return true
+                        }
+                    } else {
+                        pastStates.append((state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1))
+                    }
+                }
+                else {
+                    return false
+                }
+            }
+        }
+        return false
     }
     
     private func hasNoMoves(_ side: Side) -> Bool {
@@ -164,6 +242,8 @@ class GameViewModel: ObservableObject {
         _ = newState.movePiece(from: start, to: end)
         return inCheck(newState, game.turn)
     }
+    
+    
     
     /// Checks if the side whose turn it is is in check
     /// - Parameters:
