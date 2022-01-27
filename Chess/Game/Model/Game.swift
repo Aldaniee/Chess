@@ -40,22 +40,22 @@ struct Game {
 
     var id = UUID()
     
-    private (set) var board = [[Tile]]()
-    var turn = Side.white
-    var whiteCanCastle = (queenSide: true, kingSide: true)
-    var blackCanCastle = (queenSide: true, kingSide: true)
+    private (set) var board: [[Tile]]
+    private (set) var turn: Side
+    private (set) var whiteCanCastle: (queenSide: Bool, kingSide: Bool)
+    private (set) var blackCanCastle: (queenSide: Bool, kingSide: Bool)
 
-    var enPassantTarget: Coordinate? = nil
-    var halfMoveClock = 0 // used for 50 move rule
-    var fullMoveNumber = 1 // move counter
+    private (set) var enPassantTarget: Coordinate?
+    private (set) var halfMoveClock: Int // used for 50 move rule
+    private (set) var fullMoveNumber: Int // move counter
     
-    var winner: String?
-    
-    var whiteCapturedPieces = [(piece: Piece, count: Int)]()
-    var blackCapturedPieces = [(piece: Piece, count: Int)]()
+    private (set) var winner: String?
     
     private (set) var pgn = [FullMove]() // portable game notation
     
+    private (set) var whiteCapturedPieces: [(piece: Piece, count: Int)]
+    private (set) var blackCapturedPieces: [(piece: Piece, count: Int)]
+        
     var pgnString: String {
         var pgnString = ""
         for index in 0..<pgn.count {
@@ -73,24 +73,63 @@ struct Game {
         return side == .white ? whiteCanCastle.kingSide :  blackCanCastle.kingSide
     }
     
-    init() {
-        setupBoard()
-        winner = nil
-        pgn = [FullMove]()
-        whiteCapturedPieces = [(piece: Piece, count: Int)]()
-        blackCapturedPieces = [(piece: Piece, count: Int)]()
+    mutating func nextTurn() {
+        turn = turn == .white ? .black : .white
     }
-    init(_ gameBoard: [[Tile]]) {
-        self.board = gameBoard
-        turn = Side.white
-        winner = nil
-        pgn = [FullMove]()
-        whiteCapturedPieces = [(piece: Piece, count: Int)]()
-        blackCapturedPieces = [(piece: Piece, count: Int)]()
+    
+    mutating func setWinner(_ winner: String?) {
+        self.winner = winner
+    }
+    
+    mutating func changeCastlingRights(_ side: Side, queenSide: Bool? = nil, kingSide: Bool? = nil) {
+        if let queenSide = queenSide {
+            if side == .white {
+                whiteCanCastle.queenSide = queenSide
+            } else {
+                blackCanCastle.queenSide = queenSide
+            }
+        }
+        if let kingSide = kingSide {
+            if side == .white {
+                whiteCanCastle.kingSide = kingSide
+            } else {
+                blackCanCastle.kingSide = kingSide
+            }
+        }
+    }
+    
+    init(board: [[Tile]] = FEN.shared.makeBoard(from: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"),
+         fenBoard: String? = nil,
+         turn: Side = Side.white,
+         whiteCanCastle: (queenSide: Bool, kingSide: Bool) = (true, true),
+         blackCanCastle: (queenSide: Bool, kingSide: Bool) = (true, true),
+         enPassantTargetSquare: Coordinate? = nil,
+         halfMoveClock: Int = 0,
+         fullMoveNumber: Int = 1,
+         winner: String? = nil,
+         pgn: [FullMove] = [FullMove](),
+         whiteCapturedPieces: [(piece: Piece, count: Int)] = [(Piece, Int)](),
+         blackCapturedPieces: [(piece: Piece, count: Int)] = [(Piece, Int)]())
+    {
+        if let fenBoard = fenBoard {
+            self.board = FEN.shared.makeBoard(from: fenBoard)
+        } else {
+            self.board = board
+        }
+        self.turn = turn
+        self.whiteCanCastle = whiteCanCastle
+        self.blackCanCastle = blackCanCastle
+        self.enPassantTarget = enPassantTargetSquare
+        self.halfMoveClock = halfMoveClock
+        self.winner = winner
+        self.pgn = pgn
+        self.fullMoveNumber = fullMoveNumber
+        self.whiteCapturedPieces = whiteCapturedPieces
+        self.blackCapturedPieces = blackCapturedPieces
     }
     // MARK: - Board Changing Actions
-    mutating func setupBoard(from fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") {
-        board = FEN.shared.makeBoard(from: fen)
+    private func setupBoard(from fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") -> [[Tile]]{
+        return FEN.shared.makeBoard(from: fen)
     }
     private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
         board[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece
@@ -133,18 +172,28 @@ struct Game {
             halfMoveClock = 0
         }
     }
-    mutating func removeRecordedMove() {
+    private mutating func removeRecordedMove() {
         if let fullMoveToRemove = pgn.last {
-            if turn == .white {
-                let fullMove = FullMove(white: pgn.last!.white, black: nil)
-                pgn.removeLast()
+            pgn.removeLast()
+            if turn == .black {
+                let fullMove = FullMove(white: fullMoveToRemove.white, black: nil)
                 pgn.append(fullMove)
             } else {
-                pgn.removeLast()
                 fullMoveNumber -= 1
             }
         }
     }
+    
+    mutating func moveBackwards() {
+        if let lastMove = pgn.last {
+            let lastHalfMove = lastMove.black ?? lastMove.white
+            _ = movePiece(from: lastHalfMove.end, to: lastHalfMove.start)
+            _ = putPiece(lastHalfMove.capturedPiece, lastHalfMove.end)
+            nextTurn()
+            removeRecordedMove()
+        }
+    }
+    
     // MARK: - Access Functions
     func getPiece(from coordinate: Coordinate) -> Piece? {
         board[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
@@ -192,7 +241,7 @@ struct Game {
     }
     
     func copy() -> Game {
-        return Game(board)
+        return Game(board: board, pgn: pgn)
     }
     
     func debugGameBoard() {

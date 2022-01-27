@@ -34,7 +34,24 @@ class GameViewModel: ObservableObject {
         move(pawn, from: start, to: end)
         _ = game.putPiece(piece, end)
     }
-    
+    func changeCastlingRightsAfterMove(from start: Coordinate, to end: Coordinate) {
+        if let piece = getPiece(from: end) {
+            let side = piece.side
+            if piece.type == .king {
+                game.changeCastlingRights(side, queenSide: false, kingSide: false)
+            } else if piece.type == .rook {
+                if (side == .white && start.algebraicNotation[1] == "1")
+                || (side == .black && start.algebraicNotation[1] == "8") {
+                    if start.algebraicNotation == "A" {
+                        game.changeCastlingRights(side, queenSide: false)
+                    }
+                    if start.algebraicNotation == "H" {
+                        game.changeCastlingRights(side, kingSide: false)
+                    }
+                }
+            }
+        }
+    }
     func move(_ piece: Piece, from start: Coordinate, to end: Coordinate) {
         let moves = legalMoves(from: Tile(start, piece))
         if moves.contains(end) {
@@ -84,34 +101,6 @@ class GameViewModel: ObservableObject {
             nextTurn()
         }
     }
-    func changeCastlingRightsAfterMove(from start: Coordinate, to end: Coordinate) {
-        if let piece = getPiece(from: end) {
-            let side = piece.side
-            if piece.type == .king {
-                if side == .white {
-                    game.whiteCanCastle = (false, false)
-                } else {
-                    game.blackCanCastle = (false, false)
-                }
-            } else if piece.type == .rook {
-                if side == .white {
-                    if start.algebraicNotation == "A1" {
-                        game.whiteCanCastle.queenSide = false
-                    }
-                    if start.algebraicNotation == "H1" {
-                        game.whiteCanCastle.kingSide = false
-                    }
-                } else {
-                    if start.algebraicNotation == "A8" {
-                        game.blackCanCastle.queenSide = false
-                    }
-                    if start.algebraicNotation == "H8" {
-                        game.blackCanCastle.kingSide = false
-                    }
-                }
-            }
-        }
-    }
     
     func getPiece(from coordinate: Coordinate) -> Piece? {
         return game.getPiece(from: coordinate)
@@ -123,41 +112,34 @@ class GameViewModel: ObservableObject {
     // MARK: - Private
     
     private func nextTurn() {
-        game.turn = game.turn == .white ? .black : .white
+        game.nextTurn()
         if hasNoMoves(game.turn) {
             if inCheck(game, game.turn) {
-                game.winner = game.turn.opponent.name
+                game.setWinner(game.turn.opponent.name)
             }
             else {
-                game.winner = "draw"
+                game.setWinner("draw")
             }
         }
         if isThreefoldRepetition() {
-            game.winner = "draw"
+            print("threeFold")
+            game.setWinner("draw")
         }
     }
-    
-    private func moveBackwards(game: Game) -> Game {
-        var pastGame = game.copy()
-        if let lastMove = pastGame.pgn.last {
-            let lastHalfMove = lastMove.black ?? lastMove.white
-            _ = pastGame.movePiece(from: lastHalfMove.end, to: lastHalfMove.start)
-            _ = pastGame.putPiece(lastHalfMove.capturedPiece, lastHalfMove.end)
-            pastGame.removeRecordedMove()
-        }
-        return pastGame
-    }
+
     
     private func isThreefoldRepetition() -> Bool {
         var tempGame = game.copy()
         var pastStates = [(state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1)]
         while tempGame.pgn.count != 0 {
+            print("count:\(tempGame.pgn.count)")
             if let lastFull = tempGame.pgn.last {
                 let last = lastFull.black ?? lastFull.white
-                if last.isReversible != false {
-                    tempGame = moveBackwards(game: tempGame)
+                if last.isReversible {
+                    tempGame.moveBackwards()
                     if let index = pastStates.firstIndex(where: { $0.state == FEN.shared.makeString(from: tempGame, withoutClocks: true) }) {
                         pastStates[index].appearances += 1
+                        print("\(pastStates[index].state) \(pastStates[index].appearances)")
                         if pastStates[index].appearances == 3 {
                             return true
                         }

@@ -59,26 +59,21 @@ class FEN {
         guard fields.count == 6 else {
             throw FENError.decodingError
         }
-        var game = Game(makeBoard(from: fields[0].description))
+        let board = makeBoard(from: fields[0].description)
         guard let side = Side(rawValue: fields[1].description) else {
             throw FENError.decodingError
         }
-        game.turn = side
+        let turn = side
         let canCastle = decodeCastlingAvailability(from: fields[2].description)
-        game.whiteCanCastle = canCastle.white
-        game.blackCanCastle = canCastle.black
+        let whiteCanCastle = canCastle.white
+        let blackCanCastle = canCastle.black
         let enPassantTargetSquare = fields[3].description
-        if enPassantTargetSquare == "-" {
-            game.enPassantTarget = nil
-        }
-        else {
-            game.enPassantTarget = Coordinate(algebraicNotation: enPassantTargetSquare)
-        }
-        let halfMoveClock = fields[4].description
-        game.halfMoveClock = Int(halfMoveClock) ?? 0
-        let fullMoveNumber = fields[5].description
-        game.fullMoveNumber = Int(fullMoveNumber) ?? 0
-        return game
+        
+        let enPassantTarget = fields[3].description == "-" ? nil : Coordinate(algebraicNotation: enPassantTargetSquare)
+        
+        let halfMoveClock = Int(fields[4].description) ?? 0
+        let fullMoveNumber = Int(fields[5].description) ?? 1
+        return Game(board: board, turn: turn, whiteCanCastle: whiteCanCastle, blackCanCastle: blackCanCastle, enPassantTargetSquare: enPassantTarget, halfMoveClock: halfMoveClock, fullMoveNumber: fullMoveNumber)
     }
     
     private func decodeCastlingAvailability(from fenSubstring: String ) -> (white: (queenSide: Bool, kingSide: Bool), black: (queenSide: Bool, kingSide: Bool)) {
