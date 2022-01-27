@@ -10,7 +10,7 @@ import SwiftUI
 struct PieceView: View {
     
     let tile: Tile
-    @ObservedObject var game: GameViewModel
+    @ObservedObject var viewModel: GameViewModel
     @State private var dragAmount = CGSize.zero
     @State private var scaleAmount: CGFloat = 1.0
     
@@ -28,7 +28,7 @@ struct PieceView: View {
         let piece = tile.piece
         let dragGesture = DragGesture(coordinateSpace: .global)
             .onChanged { dragValue in
-                if game.getTurn() == piece?.side {
+                if viewModel.turn == piece?.side {
                     scaleAmount = scaleFactor
                     selectedTile = startCoordinate
                     self.dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)

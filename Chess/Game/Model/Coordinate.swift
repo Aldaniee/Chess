@@ -73,7 +73,6 @@ struct Coordinate: Equatable, Hashable {
     }
     
     // MARK: Directions
-    
     func upRank() -> Coordinate? {
         if rankIndex < 7 {
             return Coordinate(rankIndex: rankIndex+1, fileIndex: fileIndex)
@@ -220,5 +219,9 @@ struct Coordinate: Equatable, Hashable {
     }
     func isValid() -> Bool {
         return rankIndex < Game.Constants.dimensions && fileIndex < Game.Constants.dimensions && fileIndex > -1 && rankIndex > -1
+    }
+    
+    func distance(to coordinate: Coordinate) -> Int {
+        return abs(coordinate.rankIndex-self.rankIndex) + abs(coordinate.fileIndex-self.fileIndex)
     }
 }

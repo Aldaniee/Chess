@@ -43,7 +43,7 @@ struct GameView: View {
         if let start = oldSelection {
             if let end = newSelection {
                 if let movingPiece = viewModel.getPiece(from: start) {
-                    if movingPiece.side == viewModel.getTurn() {
+                    if movingPiece.side == viewModel.turn {
                         if movingPiece.type == .pawn
                             && (end.rankNum == 8 || end.rankNum == 1)
                             && viewModel.isValidMove(movingPiece, from: start, to: end)
@@ -89,7 +89,7 @@ struct GameView: View {
                 .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
             if pgnMode {
                 ScrollView {
-                    Text(viewModel.game.pgnString)
+                    Text(viewModel.pgnString)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(colorScheme == .light ? .black : .white)
                         .padding()
@@ -210,18 +210,16 @@ struct GameView: View {
     var winnerCard: some View {
         ZStack {
             let status = viewModel.game.gameStatus
-            let turn = viewModel.game.turn
+            let turn = viewModel.turn
             if status != .playing {
                 let shape = RoundedRectangle(cornerSize: CGSize(width: 50, height: 50))
                 shape.fill().foregroundColor(.white).opacity(0.95)
                 shape.stroke(Color.black, lineWidth: 3)
                 Group {
                     switch status {
-                    case .playing:
-                        Text(status.display)
-                    case .checkmating, .flaging, .resigning:
+                    case .checkmating, .flagging, .resigning:
                         Text("\(turn.name) Won \(status.display)!")
-                    case .drawingByPosition, .drawingByAgreement, .drawingByRepetition, .drawingByFiftyMoveRule:
+                    default:
                         Text(status.display)
                     }
                 }
@@ -260,7 +258,7 @@ struct GameView: View {
                                         await clickToSelectTile(at: tile.coordinate)
                                     }
                                 } label: {
-                                    PieceView(tile: tile, game: viewModel, dropToSelectTile: makeSecondSelection(at:), selectedTile: $selectedTile, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
+                                    PieceView(tile: tile, viewModel: viewModel, dropToSelectTile: makeSecondSelection(at:), selectedTile: $selectedTile, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
                                         .aspectRatio(contentMode: .fill)
                                         .zIndex(selectedTile == tile.coordinate ? 1 : 0)
                                 }
