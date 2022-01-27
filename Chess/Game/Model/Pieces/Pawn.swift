@@ -21,57 +21,45 @@ struct Pawn: Piece {
         self.side = side
     }
     
-    func threatsCreated(from start: Coordinate, _ board: Game) -> [Coordinate] {
+    func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate] {
         return side == .white ? start.upOneDiagonals() : start.downOneDiagonals()
     }
     
-    func allPossibleMoves(from start: Coordinate, _ board: Game) -> [Coordinate] {
-        var moves = [Coordinate]()
+    func allPossibleMoves(from start: Coordinate, _ game: Game) -> [Move] {
+        var moves = [Move]()
         // move forward one or two swuares
         if let forward = side == .white ? start.upRank() : start.downRank() {
             // Ensure the pawn only moves forward if the square ahead is empty
-            if board.isEmpty(forward) {
-                moves.append(forward)
+            if game.isEmpty(forward) {
+                moves.append(Move(game, from: start, to: forward))
                 if let forwardTwo = side == .white ? forward.upRank() : forward.downRank() {
                     let onStartRank = side == .white ? start.rankNum == 2 : start.rankNum == 7
-                    if board.isEmpty(forwardTwo) && onStartRank {
-                        moves.append(forwardTwo)
+                    if game.isEmpty(forwardTwo) && onStartRank {
+                        moves.append(Move(game, from: start, to: forwardTwo))
                     }
                 }
             }
         }
         
-        let attacks = threatsCreated(from: start, board)
+        let attacks = threatsCreated(from: start, game)
         // diagonal attacks
-        attacks.forEach( { end in
-            if let pieceToAttack = board.getPiece(from: end) {
-                let isOppositeColor = pieceToAttack.side != side
-                if isOppositeColor {
-                    moves.append(end)
-                }
+        attacks.forEach { end in
+            if let pieceToAttack = game.getPiece(from: end), pieceToAttack.side != side {
+                moves.append(Move(game, from: start, to: end))
             }
-        } )
+        }
         // en passant
         if start.rankNum == (side == .white ? 5 : 4) {
-            var adjacent = [Coordinate]()
-            if let upFile = start.upFile() {
-                adjacent.append(upFile)
-            }
-            if let downFile = start.downFile() {
-                adjacent.append(downFile)
-            }
-            adjacent.forEach( {
-                if let pieceToAttack = board.getPiece(from: $0) {
-                    let isOppositeColor = pieceToAttack.side != side
-                    // TODO: Make En Passant only work when the piece just moved
-                    let pieceToAttackJustMovedForwardTwo = true
-                    if isOppositeColor && pieceToAttack.type == .pawn && pieceToAttackJustMovedForwardTwo {
-                        if let diagonalAttack = side == .white ? $0.upRank() : $0.downRank() {
-                            moves.append(diagonalAttack)
-                        }
-                    }
+            if let upFile = start.upFile(), upFile == game.enPassantTarget {
+                if let diagonalAttack = side == .white ? upFile.upRank() : upFile.downRank() {
+                    moves.append(Move(game, from: start, to: diagonalAttack))
                 }
-            } )
+            }
+            if let downFile = start.downFile(), downFile == game.enPassantTarget {
+                if let diagonalAttack = side == .white ? downFile.upRank() : downFile.downRank() {
+                    moves.append(Move(game, from: start, to: diagonalAttack))
+                }
+            }
         }
         return moves
     }

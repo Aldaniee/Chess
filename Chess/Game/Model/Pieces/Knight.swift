@@ -21,7 +21,7 @@ class Knight: Piece {
         self.side = side
     }
     
-    func threatsCreated(from start: Coordinate, _ board: Game) -> [Coordinate] {
+    func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate] {
         var moves = [Coordinate]()
         
         if let upTwo = start.upRank()?.upRank() {
@@ -60,7 +60,7 @@ class Knight: Piece {
         return moves
     }
     
-    func allPossibleMoves(from start: Coordinate, _ board: Game) -> [Coordinate] {
+    func allPossibleMoves(from start: Coordinate, _ board: Game) -> [Move] {
         self.getMovesFromThreats(from: start, board)
     }
 }

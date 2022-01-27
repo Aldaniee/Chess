@@ -28,7 +28,7 @@ extension Game: Codable, Identifiable {
 }
 
 enum GameError : Error {
-    case missingKing
+    case missingKing, invalidMove
 }
 
 enum GameStatus {
@@ -103,6 +103,76 @@ struct Game {
     
     func canShortCastle(_ side: Side) -> Bool {
         return side == .white ? whiteCanCastle.kingSide :  blackCanCastle.kingSide
+    }
+    
+    
+    private func hasNoMoves() -> Bool {
+        var result = true
+        getAllTilesWithPieces(of: turn).forEach { tile in
+            if !legalMoves(from: tile).isEmpty {
+                result = false
+                return
+            }
+        }
+        return result
+    }
+    func doesMoveIntoCheck(from start: Coordinate, to end: Coordinate) -> Bool {
+        var newState = self.copy()
+        _ = newState.movePiece(from: start, to: end)
+        return newState.isCheck()
+    }
+    
+    func doesMoveCheckOpponent(from start: Coordinate, to end: Coordinate) -> Bool {
+        var newState = self.copy()
+        _ = newState.movePiece(from: start, to: end)
+        newState.nextTurn()
+        return newState.isCheck()
+    }
+    func doesMoveCheckmateOpponent(from start: Coordinate, to end: Coordinate) -> Bool {
+        var newState = self.copy()
+        _ = newState.movePiece(from: start, to: end)
+        newState.nextTurn()
+        return newState.isCheckmate()
+    }
+    
+    /// Get all legal moves for a piece from a tile that contains that piece
+    /// - Parameter tile: Tile that must contain a piece
+    /// - Returns: Array of possible moves
+    func legalMoves(from tile: Tile) -> [Move] {
+        if let piece = tile.piece {
+            return piece.allPossibleMoves(from: tile.coordinate, self)
+        }
+        return [Move]()
+    }
+    
+    /// Determines if the side whose turn it is is in check
+    func isCheck() -> Bool {
+        // define sides
+        let kingSide = turn
+        let attackingSide = turn.opponent
+        do {
+            let kingTile = try getKingTile(kingSide)
+            let tilesWithAttackingPieces = getAllTilesWithPieces(of: attackingSide)
+            for tile in tilesWithAttackingPieces {
+                let threats = tile.piece!.threatsCreated(from: tile.coordinate, self)
+                for threat in threats {
+                    if threat == kingTile.coordinate {
+                        return true
+                    }
+                }
+            }
+        } catch {
+            print("ERROR: invalid board state \(error)")
+        }
+        return false
+    }
+    /// Determines if the side whose turn it is is in checkmate
+    func isCheckmate() -> Bool {
+        return isCheck() && hasNoMoves()
+    }
+    /// Determines if the game is a draw
+    func isDraw() -> Bool {
+        return !isCheck() && hasNoMoves()
     }
     
     mutating func nextTurn() {

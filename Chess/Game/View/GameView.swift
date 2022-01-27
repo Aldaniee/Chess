@@ -52,7 +52,7 @@ struct GameView: View {
                             promotionSquare = end
                         }
                         else {
-                            viewModel.move(movingPiece, from: start, to: end)
+                            viewModel.move(from: start, to: end)
                             await NetworkManager.shared.updateGame(viewModel.game)
                             return true
                         }
@@ -78,7 +78,7 @@ struct GameView: View {
             ZStack {
                 activeGameView
                 winnerCard
-                ChoosePromotionView(promotionSquare: $promotionSquare, promotionStart: $promotionStart, promotePawn: viewModel.promotePawn(from:to:into:), tileWidth: tileWidth)
+                ChoosePromotionView(promotionSquare: $promotionSquare, promotionStart: $promotionStart, promotePawn: viewModel.moveAndPromotePawn(from:to:into:), tileWidth: tileWidth)
             }
             .frame(
                 width: boardWidth,
