@@ -209,16 +209,20 @@ struct GameView: View {
     
     var winnerCard: some View {
         ZStack {
-            if let winner = viewModel.game.winner {
+            let status = viewModel.game.gameStatus
+            let turn = viewModel.game.turn
+            if status != .playing {
                 let shape = RoundedRectangle(cornerSize: CGSize(width: 50, height: 50))
                 shape.fill().foregroundColor(.white).opacity(0.95)
                 shape.stroke(Color.black, lineWidth: 3)
                 Group {
-                    if winner == "draw" {
-                        Text("Draw!")
-                    }
-                    else {
-                        Text("\(winner) Won!")
+                    switch status {
+                    case .playing:
+                        Text(status.display)
+                    case .checkmating, .flaging, .resigning:
+                        Text("\(turn.name) Won \(status.display)!")
+                    case .drawingByPosition, .drawingByAgreement, .drawingByRepetition, .drawingByFiftyMoveRule:
+                        Text(status.display)
                     }
                 }
                 .font(.system(size: CGFloat(30)))

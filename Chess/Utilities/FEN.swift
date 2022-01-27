@@ -15,10 +15,10 @@ enum FENError: Error {
 class FEN {
     static let shared = FEN()
     
-    func makeBoard(from fen: String) -> [[Tile]] {
-        var gameBoard = [[Tile]]()
+    func makeBoard(from fen: String) -> Board {
+        var gameBoard = Board()
         for _ in 0..<8 {
-            gameBoard.append([Tile]())
+            gameBoard.append(Rank())
         }
         let board = fen.components(separatedBy: "/")
         for rank in 0..<8 {
@@ -98,7 +98,7 @@ class FEN {
         return castlingAvailability
     }
     
-    private func makeString(from board: [[Tile]]) -> String {
+    private func makeString(from board: Board) -> String {
         var FENstring = ""
         for rank in 0..<board.count {
             var numEmpty = 0

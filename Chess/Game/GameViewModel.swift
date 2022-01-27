@@ -115,15 +115,14 @@ class GameViewModel: ObservableObject {
         game.nextTurn()
         if hasNoMoves(game.turn) {
             if inCheck(game, game.turn) {
-                game.setWinner(game.turn.opponent.name)
+                game.setGameStatus(.checkmating)
             }
             else {
-                game.setWinner("draw")
+                game.setGameStatus(.drawingByPosition)
             }
         }
         if isThreefoldRepetition() {
-            print("threeFold")
-            game.setWinner("draw")
+            game.setGameStatus(.drawingByRepetition)
         }
     }
 
@@ -132,7 +131,6 @@ class GameViewModel: ObservableObject {
         var tempGame = game.copy()
         var pastStates = [(state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1)]
         while tempGame.pgn.count != 0 {
-            print("count:\(tempGame.pgn.count)")
             if let lastFull = tempGame.pgn.last {
                 let last = lastFull.black ?? lastFull.white
                 if last.isReversible {

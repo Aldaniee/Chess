@@ -27,6 +27,43 @@ extension Game: Codable, Identifiable {
     }
 }
 
+enum GameStatus {
+    case playing
+    case checkmating
+    case flaging
+    case resigning
+    case drawingByPosition
+    case drawingByRepetition
+    case drawingByFiftyMoveRule
+    case drawingByAgreement
+    
+    var display : String {
+        switch self {
+        case .playing:
+            return "In Progress"
+        case .checkmating:
+            return "by Checkmate"
+        case .flaging:
+            return "by Flagging"
+        case .resigning:
+            return "by Resignation"
+        case .drawingByPosition:
+            return "Draw"
+        case .drawingByRepetition:
+            return "Draw by Repetition"
+        case .drawingByFiftyMoveRule:
+            return "Draw by Fifty Move Rule"
+        case .drawingByAgreement:
+            return "Draw by Agreement"
+        }
+    }
+}
+
+typealias CastleRights = (queenSide: Bool, kingSide: Bool)
+typealias Board = [Rank]
+typealias Rank = [Tile]
+typealias PieceCounter = (piece: Piece, count: Int)
+
 struct FullMove {
     var white: Move
     var black: Move?
@@ -38,23 +75,23 @@ struct FullMove {
 
 struct Game {
 
-    var id = UUID()
+    private (set) var id: UUID
     
-    private (set) var board: [[Tile]]
+    private (set) var board: Board
     private (set) var turn: Side
-    private (set) var whiteCanCastle: (queenSide: Bool, kingSide: Bool)
-    private (set) var blackCanCastle: (queenSide: Bool, kingSide: Bool)
+    private (set) var whiteCanCastle: CastleRights
+    private (set) var blackCanCastle: CastleRights
 
     private (set) var enPassantTarget: Coordinate?
     private (set) var halfMoveClock: Int // used for 50 move rule
     private (set) var fullMoveNumber: Int // move counter
     
-    private (set) var winner: String?
+    private (set) var gameStatus: GameStatus
     
     private (set) var pgn = [FullMove]() // portable game notation
     
-    private (set) var whiteCapturedPieces: [(piece: Piece, count: Int)]
-    private (set) var blackCapturedPieces: [(piece: Piece, count: Int)]
+    private (set) var whiteCapturedPieces: [PieceCounter]
+    private (set) var blackCapturedPieces: [PieceCounter]
         
     var pgnString: String {
         var pgnString = ""
@@ -77,8 +114,8 @@ struct Game {
         turn = turn == .white ? .black : .white
     }
     
-    mutating func setWinner(_ winner: String?) {
-        self.winner = winner
+    mutating func setGameStatus(_ gameStatus: GameStatus) {
+        self.gameStatus = gameStatus
     }
     
     mutating func changeCastlingRights(_ side: Side, queenSide: Bool? = nil, kingSide: Bool? = nil) {
@@ -98,19 +135,23 @@ struct Game {
         }
     }
     
-    init(board: [[Tile]] = FEN.shared.makeBoard(from: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"),
-         fenBoard: String? = nil,
-         turn: Side = Side.white,
-         whiteCanCastle: (queenSide: Bool, kingSide: Bool) = (true, true),
-         blackCanCastle: (queenSide: Bool, kingSide: Bool) = (true, true),
-         enPassantTargetSquare: Coordinate? = nil,
-         halfMoveClock: Int = 0,
-         fullMoveNumber: Int = 1,
-         winner: String? = nil,
-         pgn: [FullMove] = [FullMove](),
-         whiteCapturedPieces: [(piece: Piece, count: Int)] = [(Piece, Int)](),
-         blackCapturedPieces: [(piece: Piece, count: Int)] = [(Piece, Int)]())
+    init(
+        id: UUID = UUID(),
+        board: Board = FEN.shared.makeBoard(from: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"),
+        fenBoard: String? = nil,
+        turn: Side = Side.white,
+        whiteCanCastle: (queenSide: Bool, kingSide: Bool) = (true, true),
+        blackCanCastle: (queenSide: Bool, kingSide: Bool) = (true, true),
+        enPassantTargetSquare: Coordinate? = nil,
+        halfMoveClock: Int = 0,
+        fullMoveNumber: Int = 1,
+        gameStatus: GameStatus = .playing,
+        pgn: [FullMove] = [FullMove](),
+        whiteCapturedPieces: [(piece: Piece, count: Int)] = [(Piece, Int)](),
+        blackCapturedPieces: [(piece: Piece, count: Int)] = [(Piece, Int)]()
+    )
     {
+        self.id = id
         if let fenBoard = fenBoard {
             self.board = FEN.shared.makeBoard(from: fenBoard)
         } else {
@@ -121,7 +162,7 @@ struct Game {
         self.blackCanCastle = blackCanCastle
         self.enPassantTarget = enPassantTargetSquare
         self.halfMoveClock = halfMoveClock
-        self.winner = winner
+        self.gameStatus = gameStatus
         self.pgn = pgn
         self.fullMoveNumber = fullMoveNumber
         self.whiteCapturedPieces = whiteCapturedPieces
@@ -236,7 +277,7 @@ struct Game {
         return getPiece(from: coordinate) == nil
     }
     
-    func asArray() -> Array<Tile> {
+    func asArray() -> [Tile] {
         return Array(board.joined())
     }
     

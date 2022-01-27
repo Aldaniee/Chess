@@ -23,9 +23,9 @@ enum Side : String, Codable {
     var name: String {
         switch self {
         case .white:
-            return "white"
+            return "White"
         case .black:
-            return "black"
+            return "Black"
         }
     }
 }
