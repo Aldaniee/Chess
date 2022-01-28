@@ -97,6 +97,12 @@ struct Game {
     private (set) var whiteCapturedPieces: [PieceCounter]
     private (set) var blackCapturedPieces: [PieceCounter]
     
+    func doesMoveIntoCheck(from start: Coordinate, to end: Coordinate) -> Bool {
+        var newState = self.copy()
+        _ = newState.movePiece(from: start, to: end)
+        return newState.isCheck()
+    }
+    
     func canLongCastle(_ side: Side) -> Bool {
         return side == .white ? whiteCanCastle.queenSide :  blackCanCastle.queenSide
     }
@@ -105,27 +111,9 @@ struct Game {
         return side == .white ? whiteCanCastle.kingSide :  blackCanCastle.kingSide
     }
     
-    
-    private func hasNoMoves() -> Bool {
-        var result = true
-        getAllTilesWithPieces(of: turn).forEach { tile in
-            if !legalMoves(from: tile).isEmpty {
-                result = false
-                return
-            }
-        }
-        return result
-    }
-    func doesMoveIntoCheck(from start: Coordinate, to end: Coordinate) -> Bool {
-        var newState = self.copy()
-        _ = newState.movePiece(from: start, to: end)
-        return newState.isCheck()
-    }
-    
     func doesMoveCheckOpponent(from start: Coordinate, to end: Coordinate) -> Bool {
         var newState = self.copy()
         _ = newState.movePiece(from: start, to: end)
-        newState.nextTurn()
         return newState.isCheck()
     }
     func doesMoveCheckmateOpponent(from start: Coordinate, to end: Coordinate) -> Bool {
@@ -282,27 +270,9 @@ struct Game {
         }
     }
     
-    private func setupBoard(from fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") -> [[Tile]]{
-        return FEN.shared.makeBoard(from: fen)
-    }
-    private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
-        board[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece = piece
-    }
-    private mutating func removeRecordedMove() {
-        if let fullMoveToRemove = pgn.last {
-            pgn.removeLast()
-            if turn == .black {
-                let fullMove = FullMove(white: fullMoveToRemove.white, black: nil)
-                pgn.append(fullMove)
-            } else {
-                fullMoveNumber -= 1
-            }
-        }
-    }
-    
     // MARK: - Access Functions
     func getPiece(from coordinate: Coordinate) -> Piece? {
-        board[Constants.maxIndex-coordinate.rankIndex][coordinate.fileIndex].piece
+        board[7-coordinate.rankIndex][coordinate.fileIndex].piece
     }
     
     func getAllTilesWithPieces(of side: Side) -> [Tile] {
@@ -358,9 +328,36 @@ struct Game {
             }
         }
     }
-    struct Constants {
-        static let dimensions = 8
-        static let maxIndex = dimensions - 1
+    
+    // MARK: - Private Accessors
+    private func hasNoMoves() -> Bool {
+        var result = true
+        getAllTilesWithPieces(of: turn).forEach { tile in
+            if !legalMoves(from: tile).isEmpty {
+                result = false
+                return
+            }
+        }
+        return result
+    }
+    private func setupBoard(from fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") -> [[Tile]] {
+        return FEN.shared.makeBoard(from: fen)
+    }
+    
+    // MARK: - Private Mutators
+    private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
+        board[7-coordinate.rankIndex][coordinate.fileIndex].piece = piece
+    }
+    private mutating func removeRecordedMove() {
+        if let fullMoveToRemove = pgn.last {
+            pgn.removeLast()
+            if turn == .black {
+                let fullMove = FullMove(white: fullMoveToRemove.white, black: nil)
+                pgn.append(fullMove)
+            } else {
+                fullMoveNumber -= 1
+            }
+        }
     }
     
 }

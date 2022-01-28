@@ -21,6 +21,9 @@
 		EA1712802798B06F0090D9EF /* MockJSONBoard.json in Resources */ = {isa = PBXBuildFile; fileRef = EA17127F2798B06F0090D9EF /* MockJSONBoard.json */; };
 		EA1712832798B1CF0090D9EF /* MockJSONBoard.json in Resources */ = {isa = PBXBuildFile; fileRef = EA17127F2798B06F0090D9EF /* MockJSONBoard.json */; };
 		EA171286279B03420090D9EF /* MenuViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA171285279B03420090D9EF /* MenuViewModel.swift */; };
+		EA17128F27A454110090D9EF /* CapturedPieceTrayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA17128E27A454100090D9EF /* CapturedPieceTrayView.swift */; };
+		EA17129127A454440090D9EF /* ChoosePromotionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA17129027A454440090D9EF /* ChoosePromotionView.swift */; };
+		EA17129327A45C470090D9EF /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA17129227A45C470090D9EF /* BoardView.swift */; };
 		EA8CB6AF277DFBE000CAF379 /* ChessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6AE277DFBE000CAF379 /* ChessApp.swift */; };
 		EA8CB6B1277DFBE000CAF379 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6B0277DFBE000CAF379 /* GameView.swift */; };
 		EA8CB6B3277DFBE400CAF379 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA8CB6B2277DFBE400CAF379 /* Assets.xcassets */; };
@@ -71,6 +74,9 @@
 		EA1712782798B0130090D9EF /* UnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitTests.swift; sourceTree = "<group>"; };
 		EA17127F2798B06F0090D9EF /* MockJSONBoard.json */ = {isa = PBXFileReference; explicitFileType = text.json; path = MockJSONBoard.json; sourceTree = "<group>"; };
 		EA171285279B03420090D9EF /* MenuViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewModel.swift; sourceTree = "<group>"; };
+		EA17128E27A454100090D9EF /* CapturedPieceTrayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturedPieceTrayView.swift; sourceTree = "<group>"; };
+		EA17129027A454440090D9EF /* ChoosePromotionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoosePromotionView.swift; sourceTree = "<group>"; };
+		EA17129227A45C470090D9EF /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		EA8CB6AB277DFBE000CAF379 /* Chess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chess.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA8CB6AE277DFBE000CAF379 /* ChessApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessApp.swift; sourceTree = "<group>"; };
 		EA8CB6B0277DFBE000CAF379 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
@@ -184,8 +190,11 @@
 			isa = PBXGroup;
 			children = (
 				EA8CB6B0277DFBE000CAF379 /* GameView.swift */,
+				EA17129227A45C470090D9EF /* BoardView.swift */,
 				EAA00FA827908C1300F5BFF5 /* PieceView.swift */,
 				EAA00FAA27908C1B00F5BFF5 /* TileView.swift */,
+				EA17128E27A454100090D9EF /* CapturedPieceTrayView.swift */,
+				EA17129027A454440090D9EF /* ChoosePromotionView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -393,6 +402,7 @@
 				EAA00FA927908C1300F5BFF5 /* PieceView.swift in Sources */,
 				EA8CB6AF277DFBE000CAF379 /* ChessApp.swift in Sources */,
 				EAA00FAB27908C1B00F5BFF5 /* TileView.swift in Sources */,
+				EA17129327A45C470090D9EF /* BoardView.swift in Sources */,
 				EA8CB6C7277E038600CAF379 /* Extensions.swift in Sources */,
 				EA8CB6C9277E55C000CAF379 /* GameViewModel.swift in Sources */,
 				EA8CB6CB277F5DB100CAF379 /* Coordinate.swift in Sources */,
@@ -405,10 +415,12 @@
 				EA171286279B03420090D9EF /* MenuViewModel.swift in Sources */,
 				EA8CB6C1277DFD2C00CAF379 /* Piece.swift in Sources */,
 				EA0F7AE82788DC9A00E506E5 /* Bishop.swift in Sources */,
+				EA17128F27A454110090D9EF /* CapturedPieceTrayView.swift in Sources */,
 				EA0F7AE62788D9C500E506E5 /* Knight.swift in Sources */,
 				EA0F7AE4278768F900E506E5 /* Rook.swift in Sources */,
 				EAA00FA0278CE2E200F5BFF5 /* Move.swift in Sources */,
 				EA8CB6BD277DFC2900CAF379 /* Game.swift in Sources */,
+				EA17129127A454440090D9EF /* ChoosePromotionView.swift in Sources */,
 				EA8CB6BF277DFCCF00CAF379 /* Tile.swift in Sources */,
 				EA17125A279766120090D9EF /* FEN.swift in Sources */,
 			);

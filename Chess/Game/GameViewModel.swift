@@ -28,6 +28,14 @@ class GameViewModel: ObservableObject {
     var boardArray: [Tile] {
         game.asArray()
     }
+    
+    func selectedOwnPiece(_ coordinate: Coordinate) -> Bool {
+        if let piece = getPiece(from: coordinate) {
+            return piece.side == turn
+        }
+        return false
+    }
+    
     func getPiece(from coordinate: Coordinate) -> Piece? {
         return game.getPiece(from: coordinate)
     }
@@ -39,10 +47,6 @@ class GameViewModel: ObservableObject {
     }
     
     // MARK: - Intents
-    func moveAndPromotePawn(from start: Coordinate, to end: Coordinate, into piece: Piece) {
-        move(from: start, to: end, promotesTo: piece)
-        _ = game.putPiece(piece, end)
-    }
     func changeCastlingRights(after move: Move) {
         let piece = move.piece
         let start = move.start
@@ -94,6 +98,7 @@ class GameViewModel: ObservableObject {
                 if let capturedPiece = capturedPiece {
                     game.recordCapture(piece: capturedPiece)
                 }
+                _ = game.putPiece(piece, end)
                 changeCastlingRights(after: move)
                 game.recordMove(move)
                 nextTurn()

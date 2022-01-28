@@ -32,7 +32,7 @@ struct PieceView: View {
                     scaleAmount = scaleFactor
                     selectedTile = startCoordinate
                     self.dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)
-                    let rank = Game.Constants.maxIndex - Int((dragValue.location.y - boardTop) / tileWidth)
+                    let rank = 7 - Int((dragValue.location.y - boardTop) / tileWidth)
                     let file = Int((dragValue.location.x) / tileWidth)
                     highlightedTile = Coordinate(rankIndex: rank, fileIndex: file)
                 }

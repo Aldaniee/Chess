@@ -135,7 +135,7 @@ struct Coordinate: Equatable, Hashable {
     }
     func sameFile() -> [Coordinate] {
         var coords = [Coordinate]()
-        for rank in 0..<Game.Constants.dimensions {
+        for rank in 0..<8 {
             if rank != rankIndex {
                 coords.append(Coordinate(rankIndex: rank, fileIndex: fileIndex))
             }
@@ -144,7 +144,7 @@ struct Coordinate: Equatable, Hashable {
     }
     func sameRank() -> [Coordinate] {
         var coords = [Coordinate]()
-        for file in 0..<Game.Constants.dimensions {
+        for file in 0..<8 {
             if file != fileIndex {
                 coords.append(Coordinate(rankIndex: rankIndex, fileIndex: file))
             }
@@ -218,7 +218,7 @@ struct Coordinate: Equatable, Hashable {
         return self.fileIndex == end.fileIndex
     }
     func isValid() -> Bool {
-        return rankIndex < Game.Constants.dimensions && fileIndex < Game.Constants.dimensions && fileIndex > -1 && rankIndex > -1
+        return rankIndex < 8 && fileIndex < 8 && fileIndex > -1 && rankIndex > -1
     }
     
     func distance(to coordinate: Coordinate) -> Int {
