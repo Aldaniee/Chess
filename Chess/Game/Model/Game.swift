@@ -317,7 +317,7 @@ struct Game {
     }
     
     func copy() -> Game {
-        return Game(board: board, pgn: pgn)
+        return Game(id: id, board: board, turn: turn, whiteCanCastle: whiteCanCastle, blackCanCastle: blackCanCastle, enPassantTargetSquare: enPassantTarget, halfMoveClock: halfMoveClock, fullMoveNumber: fullMoveNumber, gameStatus: gameStatus, pgn: pgn, whiteCapturedPieces: whiteCapturedPieces, blackCapturedPieces: blackCapturedPieces)
     }
     
     func displayBoardInConsole() {

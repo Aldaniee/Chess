@@ -61,6 +61,9 @@ struct Pawn: Piece {
                 }
             }
         }
+        moves.removeAll { move in
+            game.doesMoveIntoCheck(from: start, to: move.end)
+        }
         return moves
     }
 }

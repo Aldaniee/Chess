@@ -54,6 +54,7 @@ extension Piece {
     func getMovesFromThreats(from start: Coordinate, _ game: Game) -> [Move] {
         var moves = [Move]()
         for potentialMove in threatsCreated(from: start, game) {
+            
             if !game.isOccupied(potentialMove, side) && !game.doesMoveIntoCheck(from: start, to: potentialMove) {
                 let move = Move(game, from: start, to: potentialMove)
                 moves.append(move)

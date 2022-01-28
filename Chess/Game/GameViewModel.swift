@@ -65,6 +65,12 @@ class GameViewModel: ObservableObject {
             }
         }
     }
+    
+    // For ease of testing
+    func move(from start: String, to end: String) {
+        move(from: Coordinate(algebraicNotation: start), to: Coordinate(algebraicNotation: end))
+    }
+    
     func move(from start: Coordinate, to end: Coordinate, promotesTo promotion: Piece? = nil) {
         if let piece = getPiece(from: start) {
             let move = Move(game, from: start, to: end, promotesTo: promotion)
@@ -102,6 +108,7 @@ class GameViewModel: ObservableObject {
                 changeCastlingRights(after: move)
                 game.recordMove(move)
                 nextTurn()
+                print(FEN.shared.makeString(from: game))
             }
         }
     }

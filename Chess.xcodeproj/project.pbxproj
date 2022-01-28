@@ -24,6 +24,7 @@
 		EA17128F27A454110090D9EF /* CapturedPieceTrayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA17128E27A454100090D9EF /* CapturedPieceTrayView.swift */; };
 		EA17129127A454440090D9EF /* ChoosePromotionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA17129027A454440090D9EF /* ChoosePromotionView.swift */; };
 		EA17129327A45C470090D9EF /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA17129227A45C470090D9EF /* BoardView.swift */; };
+		EA17129527A467860090D9EF /* GameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA17129427A467860090D9EF /* GameTests.swift */; };
 		EA8CB6AF277DFBE000CAF379 /* ChessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6AE277DFBE000CAF379 /* ChessApp.swift */; };
 		EA8CB6B1277DFBE000CAF379 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6B0277DFBE000CAF379 /* GameView.swift */; };
 		EA8CB6B3277DFBE400CAF379 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA8CB6B2277DFBE400CAF379 /* Assets.xcassets */; };
@@ -77,6 +78,7 @@
 		EA17128E27A454100090D9EF /* CapturedPieceTrayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturedPieceTrayView.swift; sourceTree = "<group>"; };
 		EA17129027A454440090D9EF /* ChoosePromotionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoosePromotionView.swift; sourceTree = "<group>"; };
 		EA17129227A45C470090D9EF /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
+		EA17129427A467860090D9EF /* GameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameTests.swift; sourceTree = "<group>"; };
 		EA8CB6AB277DFBE000CAF379 /* Chess.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Chess.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA8CB6AE277DFBE000CAF379 /* ChessApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessApp.swift; sourceTree = "<group>"; };
 		EA8CB6B0277DFBE000CAF379 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 		EA1712772798B0130090D9EF /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				EA17129427A467860090D9EF /* GameTests.swift */,
 				EA1712782798B0130090D9EF /* UnitTests.swift */,
 				EA17127F2798B06F0090D9EF /* MockJSONBoard.json */,
 			);
@@ -389,6 +392,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA1712792798B0130090D9EF /* UnitTests.swift in Sources */,
+				EA17129527A467860090D9EF /* GameTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
