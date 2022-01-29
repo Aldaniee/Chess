@@ -54,6 +54,7 @@ struct King: Piece {
                !game.doesMoveIntoCheck(from: start, to: newRookCords),
                let newKingCords = newRookCords.upFile(),
                game.isEmpty(newKingCords),
+               !game.doesMoveIntoCheck(from: start, to: newKingCords),
                let rookCords = newKingCords.upFile(),
                let piece = game.getPiece(from: rookCords),
                piece.type == .rook
@@ -67,6 +68,7 @@ struct King: Piece {
                !game.doesMoveIntoCheck(from: start, to: newRookCords),
                let newKingCords = newRookCords.downFile(),
                game.isEmpty(newKingCords),
+               !game.doesMoveIntoCheck(from: start, to: newKingCords),
                let empty = newKingCords.downFile(),
                game.isEmpty(empty),
                let rookCords = empty.downFile(),

@@ -10,8 +10,8 @@ import SwiftUI
 struct Tile: Identifiable {
     
     let id = UUID()
-    let coordinate: Coordinate
     
+    let coordinate: Coordinate
     var piece: Piece?
     
     var display: TileColor {
