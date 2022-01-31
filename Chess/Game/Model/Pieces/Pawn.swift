@@ -21,33 +21,39 @@ struct Pawn: Piece {
         self.side = side
     }
     
+    // MARK: - Piece Protocol Functions
     func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate] {
         return side == .white ? start.upOneDiagonals() : start.downOneDiagonals()
     }
     
-    func allPossibleMoves(from start: Coordinate, _ game: Game) -> [Move] {
+    func possibleMoves(from start: Coordinate, _ game: Game) -> [Move] {
         var moves = [Move]()
-        // move forward one or two swuares
-        if let forward = side == .white ? start.upRank() : start.downRank() {
-            // Ensure the pawn only moves forward if the square ahead is empty
-            if game.isEmpty(forward) {
-                moves.append(Move(game, from: start, to: forward))
-                if let forwardTwo = side == .white ? forward.upRank() : forward.downRank() {
-                    let onStartRank = side == .white ? start.rankNum == 2 : start.rankNum == 7
-                    if game.isEmpty(forwardTwo) && onStartRank {
-                        moves.append(Move(game, from: start, to: forwardTwo))
-                    }
+        
+        // forward one
+        if let forwardOne = forward(from: start, side: side),
+            game.isEmpty(forwardOne)
+        {
+            moves.append(Move(game, from: start, to: forwardOne))
+            
+            // forward two
+            if isOnStartRank(from: start, side: side) {
+                if let forwardTwo = forward(from: forwardOne, side: side),
+                   game.isEmpty(forwardTwo)
+                {
+                    moves.append(Move(game, from: start, to: forwardTwo))
                 }
             }
         }
         
         let attacks = threatsCreated(from: start, game)
+        
         // diagonal attacks
         attacks.forEach { end in
             if let pieceToAttack = game.getPiece(from: end), pieceToAttack.side != side {
                 moves.append(Move(game, from: start, to: end))
             }
         }
+        
         // en passant
         if start.rankNum == (side == .white ? 5 : 4) {
             if let upFile = start.upFile(), upFile == game.enPassantTarget {
@@ -62,8 +68,17 @@ struct Pawn: Piece {
             }
         }
         moves.removeAll { move in
-            game.doesMoveIntoCheck(from: start, to: move.end)
+            game.isMovingIntoCheck(from: start, to: move.end)
         }
         return moves
+    }
+    
+    // MARK: - Private Functions
+    private func forward(from start: Coordinate, side: Side) -> Coordinate? {
+        return side == .white ? start.upRank() : start.downRank()
+    }
+    
+    private func isOnStartRank(from start: Coordinate, side: Side) -> Bool{
+        return side == .white ? start.rankNum == 2 : start.rankNum == 7
     }
 }

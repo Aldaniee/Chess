@@ -47,6 +47,11 @@ class GameViewModel: ObservableObject {
     }
     
     // MARK: - Intents
+    
+    func newGame() {
+        game = Game()
+    }
+    
     func changeCastlingRights(after move: Move) {
         let piece = move.piece
         let start = move.start
@@ -108,7 +113,6 @@ class GameViewModel: ObservableObject {
                 changeCastlingRights(after: move)
                 game.recordMove(move)
                 nextTurn()
-                print(FEN.shared.makeString(from: game))
             }
         }
     }

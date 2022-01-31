@@ -27,6 +27,11 @@ struct GameView: View {
             if pgnMode {
                 Spacer(minLength: pgnDisplayHeight)
             }
+            Button {
+                viewModel.newGame()
+            } label: {
+                Text("New Game")
+            }
             CapturedPieceTrayView(capturedPieces: viewModel.game.whiteCapturedPieces)
                 .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
             ZStack {

@@ -21,6 +21,7 @@ class Knight: Piece {
         self.side = side
     }
     
+    // MARK: - Piece Protocol Functions
     func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate] {
         var moves = [Coordinate]()
         
@@ -60,7 +61,7 @@ class Knight: Piece {
         return moves
     }
     
-    func allPossibleMoves(from start: Coordinate, _ board: Game) -> [Move] {
-        self.getMovesFromThreats(from: start, board)
+    func possibleMoves(from start: Coordinate, _ board: Game) -> [Move] {
+        self.possibleMovesFromThreats(from: start, board)
     }
 }

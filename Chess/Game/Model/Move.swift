@@ -7,16 +7,28 @@
 
 import Foundation
 
-struct Move : Equatable {
-    static func == (lhs: Move, rhs: Move) -> Bool {
-        return lhs.start == rhs.start && lhs.end == rhs.end
+struct FullMove {
+    var white: Move
+    var black: Move?
+    
+    var display: String {
+        "\(white.pgnNotation) \(black?.pgnNotation ?? "") "
     }
+}
+
+struct Move : Equatable {
+    
     
     var start: Coordinate
+    
     var end: Coordinate
+    
     var piece: Piece
+    
     var capturedPiece: Piece?
+    
     var isReversible: Bool
+    
     var promotesTo: Piece?
     
     init(_ game: Game, from start: Coordinate, to end: Coordinate, promotesTo: Piece? = nil) {
@@ -59,6 +71,10 @@ struct Move : Equatable {
 //            notation.append("+")
 //        }
         return notation
+    }
+    
+    static func == (lhs: Move, rhs: Move) -> Bool {
+        return lhs.start == rhs.start && lhs.end == rhs.end
     }
     
 }

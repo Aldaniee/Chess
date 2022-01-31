@@ -22,23 +22,23 @@ struct BoardView: View {
     }
 
     
-    private func clickToSelectTile(at newSelection: Coordinate) async {
+    private func clickToSelectTile(at newSelection: Coordinate) {
         if selectedTile != nil && selectedTile == newSelection {
             selectedTile = nil
         }
         else if selectedTile != nil && !viewModel.selectedOwnPiece(newSelection) {
-            await makeSecondSelection(at: newSelection)
+            makeSecondSelection(at: newSelection)
         } else {
             selectedTile = newSelection
         }
     }
     
-    private func makeSecondSelection(at newSelection: Coordinate?) async {
-        if await makeMoveIfValid(from: selectedTile, to: newSelection) {
+    private func makeSecondSelection(at newSelection: Coordinate?) {
+        if makeMoveIfValid(from: selectedTile, to: newSelection) {
             selectedTile = nil
         }
     }
-    private func makeMoveIfValid(from oldSelection: Coordinate?, to newSelection: Coordinate?) async -> Bool {
+    private func makeMoveIfValid(from oldSelection: Coordinate?, to newSelection: Coordinate?) -> Bool {
         if let start = oldSelection {
             if let end = newSelection {
                 if let movingPiece = viewModel.getPiece(from: start) {
@@ -52,7 +52,6 @@ struct BoardView: View {
                         }
                         else {
                             viewModel.move(from: start, to: end)
-                            await NetworkManager.shared.updateGame(viewModel.game)
                             return true
                         }
                     }
@@ -90,9 +89,7 @@ struct BoardView: View {
                         TileView(tile: tile, selectedTile: selectedTile)
                             .aspectRatio(contentMode: .fill)
                             .onTapGesture {
-                                Task {
-                                    await clickToSelectTile(at: tile.coordinate)
-                                }
+                                clickToSelectTile(at: tile.coordinate)
                             }
                     }
                 }
@@ -103,9 +100,7 @@ struct BoardView: View {
                         PieceView(tile: tile, viewModel: viewModel, dropToSelectTile: makeSecondSelection(at:), selectedTile: $selectedTile, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
                             .aspectRatio(contentMode: .fill)
                             .onTapGesture {
-                                Task {
-                                    await clickToSelectTile(at: tile.coordinate)
-                                }
+                                clickToSelectTile(at: tile.coordinate)
                             }
                         .zIndex(selectedTile == tile.coordinate ? 1000 : 0)
                     }

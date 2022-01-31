@@ -32,64 +32,7 @@ enum PieceType : String {
         }
     }
 }
-
-protocol Piece {
-    func allPossibleMoves(from start: Coordinate, _ game: Game) -> [Move]
-    func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate]
-    var type: PieceType { get }
-    var side: Side { get }
-    var id: Int { get }
-    var points: Int { get}
-}
-
-extension Piece {
-    var image: Image {
-        let assetName = "\(side.rawValue)_\(type.name)_shadow"
-        return Image(assetName)
-    }
-    var imageNoShadow: Image {
-        let assetName = "\(side.rawValue)_\(type.name)"
-        return Image(assetName)
-    }
-    func getMovesFromThreats(from start: Coordinate, _ game: Game) -> [Move] {
-        var moves = [Move]()
-        for potentialMove in threatsCreated(from: start, game) {
-            
-            if !game.isOccupied(potentialMove, side) && !game.doesMoveIntoCheck(from: start, to: potentialMove) {
-                let move = Move(game, from: start, to: potentialMove)
-                moves.append(move)
-            }
-        }
-        
-        return moves
-    }
-}
-
-// Examples: Rook, Bishop, Queen
-protocol RecursivePiece : Piece {
-    var moveType: MoveType { get }
-}
-extension RecursivePiece {
-    
-    func threatsCreated(from start: Coordinate, _ board: Game) -> [Coordinate] {
-        var moves = [Coordinate]()
-        for direction in moveType.directions {
-            for move in start.allCoords(in: direction) {
-                moves.append(move)
-                if !board.isEmpty(move) {
-                    break
-                }
-            }
-        }
-        return moves
-    }
-    
-    func allPossibleMoves(from start: Coordinate, _ board: Game) -> [Move] {
-        self.getMovesFromThreats(from: start, board)
-    }
-}
-
-enum MoveType {
+enum MoveSet {
     case verticalHorizontal
     case diagonal
     case both
@@ -104,5 +47,58 @@ enum MoveType {
         case .both:
             return verticalHorizontal + diagonal
         }
+    }
+}
+// MARK: - Implementations: King, Knight, Pawn, RecursivePieces
+protocol Piece {
+    func possibleMoves(from start: Coordinate, _ game: Game) -> [Move]
+    func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate]
+    var type: PieceType { get }
+    var side: Side { get }
+    var id: Int { get }
+    var points: Int { get}
+}
+extension Piece {
+    var image: Image {
+        let assetName = "\(side.rawValue)_\(type.name)_shadow"
+        return Image(assetName)
+    }
+    var imageNoShadow: Image {
+        let assetName = "\(side.rawValue)_\(type.name)"
+        return Image(assetName)
+    }
+    func possibleMovesFromThreats(from start: Coordinate, _ game: Game) -> [Move] {
+        var moves = [Move]()
+        for end in threatsCreated(from: start, game) {
+            if !game.isOccupied(at: end, by: side) && !game.isMovingIntoCheck(from: start, to: end) {
+                let move = Move(game, from: start, to: end)
+                moves.append(move)
+            }
+        }
+        return moves
+    }
+}
+
+// MARK: - Implementations: Rook, Bishop, Queen
+protocol RecursivePiece : Piece {
+    var moveType: MoveSet { get }
+}
+extension RecursivePiece {
+    
+    func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate] {
+        var moves = [Coordinate]()
+        for direction in moveType.directions {
+            for move in start.allCoords(in: direction) {
+                moves.append(move)
+                if !game.isEmpty(move) {
+                    break
+                }
+            }
+        }
+        return moves
+    }
+    
+    func possibleMoves(from start: Coordinate, _ game: Game) -> [Move] {
+        self.possibleMovesFromThreats(from: start, game)
     }
 }

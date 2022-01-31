@@ -7,75 +7,14 @@
 
 import Foundation
 
-extension Game: Codable, Identifiable {
-    enum CodingKeys: String, CodingKey {
-        case state
-        case turn
-        case id
-    }
-    init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        let state = try values.decode(String.self, forKey: .state)
-        self = try FEN.shared.makeGame(from: state)
-        id = try values.decode(UUID.self, forKey: .id)
-    }
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        let state = FEN.shared.makeString(from: self)
-        try container.encode(state, forKey: .state)
-        try container.encode(id, forKey: .id)
-    }
-}
-
-enum GameError : Error {
-    case missingKing, invalidMove
-}
-
-enum GameStatus {
-    case playing
-    case checkmating
-    case flagging
-    case resigning
-    case drawingByPosition
-    case drawingByRepetition
-    case drawingByFiftyMoveRule
-    case drawingByAgreement
-    
-    var display : String {
-        switch self {
-        case .playing:
-            return "In Progress"
-        case .checkmating:
-            return "by Checkmate"
-        case .flagging:
-            return "by Flagging"
-        case .resigning:
-            return "by Resignation"
-        case .drawingByPosition:
-            return "Draw"
-        case .drawingByRepetition:
-            return "Draw by Repetition"
-        case .drawingByFiftyMoveRule:
-            return "Draw by Fifty Move Rule"
-        case .drawingByAgreement:
-            return "Draw by Agreement"
-        }
-    }
+enum GameError: Error {
+    case missingKing
 }
 
 typealias CastleRights = (queenSide: Bool, kingSide: Bool)
 typealias Board = [Rank]
 typealias Rank = [Tile]
 typealias PieceCounter = (piece: Piece, count: Int)
-
-struct FullMove {
-    var white: Move
-    var black: Move?
-    
-    var display: String {
-        "\(white.pgnNotation) \(black?.pgnNotation ?? "") "
-    }
-}
 
 struct Game {
 
@@ -96,97 +35,6 @@ struct Game {
     
     private (set) var whiteCapturedPieces: [PieceCounter]
     private (set) var blackCapturedPieces: [PieceCounter]
-    
-    func doesMoveIntoCheck(from start: Coordinate, to end: Coordinate) -> Bool {
-        var newState = self.copy()
-        _ = newState.movePiece(from: start, to: end)
-        return newState.isCheck()
-    }
-    
-    func canLongCastle(_ side: Side) -> Bool {
-        return side == .white ? whiteCanCastle.queenSide :  blackCanCastle.queenSide
-    }
-    
-    func canShortCastle(_ side: Side) -> Bool {
-        return side == .white ? whiteCanCastle.kingSide :  blackCanCastle.kingSide
-    }
-    
-    func doesMoveCheckOpponent(from start: Coordinate, to end: Coordinate) -> Bool {
-        var newState = self.copy()
-        _ = newState.movePiece(from: start, to: end)
-        return newState.isCheck()
-    }
-    func doesMoveCheckmateOpponent(from start: Coordinate, to end: Coordinate) -> Bool {
-        var newState = self.copy()
-        _ = newState.movePiece(from: start, to: end)
-        newState.nextTurn()
-        return newState.isCheckmate()
-    }
-    
-    /// Get all legal moves for a piece from a tile that contains that piece
-    /// - Parameter tile: Tile that must contain a piece
-    /// - Returns: Array of possible moves
-    func legalMoves(from tile: Tile) -> [Move] {
-        if let piece = tile.piece {
-            return piece.allPossibleMoves(from: tile.coordinate, self)
-        }
-        return [Move]()
-    }
-    
-    /// Determines if the side whose turn it is is in check
-    func isCheck() -> Bool {
-        // define sides
-        let kingSide = turn
-        let attackingSide = turn.opponent
-        do {
-            let kingTile = try getKingTile(kingSide)
-            let tilesWithAttackingPieces = getAllTilesWithPieces(of: attackingSide)
-            for tile in tilesWithAttackingPieces {
-                let threats = tile.piece!.threatsCreated(from: tile.coordinate, self)
-                for threat in threats {
-                    if threat == kingTile.coordinate {
-                        return true
-                    }
-                }
-            }
-        } catch {
-            print("ERROR: invalid board state \(error)")
-        }
-        return false
-    }
-    /// Determines if the side whose turn it is is in checkmate
-    func isCheckmate() -> Bool {
-        return isCheck() && hasNoMoves()
-    }
-    /// Determines if the game is a draw
-    func isDraw() -> Bool {
-        return !isCheck() && hasNoMoves()
-    }
-    
-    mutating func nextTurn() {
-        turn = turn == .white ? .black : .white
-    }
-    
-    mutating func setGameStatus(_ gameStatus: GameStatus) {
-        self.gameStatus = gameStatus
-    }
-    
-    mutating func changeCastlingRights(_ side: Side, queenSide: Bool? = nil, kingSide: Bool? = nil) {
-        if let queenSide = queenSide {
-            if side == .white {
-                whiteCanCastle.queenSide = queenSide
-            } else {
-                blackCanCastle.queenSide = queenSide
-            }
-        }
-        if let kingSide = kingSide {
-            if side == .white {
-                whiteCanCastle.kingSide = kingSide
-            } else {
-                blackCanCastle.kingSide = kingSide
-            }
-        }
-    }
     
     init(
         id: UUID = UUID(),
@@ -220,6 +68,31 @@ struct Game {
         self.fullMoveNumber = fullMoveNumber
         self.whiteCapturedPieces = whiteCapturedPieces
         self.blackCapturedPieces = blackCapturedPieces
+    }
+    
+    mutating func nextTurn() {
+        turn = turn.opponent
+    }
+    
+    mutating func setGameStatus(_ gameStatus: GameStatus) {
+        self.gameStatus = gameStatus
+    }
+    
+    mutating func changeCastlingRights(_ side: Side, queenSide: Bool? = nil, kingSide: Bool? = nil) {
+        if let queenSide = queenSide {
+            if side == .white {
+                whiteCanCastle.queenSide = queenSide
+            } else {
+                blackCanCastle.queenSide = queenSide
+            }
+        }
+        if let kingSide = kingSide {
+            if side == .white {
+                whiteCanCastle.kingSide = kingSide
+            } else {
+                blackCanCastle.kingSide = kingSide
+            }
+        }
     }
     // MARK: - Data Mutating Actions
     mutating func putPiece(_ piece: Piece?, _ coordinate: Coordinate) -> Piece? {
@@ -287,22 +160,50 @@ struct Game {
         return tiles
     }
     
-    // Should never return nil as a king is always on the board
-    func getKingTile(_ side: Side) throws -> Tile {
-        var king: Tile? = nil
-        asArray().forEach { tile in
-            if let piece = tile.piece {
-                if piece.side == side && piece.type == .king {
-                    king = tile
+    /// Get all legal moves for a piece from a tile that contains that piece
+    /// - Parameter tile: Tile that must contain a piece
+    /// - Returns: Array of possible moves
+    func legalMoves(from tile: Tile) -> [Move] {
+        if let piece = tile.piece {
+            return piece.possibleMoves(from: tile.coordinate, self)
+        }
+        return [Move]()
+    }
+    
+    func isMovingIntoCheck(from start: Coordinate, to end: Coordinate) -> Bool {
+        var newState = self.copy()
+        _ = newState.movePiece(from: start, to: end)
+        return newState.isCheck()
+    }
+    /// Determines if the side whose turn it is is in check
+    func isCheck() -> Bool {
+        let kingSide = turn
+        let attackingSide = turn.opponent
+        do {
+            let kingTile = try getKingTile(kingSide)
+            let tilesWithAttackingPieces = getAllTilesWithPieces(of: attackingSide)
+            for tile in tilesWithAttackingPieces {
+                let threats = tile.piece!.threatsCreated(from: tile.coordinate, self)
+                for threat in threats {
+                    if threat == kingTile.coordinate {
+                        return true
+                    }
                 }
             }
+        } catch {
+            print("ERROR: invalid board state \(error)")
         }
-        if let king = king {
-            return king
-        }
-        throw GameError.missingKing
+        return false
     }
-    func isOccupied(_ coordinate: Coordinate, _ side: Side) -> Bool {
+    /// Determines if the side whose turn it is is in checkmate
+    func isCheckmate() -> Bool {
+        return isCheck() && hasNoMoves()
+    }
+    /// Determines if the game is a draw
+    func isDraw() -> Bool {
+        return !isCheck() && hasNoMoves()
+    }
+    func isOccupied(at coordinate: Coordinate, by side: Side) -> Bool {
         if let piece = getPiece(from: coordinate) {
             return piece.side == side
         }
@@ -311,22 +212,11 @@ struct Game {
     func isEmpty(_ coordinate: Coordinate) -> Bool {
         return getPiece(from: coordinate) == nil
     }
-    
     func asArray() -> [Tile] {
         return Array(board.joined())
     }
-    
     func copy() -> Game {
         return Game(id: id, board: board, turn: turn, whiteCanCastle: whiteCanCastle, blackCanCastle: blackCanCastle, enPassantTargetSquare: enPassantTarget, halfMoveClock: halfMoveClock, fullMoveNumber: fullMoveNumber, gameStatus: gameStatus, pgn: pgn, whiteCapturedPieces: whiteCapturedPieces, blackCapturedPieces: blackCapturedPieces)
-    }
-    
-    func displayBoardInConsole() {
-        for file in board {
-            print()
-            for tile in file {
-                print(tile.coordinate.algebraicNotation, terminator: "")
-            }
-        }
     }
     
     // MARK: - Private Accessors
@@ -340,6 +230,23 @@ struct Game {
         }
         return result
     }
+    
+    // Should never return nil as a king is always on the board
+    private func getKingTile(_ side: Side) throws -> Tile {
+        var king: Tile? = nil
+        asArray().forEach { tile in
+            if let piece = tile.piece {
+                if piece.side == side && piece.type == .king {
+                    king = tile
+                }
+            }
+        }
+        if let king = king {
+            return king
+        }
+        throw GameError.missingKing
+    }
+    
     private func setupBoard(from fen: String = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR") -> [[Tile]] {
         return FEN.shared.makeBoard(from: fen)
     }
@@ -360,4 +267,18 @@ struct Game {
         }
     }
     
+    // MARK: - Debug
+    func displayBoardInConsole() {
+        for file in board {
+            print()
+            for tile in file {
+                if let piece = tile.piece {
+                    print("\(piece.type.rawValue) ", terminator: "")
+                }
+                else {
+                    print(tile.coordinate.algebraicNotation, terminator: "")
+                }
+            }
+        }
+    }
 }

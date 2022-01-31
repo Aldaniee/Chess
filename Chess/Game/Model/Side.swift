@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Side : String, Codable {
+enum Side: String, Codable {
     
     case white = "w"
     case black = "b"

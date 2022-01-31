@@ -17,7 +17,7 @@ class Bishop: RecursivePiece {
     
     let points = 3
     
-    let moveType: MoveType = .diagonal
+    let moveType: MoveSet = .diagonal
     
     init(_ side: Side) {
         self.side = side
