@@ -27,6 +27,8 @@ struct Move : Equatable {
     
     var capturedPiece: Piece?
     
+    var isCastling: Bool
+    
     var isReversible: Bool
     
     var promotesTo: Piece?
@@ -34,11 +36,10 @@ struct Move : Equatable {
     init(_ game: Game, from start: Coordinate, to end: Coordinate, promotesTo: Piece? = nil) {
         self.start = start
         self.end = end
-        let piece = game.getPiece(from: start)!
-        self.piece = piece
+        self.piece = game.getPiece(from: start)!
         self.capturedPiece = game.getPiece(from: end)
-        let isCastling = piece.type == .king && start.distance(to: end) != 1
-        self.isReversible = piece.type != .pawn && !isCastling
+        self.isCastling = piece.type == .king && start.distance(to: end) != 1
+        self.isReversible = !(piece.type == .pawn || isCastling)
         self.promotesTo = promotesTo
     }
     
@@ -59,7 +60,8 @@ struct Move : Equatable {
         default:
             notation = piece.type.rawValue
         }
-        if capturedPiece != nil { notation.append("x") }
+        let isEnPassant = piece.type == .pawn && start.isDiagonal(from: end) && capturedPiece == nil
+        if capturedPiece != nil || isEnPassant { notation.append("x") }
         notation.append(end.algebraicNotation)
         if let promotesTo = promotesTo {
             notation.append("=\(promotesTo.type.rawValue)")

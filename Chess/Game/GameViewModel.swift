@@ -52,25 +52,6 @@ class GameViewModel: ObservableObject {
         game = Game()
     }
     
-    func changeCastlingRights(after move: Move) {
-        let piece = move.piece
-        let start = move.start
-        let side = piece.side
-        if piece.type == .king {
-            game.changeCastlingRights(side, queenSide: false, kingSide: false)
-        } else if piece.type == .rook {
-            if (side == .white && start.algebraicNotation[1] == "1")
-            || (side == .black && start.algebraicNotation[1] == "8") {
-                if start.algebraicNotation == "A" {
-                    game.changeCastlingRights(side, queenSide: false)
-                }
-                if start.algebraicNotation == "H" {
-                    game.changeCastlingRights(side, kingSide: false)
-                }
-            }
-        }
-    }
-    
     // For ease of testing
     func move(from start: String, to end: String) {
         move(from: Coordinate(algebraicNotation: start), to: Coordinate(algebraicNotation: end))
@@ -81,37 +62,7 @@ class GameViewModel: ObservableObject {
             let move = Move(game, from: start, to: end, promotesTo: promotion)
             let moves = game.legalMoves(from: Tile(start, piece))
             if moves.contains(move) {
-                var capturedPiece = game.movePiece(from: start, to: end)
-                
-                if piece.type == .king {
-                    // Kingside/short castle
-                    if start.upFile()?.upFile() == end {
-                        if let rookLocation = start.upFile()?.upFile()?.upFile() {
-                            _ = game.movePiece(from: rookLocation, to: start.upFile()!)
-                        }
-                    }
-                    
-                    // Queenside/long castle
-                    if start.downFile()?.downFile() == end {
-                        if let rookLocation = start.downFile()?.downFile()?.downFile()?.downFile() {
-                            _ = game.movePiece(from: rookLocation, to: start.downFile()!)
-                        }
-                    }
-                    
-                }
-                if piece.type == .pawn {
-                    // En Passant Special Case
-                    if start.isDiagonal(from: end) && capturedPiece == nil {
-                        // When a pawn moves diagonally and landed on a piece it must be En Passant capturing
-                        capturedPiece = game.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex))
-                    }
-                }
-                if let capturedPiece = capturedPiece {
-                    game.recordCapture(piece: capturedPiece)
-                }
-                _ = game.putPiece(piece, end)
-                changeCastlingRights(after: move)
-                game.recordMove(move)
+                game.makeMove(move)
                 nextTurn()
             }
         }
@@ -139,7 +90,7 @@ class GameViewModel: ObservableObject {
             if let lastFull = tempGame.pgn.last {
                 let last = lastFull.black ?? lastFull.white
                 if last.isReversible {
-                    tempGame.moveBackwards()
+                    tempGame.undoLastMove()
                     if let index = pastStates.firstIndex(where: { $0.state == FEN.shared.makeString(from: tempGame, withoutClocks: true) }) {
                         pastStates[index].appearances += 1
                         print("\(pastStates[index].state) \(pastStates[index].appearances)")

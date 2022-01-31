@@ -78,22 +78,6 @@ struct Game {
         self.gameStatus = gameStatus
     }
     
-    mutating func changeCastlingRights(_ side: Side, queenSide: Bool? = nil, kingSide: Bool? = nil) {
-        if let queenSide = queenSide {
-            if side == .white {
-                whiteCanCastle.queenSide = queenSide
-            } else {
-                blackCanCastle.queenSide = queenSide
-            }
-        }
-        if let kingSide = kingSide {
-            if side == .white {
-                whiteCanCastle.kingSide = kingSide
-            } else {
-                blackCanCastle.kingSide = kingSide
-            }
-        }
-    }
     // MARK: - Data Mutating Actions
     mutating func putPiece(_ piece: Piece?, _ coordinate: Coordinate) -> Piece? {
         let oldPiece = getPiece(from: coordinate)
@@ -104,14 +88,52 @@ struct Game {
         putPiece(nil, coordinate)
     }
     
-    mutating func movePiece(from start: Coordinate, to end: Coordinate) -> Piece? {
-        if let piece = getPiece(from: start) { // ensure a piece is on that tile
-            _ = removePiece(start)
-            return putPiece(piece, end)
-        }
-        return nil
+    
+    /// Simply moves a piece from one square to another regardless of rules
+    /// - Parameters:
+    ///   - start: Location of piece to move
+    ///   - end: Location for piece to move to
+    /// - Returns: Piece that used to be on end Tile
+    private mutating func movePiece(from start: Coordinate, to end: Coordinate) -> Piece? {
+        let piece = removePiece(start)
+        return putPiece(piece, end)
     }
     
+    
+    /// Makes a move and applies Castling and En Passant special cases when necessary
+    /// - Parameter move: A legal move from one square to another with a valid piece
+    mutating func makeMove(_ move: Move) {
+        let start = move.start
+        let end = move.end
+        let piece = move.piece
+        
+        var capturedPiece = movePiece(from: start, to: end)
+        if piece.type == .king {
+            // Kingside/short castle
+            if start.upFile()?.upFile() == end {
+                if let rookLocation = start.upFile()?.upFile()?.upFile() {
+                    _ = movePiece(from: rookLocation, to: start.upFile()!)
+                }
+            }
+            
+            // Queenside/long castle
+            if start.downFile()?.downFile() == end {
+                if let rookLocation = start.downFile()?.downFile()?.downFile()?.downFile() {
+                    _ = movePiece(from: rookLocation, to: start.downFile()!)
+                }
+            }
+            
+        }
+        // En Passant Special Case
+        if piece.type == .pawn && start.isDiagonal(from: end) && capturedPiece == nil {
+            // When a pawn moves diagonally and landed on a piece it must be En Passant capturing
+            capturedPiece = removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex))
+        }
+        if let capturedPiece = capturedPiece {
+            recordCapture(piece: capturedPiece)
+        }
+        changeCastlingRights(after: move)
+    }
     mutating func recordCapture(piece: Piece) {
         if piece.side == .white {
             self.blackCapturedPieces = self.blackCapturedPieces.appendAndSort(piece: piece)
@@ -133,11 +155,47 @@ struct Game {
             halfMoveClock = 0
         }
     }
-    mutating func moveBackwards() {
+    mutating func undoLastMove() {
         if let lastMove = pgn.last {
             let lastHalfMove = lastMove.black ?? lastMove.white
-            _ = movePiece(from: lastHalfMove.end, to: lastHalfMove.start)
-            _ = putPiece(lastHalfMove.capturedPiece, lastHalfMove.end)
+            let start = lastHalfMove.start
+            let end = lastHalfMove.end
+            let piece = lastHalfMove.piece
+            
+            _ = movePiece(from: end, to: start)
+
+            // promotion
+            if lastHalfMove.promotesTo != nil {
+                _ = putPiece(Pawn(piece.side), start)
+            }
+            // capture
+            if let capturedPiece = lastHalfMove.capturedPiece {
+                _ = putPiece(capturedPiece, end)
+            }
+            // en passant
+            if piece.type == .pawn
+                && start.isDiagonal(from: end)
+                && lastHalfMove.capturedPiece == nil
+            {
+                let opponenetCoordinate = Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex)
+                _ = putPiece(Pawn(piece.side.opponent), opponenetCoordinate)
+                enPassantTarget = opponenetCoordinate
+            }
+            // castle
+            if lastHalfMove.isCastling {
+                // Long Castle
+                if lastHalfMove.start.fileLetter == "C" {
+                    let rook = removePiece(lastHalfMove.end.upFile()!)
+                    let rookCoordinates = Coordinate(fileLetter: "A", rankNum: start.rankNum)
+                    _ = putPiece(rook, rookCoordinates)
+                }
+                // Short castle
+                else {
+                    let rook = removePiece(lastHalfMove.end.downFile()!)
+                    let rookCoordinates = Coordinate(fileLetter: "H", rankNum: start.rankNum)
+                    _ = putPiece(rook, rookCoordinates)
+                }
+            }
             nextTurn()
             removeRecordedMove()
         }
@@ -172,7 +230,7 @@ struct Game {
     
     func isMovingIntoCheck(from start: Coordinate, to end: Coordinate) -> Bool {
         var newState = self.copy()
-        _ = newState.movePiece(from: start, to: end)
+        newState.makeMove(Move(self, from: start, to: end))
         return newState.isCheck()
     }
     /// Determines if the side whose turn it is is in check
@@ -263,6 +321,40 @@ struct Game {
                 pgn.append(fullMove)
             } else {
                 fullMoveNumber -= 1
+            }
+        }
+    }
+    private mutating func changeCastlingRights(after move: Move) {
+        let piece = move.piece
+        let start = move.start
+        let side = piece.side
+        if piece.type == .king {
+            changeCastlingRights(side, queenSide: false, kingSide: false)
+        } else if piece.type == .rook {
+            if (side == .white && start.algebraicNotation[1] == "1")
+            || (side == .black && start.algebraicNotation[1] == "8") {
+                if start.algebraicNotation == "A" {
+                    changeCastlingRights(side, queenSide: false)
+                }
+                if start.algebraicNotation == "H" {
+                    changeCastlingRights(side, kingSide: false)
+                }
+            }
+        }
+    }
+    private mutating func changeCastlingRights(_ side: Side, queenSide: Bool? = nil, kingSide: Bool? = nil) {
+        if let queenSide = queenSide {
+            if side == .white {
+                whiteCanCastle.queenSide = queenSide
+            } else {
+                blackCanCastle.queenSide = queenSide
+            }
+        }
+        if let kingSide = kingSide {
+            if side == .white {
+                whiteCanCastle.kingSide = kingSide
+            } else {
+                blackCanCastle.kingSide = kingSide
             }
         }
     }
