@@ -119,7 +119,7 @@ class FEN {
         return FENstring
     }
     
-    func getPiece(from pieceChar: String, of side: Side) -> Piece {
+    private func getPiece(from pieceChar: String, of side: Side) -> Piece {
         guard let pieceType = PieceType(rawValue: pieceChar.uppercased()) else {
             return Pawn(side)
         }
