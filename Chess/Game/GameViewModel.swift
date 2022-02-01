@@ -17,14 +17,6 @@ class GameViewModel: ObservableObject {
     
     // MARK: - Accessors
     
-    var pgnString: String {
-        var pgnString = ""
-        for index in 0..<game.pgn.count {
-            pgnString.append("\(index+1). ")
-            pgnString.append(game.pgn[index].display)
-        }
-        return pgnString
-    }
     var boardArray: [Tile] {
         game.asArray()
     }
@@ -77,36 +69,9 @@ class GameViewModel: ObservableObject {
         else if game.isDraw() {
             game.setGameStatus(.drawingByPosition)
         }
-        else if isThreefoldRepetition() {
+        else if game.isThreefoldRepetition() {
             game.setGameStatus(.drawingByRepetition)
         }
-    }
-
-    
-    private func isThreefoldRepetition() -> Bool {
-        var tempGame = game.copy()
-        var pastStates = [(state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1)]
-        while tempGame.pgn.count != 0 {
-            if let lastFull = tempGame.pgn.last {
-                let last = lastFull.black ?? lastFull.white
-                if last.isReversible {
-                    tempGame.undoLastMove()
-                    if let index = pastStates.firstIndex(where: { $0.state == FEN.shared.makeString(from: tempGame, withoutClocks: true) }) {
-                        pastStates[index].appearances += 1
-                        print("\(pastStates[index].state) \(pastStates[index].appearances)")
-                        if pastStates[index].appearances == 3 {
-                            return true
-                        }
-                    } else {
-                        pastStates.append((state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1))
-                    }
-                }
-                else {
-                    return false
-                }
-            }
-        }
-        return false
     }
     
 }

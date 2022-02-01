@@ -278,6 +278,32 @@ struct Game {
         return Game(id: id, board: board, turn: turn, whiteCanCastle: whiteCanCastle, blackCanCastle: blackCanCastle, enPassantTargetSquare: enPassantTarget, halfMoveClock: halfMoveClock, fullMoveNumber: fullMoveNumber, gameStatus: gameStatus, pgn: pgn, whiteCapturedPieces: whiteCapturedPieces, blackCapturedPieces: blackCapturedPieces)
     }
     
+    func isThreefoldRepetition() -> Bool {
+        var tempGame = copy()
+        var pastStates = [(state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1)]
+        while tempGame.pgn.count != 0 {
+            if let lastFull = tempGame.pgn.last {
+                let last = lastFull.black ?? lastFull.white
+                if last.isReversible {
+                    tempGame.undoLastMove()
+                    if let index = pastStates.firstIndex(where: { $0.state == FEN.shared.makeString(from: tempGame, withoutClocks: true) }) {
+                        pastStates[index].appearances += 1
+                        print("\(pastStates[index].state) \(pastStates[index].appearances)")
+                        if pastStates[index].appearances == 3 {
+                            return true
+                        }
+                    } else {
+                        pastStates.append((state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1))
+                    }
+                }
+                else {
+                    return false
+                }
+            }
+        }
+        return false
+    }
+    
     // MARK: - Private Accessors
     private func hasNoMoves() -> Bool {
         var result = true

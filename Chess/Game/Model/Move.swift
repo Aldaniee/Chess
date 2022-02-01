@@ -10,10 +10,6 @@ import Foundation
 struct FullMove {
     var white: Move
     var black: Move?
-    
-    var display: String {
-        "\(white.pgnNotation) \(black?.pgnNotation ?? "") "
-    }
 }
 
 struct Move : Equatable {
@@ -40,39 +36,6 @@ struct Move : Equatable {
         self.isCastling = piece.type == .king && start.distance(to: end) != 1
         self.isReversible = !(piece.type == .pawn || isCastling)
         self.promotesTo = promotesTo
-    }
-    
-    var pgnNotation: String {
-        var notation = ""
-        
-        switch piece.type {
-        case .king:
-            let distance = start.distance(to: end)
-            if distance == 2 {
-                notation = "O-O"
-            }
-            else if distance == 3 {
-                notation = "O-O-O"
-            }
-        case .pawn:
-            notation = ""
-        default:
-            
-            notation = piece.type.rawValue
-        }
-        let isEnPassant = piece.type == .pawn && start.isDiagonal(from: end) && capturedPiece == nil
-        if capturedPiece != nil || isEnPassant { notation.append("x") }
-        notation.append(end.algebraicNotation)
-        if let promotesTo = promotesTo {
-            notation.append("=\(promotesTo.type.rawValue)")
-        }
-//        if checkmatesOpponent {
-//            notation.append("#")
-//        }
-//        else if checksOpponent {
-//            notation.append("+")
-//        }
-        return notation
     }
     
     static func == (lhs: Move, rhs: Move) -> Bool {

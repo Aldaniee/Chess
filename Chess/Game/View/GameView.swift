@@ -15,7 +15,6 @@ struct GameView: View {
     let boardWidth = UIScreen.screenWidth
     let captureTrayHeight = CGFloat(40)
     let pgnDisplayHeight = CGFloat(100)
-    let pgnMode = true
     
     var tileWidth: CGFloat {
         boardWidth / CGFloat(8)
@@ -24,9 +23,6 @@ struct GameView: View {
     var body: some View {
         VStack {
             Spacer()
-            if pgnMode {
-                Spacer(minLength: pgnDisplayHeight)
-            }
             Button {
                 viewModel.newGame()
             } label: {
@@ -36,23 +32,20 @@ struct GameView: View {
                 .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
             ZStack {
                 BoardView(viewModel: viewModel, boardWidth: boardWidth)
+                    .frame(
+                        width: boardWidth,
+                        height: boardWidth,
+                        alignment: .center
+                    )
                 winnerCard
+                    .frame(
+                        width: boardWidth - 50,
+                        height: boardWidth - 50,
+                        alignment: .center
+                    )
             }
-            .frame(
-                width: boardWidth,
-                height: boardWidth,
-                alignment: .center
-            )
             CapturedPieceTrayView(capturedPieces: viewModel.game.blackCapturedPieces)
                 .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
-            if pgnMode {
-                ScrollView {
-                    Text(viewModel.pgnString)
-                        .multilineTextAlignment(.leading)
-                        .foregroundColor(colorScheme == .light ? .black : .white)
-                        .padding()
-                }.frame(width: boardWidth, height: pgnDisplayHeight, alignment: .topLeading)
-            }
             Spacer()
         }
     }
