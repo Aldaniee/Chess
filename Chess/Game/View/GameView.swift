@@ -15,7 +15,7 @@ struct GameView: View {
     let boardWidth = UIScreen.screenWidth
     let captureTrayHeight = CGFloat(40)
     let pgnDisplayHeight = CGFloat(100)
-    let pgnMode = false
+    let pgnMode = true
     
     var tileWidth: CGFloat {
         boardWidth / CGFloat(8)

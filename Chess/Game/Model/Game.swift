@@ -133,6 +133,7 @@ struct Game {
             recordCapture(piece: capturedPiece)
         }
         changeCastlingRights(after: move)
+        recordMove(move)
     }
     mutating func recordCapture(piece: Piece) {
         if piece.side == .white {

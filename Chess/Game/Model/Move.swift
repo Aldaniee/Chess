@@ -18,7 +18,6 @@ struct FullMove {
 
 struct Move : Equatable {
     
-    
     var start: Coordinate
     
     var end: Coordinate
@@ -29,10 +28,10 @@ struct Move : Equatable {
     
     var isCastling: Bool
     
-    var isReversible: Bool
-    
     var promotesTo: Piece?
     
+    var isReversible: Bool
+        
     init(_ game: Game, from start: Coordinate, to end: Coordinate, promotesTo: Piece? = nil) {
         self.start = start
         self.end = end
@@ -58,6 +57,7 @@ struct Move : Equatable {
         case .pawn:
             notation = ""
         default:
+            
             notation = piece.type.rawValue
         }
         let isEnPassant = piece.type == .pawn && start.isDiagonal(from: end) && capturedPiece == nil
