@@ -7,23 +7,22 @@
 
 import Foundation
 
-typealias Board = [Rank]
-typealias Rank = [Tile]
+typealias Board = [[Tile]]
 
 struct Game {
-
+    
     private (set) var board: Board
     
     init() {
-        self.board = Game.makeEmptyBoard()
+        self.board = Game.emptyBoard
     }
     
-    // MARK: - Static
-    static func makeEmptyBoard() -> Board {
-        var board = Board(repeating: Rank(), count: 8)
-        for rank in 0..<8 {
-            for file in 0..<8 {
-                board[rank].append(Tile(Coordinate(rankIndex: 7-rank, fileIndex: file)))
+    // MARK: Static
+    static var emptyBoard: Board {
+        var board = Board(repeating: [Tile](), count: 8)
+        for rank in 0...7 {
+            for file in 0...7 {
+                board[rank].append(Tile(Coordinate(7-rank, file)))
             }
         }
         return board

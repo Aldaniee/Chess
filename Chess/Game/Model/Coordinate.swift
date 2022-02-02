@@ -7,36 +7,57 @@
 
 import Foundation
 
-struct Coordinate: Hashable {
+enum CoordinateError: Error {
+    case rankOutOfBounds, fileOutOfBounds, integerParsingError
+}
+
+struct Coordinate {
     
-    init(rankIndex: Int, fileIndex: Int) {
+    let rankIndex: Int // 0 - 7
+    let fileIndex: Int // 0 - 7
+    
+    // Expect Values (0-7, 0-7)
+    init(_ rankIndex: Int, _ fileIndex: Int) {
+        if !(0...7).contains(rankIndex) {
+            print("ERROR: \(CoordinateError.rankOutOfBounds)")
+        }
+        if !(0...7).contains(fileIndex) {
+            print("ERROR: \(CoordinateError.fileOutOfBounds)")
+        }
         self.rankIndex = rankIndex
         self.fileIndex = fileIndex
     }
-    init(fileLetter: Character, rankNum: Int) {
-        self.rankIndex = rankNum - 1
-        self.fileIndex = fileLetter.lowercased().toAlphabeticalIndex()
-    }
-    init(algebraicNotation: String) {
-        let fileLetter = algebraicNotation[0]
-        self.fileIndex = fileLetter.lowercased().toAlphabeticalIndex()
-        guard let rankNum = algebraicNotation[1].wholeNumberValue else {
-            print("ERROR: incorrect second character")
-            rankIndex = -1
-            return
-        }
-        self.rankIndex = rankNum - 1
-    }
-    var rankIndex: Int
-    var fileIndex: Int
     
+    // 1 - 8
     var rankNum: Int {
-        return rankIndex + 1
+        rankIndex + 1
     }
+    // A - H
     var fileLetter: Character {
-        return fileIndex.toLetterAtAlphabeticalIndex()
+        fileIndex.toLetterAtAlphabeticalIndex()
     }
-    var algebraicNotation: String {
-        return "\(fileLetter.lowercased())\(rankNum)"
+    // A1 - H8
+    var notation: String {
+        "\(fileLetter.lowercased())\(rankNum)"
+    }
+}
+
+extension Coordinate {
+    // Expect Values ('A'-'H', 1-8)
+    init(fileLetter: Character, rankNum: Int) {
+        self.init(rankNum - 1, fileLetter.lowercased().toAlphabeticalIndex())
+    }
+    
+    // Expect Values ("A1" - "H8")
+    init(notation: String) {
+        let fileLetter = notation[0]
+        
+        if let rankNum = notation[1].wholeNumberValue {
+            self.init(fileLetter: fileLetter, rankNum: rankNum)
+        }
+        else {
+            print("ERROR: \(CoordinateError.integerParsingError)")
+            self.init(0, 0)
+        }
     }
 }
