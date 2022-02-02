@@ -39,9 +39,9 @@ struct Tile: Identifiable {
         var inverseColor: Color {
             switch self {
             case .light:
-                return .black
+                return TileColor.dark.color
             case .dark:
-                return .white
+                return TileColor.light.color
             }
         }
     }

@@ -10,25 +10,17 @@ import SwiftUI
 struct TileView: View {
     
     let tile: Tile
-    var selectedTile: Coordinate?
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                Group {
-                    Rectangle()
-                        .foregroundColor(tile.display.color)
-                    if tile.coordinate == selectedTile {
-                        Rectangle()
-                            .foregroundColor(.orange)
-                            .opacity(0.2)
-                    }
-                }
-                .frame(
-                    width: geometry.size.width,
-                    height: geometry.size.width,
-                    alignment: .center
-                )
+                Rectangle()
+                    .foregroundColor(tile.display.color)
+                    .frame(
+                        width: geometry.size.width,
+                        height: geometry.size.width,
+                        alignment: .center
+                    )
                 subscripts
             }
         }
