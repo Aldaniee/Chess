@@ -33,6 +33,7 @@ struct BoardView: View {
         }
     }
     var border: some View {
-        Rectangle().stroke(self.colorScheme == .light ? .black : .white, lineWidth: 5)
+        Rectangle()
+            .stroke(self.colorScheme == .light ? .black : .white, lineWidth: 5)
     }
 }

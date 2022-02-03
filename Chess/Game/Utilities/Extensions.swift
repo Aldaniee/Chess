@@ -19,7 +19,7 @@ extension StringProtocol {
         self[index(startIndex, offsetBy: offset)]
     }
     func toAlphabeticalIndex() -> Int {
-        let startingValue: Int = Int(("a" as UnicodeScalar).value)
+        let startingValue = Int(("a" as UnicodeScalar).value)
         let currentValue = Int((Unicode.Scalar(String(self)))?.value ?? UInt32(startingValue))
         return currentValue - startingValue
     }
