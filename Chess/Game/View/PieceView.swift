@@ -14,16 +14,15 @@ struct PieceView: View {
     @State private var dragAmount = CGSize.zero
     @State private var scaleAmount: CGFloat = 1.0
     
-    var dropToSelectTile: (Coordinate?) async -> Void
+    var dropToSelectTile: (Coordinate?) -> Void
     @Binding var selectedTile: Coordinate?
     @Binding var highlightedTile: Coordinate?
 
     let boardTop: CGFloat
     let tileWidth: CGFloat
     
-    let scaleFactor: CGFloat = 3
-    
-    var body: some View {
+    var dragGesture: some Gesture {
+        let scaleFactor = CGFloat(3)
         let startCoordinate = tile.coordinate
         let piece = tile.piece
         let dragGesture = DragGesture(coordinateSpace: .global)
@@ -34,36 +33,38 @@ struct PieceView: View {
                     self.dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)
                     let rank = 7 - Int((dragValue.location.y - boardTop) / tileWidth)
                     let file = Int((dragValue.location.x) / tileWidth)
-                    highlightedTile = Coordinate(rankIndex: rank, fileIndex: file)
+                    highlightedTile = Coordinate(rank, file)
                 }
             }
             .onEnded { dragValue in
                 self.dragAmount = .zero
                 scaleAmount = 1.0
                 if let highlightedTile = highlightedTile {
-                    Task {
-                        await dropToSelectTile(highlightedTile)
-                    }
+                    dropToSelectTile(highlightedTile)
                 }
                 highlightedTile = nil
             }
-        
-        GeometryReader { geometry in
-            if piece != nil {
-                piece!.image
+        return dragGesture
+    }
+    var body: some View {
+        Group {
+            if let piece = tile.piece {
+                piece.image
                     .resizable()
                     .scaledToFit()
-                    .frame(
-                        width: geometry.size.width-10,
-                        height: geometry.size.width-10,
-                        alignment: .center
-                    )
-                    .padding(5)
                     .offset(dragAmount)
                     .scaleEffect(scaleAmount, anchor: .center)
                     .animation(.easeInOut(duration: 0.05), value: scaleAmount)
                     .gesture(dragGesture)
+            } else {
+                Spacer()
             }
         }
+        .padding(5)
+        .frame(
+            width: tileWidth,
+            height: tileWidth,
+            alignment: .center
+        )
     }
 }

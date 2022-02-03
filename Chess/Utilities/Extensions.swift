@@ -19,8 +19,8 @@ extension StringProtocol {
     subscript(offset: Int) -> Character {
         self[index(startIndex, offsetBy: offset)]
     }
-    func alphabeticalIndex() -> Int {
-        let startingValue: Int = Int(("a" as UnicodeScalar).value)
+    func toAlphabeticalIndex() -> Int {
+        let startingValue = Int(("a" as UnicodeScalar).value)
         let currentValue = Int((Unicode.Scalar(String(self)))?.value ?? UInt32(startingValue))
         return currentValue - startingValue
     }

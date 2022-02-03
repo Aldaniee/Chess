@@ -150,7 +150,7 @@ struct Game {
     
     func getAllTilesWithPieces(of side: Side) -> [Tile] {
         var tiles = [Tile]()
-        asArray().forEach { tile in
+        Array(board.joined()).forEach { tile in
             if let piece = tile.piece {
                 if piece.side == side {
                     tiles.append(tile)
@@ -212,9 +212,6 @@ struct Game {
     func isEmpty(_ coordinate: Coordinate) -> Bool {
         return getPiece(from: coordinate) == nil
     }
-    func asArray() -> [Tile] {
-        return Array(board.joined())
-    }
     func copy() -> Game {
         return Game(id: id, board: board, turn: turn, whiteCanCastle: whiteCanCastle, blackCanCastle: blackCanCastle, enPassantTargetSquare: enPassantTarget, halfMoveClock: halfMoveClock, fullMoveNumber: fullMoveNumber, gameStatus: gameStatus, pgn: pgn, whiteCapturedPieces: whiteCapturedPieces, blackCapturedPieces: blackCapturedPieces)
     }
@@ -234,15 +231,14 @@ struct Game {
     // Should never return nil as a king is always on the board
     private func getKingTile(_ side: Side) throws -> Tile {
         var king: Tile? = nil
-        asArray().forEach { tile in
-            if let piece = tile.piece {
-                if piece.side == side && piece.type == .king {
-                    king = tile
-                }
+        getAllTilesWithPieces(of: side).forEach { tile in
+            let piece = tile.piece!
+            if piece.type == .king {
+                king = tile
             }
         }
-        if let king = king {
-            return king
+        if king != nil {
+            return king!
         }
         throw GameError.missingKing
     }
@@ -266,8 +262,10 @@ struct Game {
             }
         }
     }
-    
-    // MARK: - Debug
+}
+
+extension Game {
+    // MARK: - Testing Functions
     func displayBoardInConsole() {
         for file in board {
             print()
@@ -276,7 +274,7 @@ struct Game {
                     print("\(piece.type.rawValue) ", terminator: "")
                 }
                 else {
-                    print(tile.coordinate.algebraicNotation, terminator: "")
+                    print(tile.coordinate.notation, terminator: "")
                 }
             }
         }

@@ -17,10 +17,18 @@ struct BoardView: View {
     @State var promotionStart: Coordinate? = nil
     
     let boardWidth: CGFloat
+    
     var tileWidth: CGFloat {
         boardWidth / CGFloat(8)
     }
+    var columns: [GridItem] {
+        Array(repeating: GridItem(.fixed(tileWidth), spacing: 0), count: 8)
+    }
 
+    init(viewModel: GameViewModel, boardWidth: CGFloat) {
+        self.viewModel = viewModel
+        self.boardWidth = boardWidth
+    }
     
     private func clickToSelectTile(at newSelection: Coordinate) {
         if selectedTile != nil && selectedTile == newSelection {
@@ -65,48 +73,58 @@ struct BoardView: View {
             if let highlightedTile = highlightedTile {
                 let fileIndex = highlightedTile.fileIndex
                 let rankIndex = highlightedTile.rankIndex
+                let boardCenter = boardWidth/CGFloat(2)
+                let tileCenter = tileWidth/CGFloat(2)
                 let circleOffset = CGSize(
-                    width: tileWidth/CGFloat(2) - boardWidth/CGFloat(2) + CGFloat(fileIndex) * tileWidth,
-                    height: -tileWidth/CGFloat(2) + boardWidth/CGFloat(2) - CGFloat(rankIndex) * tileWidth
+                    width: tileCenter - boardCenter + CGFloat(fileIndex) * tileWidth,
+                    height: -tileCenter + boardCenter - CGFloat(rankIndex) * tileWidth
                 )
                 let circleSize = tileWidth*3
                 Circle()
-                .foregroundColor(.gray)
-                .opacity(0.4)
-                .frame(width: circleSize, height: circleSize, alignment: .center)
-                .offset(circleOffset)
+                    .foregroundColor(.gray)
+                    .opacity(0.4)
+                    .frame(width: circleSize, height: circleSize, alignment: .center)
+                    .offset(circleOffset)
             }
         }
     }
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Rectangle().stroke(self.colorScheme == .light ? .black : .white, lineWidth: 5)
-                let columns =
-                Array(repeating: GridItem(.fixed(tileWidth), spacing: 0), count: 8)
-                LazyVGrid(columns: columns, spacing: 0) {
-                    ForEach(viewModel.boardArray) { tile in
-                        TileView(tile: tile, selectedTile: selectedTile)
-                            .aspectRatio(contentMode: .fill)
-                            .onTapGesture {
-                                clickToSelectTile(at: tile.coordinate)
-                            }
+        ZStack {
+            border
+            tiles
+            Spacer(minLength: 0)
+            dragIndicationCircle
+            pieces
+            ChoosePromotionView(promotionSquare: $promotionSquare, promotionStart: $promotionStart, moveAndPromote: viewModel.move(from:to:promotesTo:), tileWidth: tileWidth)
+        }
+    }
+    var tiles: some View {
+        LazyVGrid(columns: columns, spacing: 0) {
+            ForEach(viewModel.boardArray) { tile in
+                TileView(tile: tile, selectedTile: selectedTile)
+                    .aspectRatio(contentMode: .fill)
+                    .onTapGesture {
+                        clickToSelectTile(at: tile.coordinate)
                     }
-                }
-                Spacer(minLength: 0)
-                dragIndicationCircle
-                LazyVGrid(columns: columns, spacing: 0) {
-                    ForEach(viewModel.boardArray) { tile in
-                        PieceView(tile: tile, viewModel: viewModel, dropToSelectTile: makeSecondSelection(at:), selectedTile: $selectedTile, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
-                            .aspectRatio(contentMode: .fill)
-                            .onTapGesture {
-                                clickToSelectTile(at: tile.coordinate)
-                            }
-                        .zIndex(selectedTile == tile.coordinate ? 1000 : 0)
-                    }
-                }
-                ChoosePromotionView(promotionSquare: $promotionSquare, promotionStart: $promotionStart, moveAndPromote: viewModel.move(from:to:promotesTo:), tileWidth: tileWidth)
             }
         }
+    }
+    var pieces: some View {
+        GeometryReader { geometry in
+            LazyVGrid(columns: columns, spacing: 0) {
+                ForEach(viewModel.boardArray) { tile in
+                    PieceView(tile: tile, viewModel: viewModel, dropToSelectTile: makeSecondSelection(at:), selectedTile: $selectedTile, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
+                        .aspectRatio(contentMode: .fill)
+                        .onTapGesture {
+                            clickToSelectTile(at: tile.coordinate)
+                        }
+                        .zIndex(selectedTile == tile.coordinate ? 1000 : 0)
+                }
+            }
+        }
+    }
+    var border: some View {
+        Rectangle()
+            .stroke(self.colorScheme == .light ? .black : .white, lineWidth: 5)
     }
 }

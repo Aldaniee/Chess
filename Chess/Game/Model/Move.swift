@@ -60,7 +60,7 @@ struct Move : Equatable {
             notation = piece.type.rawValue
         }
         if capturedPiece != nil { notation.append("x") }
-        notation.append(end.algebraicNotation)
+        notation.append(end.notation)
         if let promotesTo = promotesTo {
             notation.append("=\(promotesTo.type.rawValue)")
         }

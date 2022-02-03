@@ -16,7 +16,6 @@ class GameViewModel: ObservableObject {
     @Published private (set) var game: Game
     
     // MARK: - Accessors
-    
     var pgnString: String {
         var pgnString = ""
         for index in 0..<game.pgn.count {
@@ -58,23 +57,18 @@ class GameViewModel: ObservableObject {
         if piece.type == .king {
             game.changeCastlingRights(side, queenSide: false, kingSide: false)
         } else if piece.type == .rook {
-            if (side == .white && start.algebraicNotation[1] == "1")
-            || (side == .black && start.algebraicNotation[1] == "8") {
-                if start.algebraicNotation == "A" {
+            if (side == .white && start.notation[1] == "1")
+            || (side == .black && start.notation[1] == "8") {
+                if start.notation == "A" {
                     game.changeCastlingRights(side, queenSide: false)
                 }
-                if start.algebraicNotation == "H" {
+                if start.notation == "H" {
                     game.changeCastlingRights(side, kingSide: false)
                 }
             }
         }
     }
-    
-    // For ease of testing
-    func move(from start: String, to end: String) {
-        move(from: Coordinate(algebraicNotation: start), to: Coordinate(algebraicNotation: end))
-    }
-    
+        
     func move(from start: Coordinate, to end: Coordinate, promotesTo promotion: Piece? = nil) {
         if let piece = getPiece(from: start) {
             let move = Move(game, from: start, to: end, promotesTo: promotion)
@@ -102,7 +96,7 @@ class GameViewModel: ObservableObject {
                     // En Passant Special Case
                     if start.isDiagonal(from: end) && capturedPiece == nil {
                         // When a pawn moves diagonally and landed on a piece it must be En Passant capturing
-                        capturedPiece = game.removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex))
+                        capturedPiece = game.removePiece(Coordinate(start.rankIndex, end.fileIndex))
                     }
                 }
                 if let capturedPiece = capturedPiece {
@@ -157,4 +151,11 @@ class GameViewModel: ObservableObject {
         return false
     }
     
+}
+
+extension GameViewModel {
+    // MARK: - Testing Functions
+    func move(from start: String, to end: String) {
+        move(from: Coordinate(notation: start), to: Coordinate(notation: end))
+    }
 }

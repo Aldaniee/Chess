@@ -7,93 +7,62 @@
 
 import Foundation
 
+enum CoordinateError: Error {
+    case rankOutOfBounds, fileOutOfBounds, integerParsingError
+}
+
 struct Coordinate: Equatable, Hashable {
-        
-    enum Direction {
-        case upRank
-        case downRank
-        case upFile
-        case downFile
-        case upRankUpFile
-        case upRankDownFile
-        case downRankUpFile
-        case downRankDownFile
-        
-        var compute: ((Coordinate) -> Coordinate?) {
-            switch self {
-            case .upRank:
-                return { (c: Coordinate) -> Coordinate? in c.upRank() }
-            case .downRank:
-                return { (c: Coordinate) -> Coordinate? in c.downRank() }
-            case .upFile:
-                return { (c: Coordinate) -> Coordinate? in c.upFile() }
-            case .downFile:
-                return { (c: Coordinate) -> Coordinate? in c.downFile() }
-            case .upRankUpFile:
-                return { (c: Coordinate) -> Coordinate? in c.upRankUpFile() }
-            case .upRankDownFile:
-                return { (c: Coordinate) -> Coordinate? in c.upRankDownFile() }
-            case .downRankUpFile:
-                return { (c: Coordinate) -> Coordinate? in c.downRankUpFile() }
-            case .downRankDownFile:
-                return { (c: Coordinate) -> Coordinate? in c.downRankDownFile() }
-            }
-        }
-    }
+
+    let rankIndex: Int // 0 - 7
+    let fileIndex: Int // 0 - 7
     
-    init(rankIndex: Int, fileIndex: Int) {
+    // Expect Values (0-7, 0-7)
+    init(_ rankIndex: Int, _ fileIndex: Int) {
+        if !(0...7).contains(rankIndex) {
+            print("ERROR: \(CoordinateError.rankOutOfBounds)")
+        }
+        if !(0...7).contains(fileIndex) {
+            print("ERROR: \(CoordinateError.fileOutOfBounds)")
+        }
         self.rankIndex = rankIndex
         self.fileIndex = fileIndex
     }
-    init(fileLetter: Character, rankNum: Int) {
-        self.rankIndex = rankNum - 1
-        self.fileIndex = fileLetter.lowercased().alphabeticalIndex()
-    }
-    init(algebraicNotation: String) {
-        let fileLetter = algebraicNotation[0]
-        self.fileIndex = fileLetter.lowercased().alphabeticalIndex()
-        guard let rankNum = algebraicNotation[1].wholeNumberValue else {
-            print("ERROR: incorrect second character")
-            rankIndex = -1
-            return
-        }
-        self.rankIndex = rankNum - 1
-    }
-    var rankIndex: Int
-    var fileIndex: Int
     
+    // 1 - 8
     var rankNum: Int {
-        return rankIndex + 1
+        rankIndex + 1
     }
+    // A - H
     var fileLetter: Character {
-        return fileIndex.toLetterAtAlphabeticalIndex()
+        fileIndex.toLetterAtAlphabeticalIndex()
     }
-    var algebraicNotation: String {
-        return "\(fileLetter.lowercased())\(rankNum)"
+    // A1 - H8
+    var notation: String {
+        "\(fileLetter.lowercased())\(rankNum)"
     }
     
     // MARK: - Single Related Coordinate
     func upRank() -> Coordinate? {
         if rankIndex < 7 {
-            return Coordinate(rankIndex: rankIndex+1, fileIndex: fileIndex)
+            return Coordinate(rankIndex+1, fileIndex)
         }
         return nil
     }
     func downRank() -> Coordinate? {
         if rankIndex > 0 {
-            return Coordinate(rankIndex: rankIndex-1, fileIndex: fileIndex)
+            return Coordinate(rankIndex-1, fileIndex)
         }
         return nil
     }
     func upFile() -> Coordinate? {
         if fileIndex < 7 {
-            return Coordinate(rankIndex: rankIndex, fileIndex: fileIndex+1)
+            return Coordinate(rankIndex, fileIndex+1)
         }
         return nil
     }
     func downFile() -> Coordinate? {
         if fileIndex > 0 {
-            return Coordinate(rankIndex: rankIndex, fileIndex: fileIndex-1)
+            return Coordinate(rankIndex, fileIndex-1)
         }
         return nil
     }
@@ -136,7 +105,7 @@ struct Coordinate: Equatable, Hashable {
         var coords = [Coordinate]()
         for rank in 0..<8 {
             if rank != rankIndex {
-                coords.append(Coordinate(rankIndex: rank, fileIndex: fileIndex))
+                coords.append(Coordinate(rank, fileIndex))
             }
         }
         return coords
@@ -145,7 +114,7 @@ struct Coordinate: Equatable, Hashable {
         var coords = [Coordinate]()
         for file in 0..<8 {
             if file != fileIndex {
-                coords.append(Coordinate(rankIndex: rankIndex, fileIndex: file))
+                coords.append(Coordinate(rankIndex, file))
             }
         }
         return coords
@@ -222,5 +191,57 @@ struct Coordinate: Equatable, Hashable {
     }
     func isValid() -> Bool {
         return rankIndex < 8 && fileIndex < 8 && fileIndex > -1 && rankIndex > -1
+    }
+}
+
+extension Coordinate {
+    // Expect Values ('A'-'H', 1-8)
+    init(fileLetter: Character, rankNum: Int) {
+        self.init(rankNum - 1, fileLetter.lowercased().toAlphabeticalIndex())
+    }
+    
+    // Expect Values ("A1" - "H8")
+    init(notation: String) {
+        let fileLetter = notation[0]
+        
+        if let rankNum = notation[1].wholeNumberValue {
+            self.init(fileLetter: fileLetter, rankNum: rankNum)
+        }
+        else {
+            print("ERROR: \(CoordinateError.integerParsingError)")
+            self.init(0, 0)
+        }
+    }
+    
+    enum Direction {
+        case upRank
+        case downRank
+        case upFile
+        case downFile
+        case upRankUpFile
+        case upRankDownFile
+        case downRankUpFile
+        case downRankDownFile
+        
+        var compute: ((Coordinate) -> Coordinate?) {
+            switch self {
+            case .upRank:
+                return { (c: Coordinate) -> Coordinate? in c.upRank() }
+            case .downRank:
+                return { (c: Coordinate) -> Coordinate? in c.downRank() }
+            case .upFile:
+                return { (c: Coordinate) -> Coordinate? in c.upFile() }
+            case .downFile:
+                return { (c: Coordinate) -> Coordinate? in c.downFile() }
+            case .upRankUpFile:
+                return { (c: Coordinate) -> Coordinate? in c.upRankUpFile() }
+            case .upRankDownFile:
+                return { (c: Coordinate) -> Coordinate? in c.upRankDownFile() }
+            case .downRankUpFile:
+                return { (c: Coordinate) -> Coordinate? in c.downRankUpFile() }
+            case .downRankDownFile:
+                return { (c: Coordinate) -> Coordinate? in c.downRankDownFile() }
+            }
+        }
     }
 }

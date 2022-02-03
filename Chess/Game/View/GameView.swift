@@ -12,7 +12,7 @@ struct GameView: View {
 
     @ObservedObject var viewModel: GameViewModel = GameViewModel()
     
-    let boardWidth = UIScreen.screenWidth
+    let boardWidth = UIScreen.main.bounds.width
     let captureTrayHeight = CGFloat(40)
     let pgnDisplayHeight = CGFloat(100)
     let pgnMode = false
