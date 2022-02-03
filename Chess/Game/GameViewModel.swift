@@ -26,7 +26,7 @@ class GameViewModel: ObservableObject {
         return pgnString
     }
     var boardArray: [Tile] {
-        game.asArray()
+        Array(game.board.joined())
     }
     
     func selectedOwnPiece(_ coordinate: Coordinate) -> Bool {
@@ -47,7 +47,6 @@ class GameViewModel: ObservableObject {
     }
     
     // MARK: - Intents
-    
     func newGame() {
         game = Game()
     }
