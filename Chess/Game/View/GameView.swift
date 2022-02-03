@@ -18,16 +18,12 @@ struct GameView: View {
     }
     
     var body: some View {
-        VStack {
-            Spacer()
-            BoardView(viewModel: viewModel, tileWidth: tileWidth)
-                .frame(
-                    width: boardWidth,
-                    height: boardWidth,
-                    alignment: .center
-                )
-            Spacer()
-        }
+        BoardView(viewModel: viewModel, tileWidth: tileWidth)
+            .frame(
+                width: boardWidth,
+                height: boardWidth,
+                alignment: .center
+            )
     }
 }
 
