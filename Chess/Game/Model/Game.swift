@@ -17,7 +17,7 @@ struct Game {
         self.board = Game.emptyBoard
     }
     
-    // MARK: Static
+    // MARK: - Static
     static var emptyBoard: Board {
         var board = Board(repeating: [Tile](), count: 8)
         for rank in 0...7 {

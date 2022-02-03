@@ -9,12 +9,8 @@ import Foundation
 
 class GameViewModel: ObservableObject {
     
-    @Published private (set) var game: Game
-    
-    init(_ game: Game = Game()) {
-        self.game = game
-    }
-    
+    @Published private (set) var game = Game()
+
     // MARK: - Accessors
     var boardArray: [Tile] {
         Array(game.board.joined())
