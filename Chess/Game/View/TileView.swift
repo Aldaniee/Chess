@@ -11,38 +11,44 @@ struct TileView: View {
     
     let tile: Tile
     
+    let tileWidth: CGFloat
+    
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Rectangle()
-                    .foregroundColor(tile.color)
-                    .frame(
-                        width: geometry.size.width,
-                        height: geometry.size.width,
-                        alignment: .center
-                    )
-                subscripts
-            }
+        ZStack {
+            Rectangle()
+                .foregroundColor(tile.color)
+                .frame(
+                    width: tileWidth,
+                    height: tileWidth,
+                    alignment: .center
+                )
+            subscripts
         }
     }
     var subscripts: some View {
-        GeometryReader { geometry in
-            Group {
-                if tile.coordinate.rankNum == 1 {
-                    Text(String(tile.coordinate.fileLetter))
-                        .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height, alignment: .bottomTrailing)
-                }
-                if tile.coordinate.fileLetter == "a" {
-                    Text(String(tile.coordinate.rankNum))
-                        .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height, alignment: .topLeading)
-                }
+        Group {
+            if tile.coordinate.rankNum == 1 {
+                Text(String(tile.coordinate.fileLetter))
+                    .frame(
+                        maxWidth: tileWidth,
+                        maxHeight: tileWidth,
+                        alignment: .bottomTrailing
+                    )
             }
-            .foregroundColor(tile.color)
-            .colorInvert()
-            .opacity(0.8)
-            .font(.system(size: 14, weight: .heavy, design: .default))
-            .padding(3)
+            if tile.coordinate.fileLetter == "a" {
+                Text(String(tile.coordinate.rankNum))
+                    .frame(
+                        maxWidth: tileWidth,
+                        maxHeight: tileWidth,
+                        alignment: .topLeading
+                    )
+            }
         }
+        .foregroundColor(tile.color)
+        .colorInvert()
+        .opacity(0.8)
+        .font(.system(size: 14, weight: .heavy, design: .default))
+        .padding(3)
     }
-
 }
+

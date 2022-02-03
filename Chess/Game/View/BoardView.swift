@@ -26,7 +26,7 @@ struct BoardView: View {
             let columns = Array(repeating: GridItem(.fixed(tileWidth), spacing: 0), count: 8)
             LazyVGrid(columns: columns, spacing: 0) {
                 ForEach(viewModel.boardArray) { tile in
-                    TileView(tile: tile)
+                    TileView(tile: tile, tileWidth: tileWidth)
                         .aspectRatio(contentMode: .fill)
                 }
             }
