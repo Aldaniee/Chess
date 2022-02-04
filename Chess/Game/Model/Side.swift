@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Side: String, Codable {
+enum Side: String {
     
     case white = "w"
     case black = "b"
@@ -18,14 +18,6 @@ enum Side: String, Codable {
             return .black
         case .black:
             return .white
-        }
-    }
-    var name: String {
-        switch self {
-        case .white:
-            return "White"
-        case .black:
-            return "Black"
         }
     }
 }

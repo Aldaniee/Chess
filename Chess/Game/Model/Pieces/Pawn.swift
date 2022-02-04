@@ -30,16 +30,11 @@ struct Pawn: Piece {
         var moves = [Move]()
         
         // forward one
-        if let forwardOne = forward(from: start, side: side),
-            game.isEmpty(forwardOne)
-        {
+        if let forwardOne = forward(from: start, of: side), game.isEmpty(forwardOne) {
             moves.append(Move(game, from: start, to: forwardOne))
-            
             // forward two
-            if isOnStartRank(from: start, side: side) {
-                if let forwardTwo = forward(from: forwardOne, side: side),
-                   game.isEmpty(forwardTwo)
-                {
+            if isOnStartRank(from: start, of: side) {
+                if let forwardTwo = forward(from: forwardOne, of: side), game.isEmpty(forwardTwo) {
                     moves.append(Move(game, from: start, to: forwardTwo))
                 }
             }
@@ -53,32 +48,15 @@ struct Pawn: Piece {
                 moves.append(Move(game, from: start, to: end))
             }
         }
-        
-        // en passant
-        if start.rankNum == (side == .white ? 5 : 4) {
-            if let upFile = start.upFile(), upFile == game.enPassantTarget {
-                if let diagonalAttack = side == .white ? upFile.upRank() : upFile.downRank() {
-                    moves.append(Move(game, from: start, to: diagonalAttack))
-                }
-            }
-            if let downFile = start.downFile(), downFile == game.enPassantTarget {
-                if let diagonalAttack = side == .white ? downFile.upRank() : downFile.downRank() {
-                    moves.append(Move(game, from: start, to: diagonalAttack))
-                }
-            }
-        }
-        moves.removeAll { move in
-            game.isMovingIntoCheck(from: start, to: move.end)
-        }
         return moves
     }
     
     // MARK: - Private Functions
-    private func forward(from start: Coordinate, side: Side) -> Coordinate? {
+    private func forward(from start: Coordinate, of side: Side) -> Coordinate? {
         return side == .white ? start.upRank() : start.downRank()
     }
     
-    private func isOnStartRank(from start: Coordinate, side: Side) -> Bool{
+    private func isOnStartRank(from start: Coordinate, of side: Side) -> Bool {
         return side == .white ? start.rankNum == 2 : start.rankNum == 7
     }
 }

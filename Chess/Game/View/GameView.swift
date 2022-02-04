@@ -24,58 +24,18 @@ struct GameView: View {
     var body: some View {
         VStack {
             Spacer()
-            if pgnMode {
-                Spacer(minLength: pgnDisplayHeight)
-            }
             Button {
                 viewModel.newGame()
             } label: {
                 Text("New Game")
             }
-            CapturedPieceTrayView(capturedPieces: viewModel.game.whiteCapturedPieces)
-                .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
-            ZStack {
-                BoardView(viewModel: viewModel, boardWidth: boardWidth)
-                winnerCard
-            }
+            BoardView(viewModel: viewModel, tileWidth: tileWidth)
             .frame(
                 width: boardWidth,
                 height: boardWidth,
                 alignment: .center
             )
-            CapturedPieceTrayView(capturedPieces: viewModel.game.blackCapturedPieces)
-                .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
-            if pgnMode {
-                ScrollView {
-                    Text(viewModel.pgnString)
-                        .multilineTextAlignment(.leading)
-                        .foregroundColor(colorScheme == .light ? .black : .white)
-                        .padding()
-                }.frame(width: boardWidth, height: pgnDisplayHeight, alignment: .topLeading)
-            }
             Spacer()
-        }
-    }
-    
-    var winnerCard: some View {
-        ZStack {
-            let status = viewModel.game.gameStatus
-            let turn = viewModel.turn
-            if status != .playing {
-                let shape = RoundedRectangle(cornerSize: CGSize(width: 50, height: 50))
-                shape.fill().foregroundColor(.white).opacity(0.95)
-                shape.stroke(Color.black, lineWidth: 3)
-                Group {
-                    switch status {
-                    case .checkmating, .flagging, .resigning:
-                        Text("\(turn.name) Won \(status.display)!")
-                    default:
-                        Text(status.display)
-                    }
-                }
-                .font(.system(size: CGFloat(30)))
-                .foregroundColor(.black)
-            }
         }
     }
 }

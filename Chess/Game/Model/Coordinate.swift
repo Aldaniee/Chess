@@ -13,8 +13,8 @@ enum CoordinateError: Error {
 
 struct Coordinate: Equatable, Hashable {
 
-    let rankIndex: Int // 0 - 7
-    let fileIndex: Int // 0 - 7
+    let rankIndex: Int // 0-7
+    let fileIndex: Int // 0-7
     
     // Expect Values (0-7, 0-7)
     init(_ rankIndex: Int, _ fileIndex: Int) {
@@ -28,17 +28,17 @@ struct Coordinate: Equatable, Hashable {
         self.fileIndex = fileIndex
     }
     
-    // 1 - 8
+    // 1-8
     var rankNum: Int {
         rankIndex + 1
     }
-    // A - H
+    // A-H
     var fileLetter: Character {
         fileIndex.toLetterAtAlphabeticalIndex()
     }
-    // A1 - H8
+    // A1-H8
     var notation: String {
-        "\(fileLetter.lowercased())\(rankNum)"
+        "\(fileLetter)\(rankNum)"
     }
     
     // MARK: - Single Related Coordinate
@@ -100,97 +100,6 @@ struct Coordinate: Equatable, Hashable {
             coords.append(downDownDiagonal)
         }
         return coords
-    }
-    func sameFile() -> [Coordinate] {
-        var coords = [Coordinate]()
-        for rank in 0..<8 {
-            if rank != rankIndex {
-                coords.append(Coordinate(rank, fileIndex))
-            }
-        }
-        return coords
-    }
-    func sameRank() -> [Coordinate] {
-        var coords = [Coordinate]()
-        for file in 0..<8 {
-            if file != fileIndex {
-                coords.append(Coordinate(rankIndex, file))
-            }
-        }
-        return coords
-    }
-    func sameDiagonal() -> [Coordinate] {
-        var coords = [Coordinate]()
-        
-        coords.append(contentsOf: allCoords(in: .upRankUpFile))
-        coords.append(contentsOf: allCoords(in: .upRankDownFile))
-        coords.append(contentsOf: allCoords(in: .downRankUpFile))
-        coords.append(contentsOf: allCoords(in: .downRankDownFile))
-        
-        return coords
-    }
-    /// Coords between self coordiante and given coordinate horizontally
-    /// - Parameter end: Second coordinate to use
-    /// - Returns: Array of coordinate between the two coordinates (empty if coordiantes are the same, adjacent, or not on the same rank
-    func horizontalCoordsBetween(to end: Coordinate) -> [Coordinate] {
-        if self.isHorizontal(from: end){
-            if fileIndex < end.fileIndex {
-                return coordsBetween(to: end, in: .upFile)
-            }
-            if fileIndex > end.fileIndex {
-                return coordsBetween(to: end, in: .downFile)
-            }
-        }
-        return [Coordinate]()
-    }
-    
-    /// Coords between self coordiante and given coordinate in given direction
-    /// - Parameters:
-    ///   - end: Second coordinate to use
-    ///   - direction: Direction of second coordinate from first
-    /// - Returns: Array of coordinate between the two coordinates
-    private func coordsBetween(to end: Coordinate, in direction: Direction) -> [Coordinate] {
-        var between = [Coordinate]()
-        
-        var next = direction.compute(self)
-        while next != nil && next! != end {
-            between.append(next!)
-            next = direction.compute(self)
-        }
-        return between
-    }
-    
-    /// Return all coords in a given direction
-    /// - Parameters:
-    ///   - direction: Direction in which to enumerate
-    /// - Returns: Array of all coordinates in that direction (not including self)
-    func allCoords(in direction: Direction) -> [Coordinate] {
-        var moves = [Coordinate]()
-        
-        var next = direction.compute(self)
-        while next != nil {
-            moves.append(next!)
-            next = direction.compute(next!)
-        }
-        return moves
-    }
-    
-    // MARK: - Relations
-    func distance(to coordinate: Coordinate) -> Int {
-        return abs(coordinate.rankIndex-self.rankIndex) + abs(coordinate.fileIndex-self.fileIndex)
-    }
-    
-    func isDiagonal(from end: Coordinate) -> Bool {
-        return self.sameDiagonal().contains(end)
-    }
-    func isHorizontal(from end: Coordinate) -> Bool {
-        return self.rankIndex == end.rankIndex
-    }
-    func isVertical(from end: Coordinate) -> Bool {
-        return self.fileIndex == end.fileIndex
-    }
-    func isValid() -> Bool {
-        return rankIndex < 8 && fileIndex < 8 && fileIndex > -1 && rankIndex > -1
     }
 }
 

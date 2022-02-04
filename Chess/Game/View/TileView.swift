@@ -10,46 +10,54 @@ import SwiftUI
 struct TileView: View {
     
     let tile: Tile
-    var selectedTile: Coordinate?
+    
+    let tileWidth: CGFloat
+
+    var selected: Coordinate?
     
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Group {
-                    Rectangle()
-                        .foregroundColor(tile.display.color)
-                    if tile.coordinate == selectedTile {
-                        Rectangle()
-                            .foregroundColor(.orange)
-                            .opacity(0.2)
-                    }
-                }
-                .frame(
-                    width: geometry.size.width,
-                    height: geometry.size.width,
-                    alignment: .center
-                )
-                subscripts
-            }
-        }
-    }
-    var subscripts: some View {
-        GeometryReader { geometry in
+        ZStack {
             Group {
-                if tile.coordinate.rankNum == 1 {
-                    Text(String(tile.coordinate.fileLetter))
-                        .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height, alignment: .bottomTrailing)
-                }
-                if tile.coordinate.fileLetter == "a" {
-                    Text(String(tile.coordinate.rankNum))
-                        .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height, alignment: .topLeading)
+                Rectangle()
+                    .foregroundColor(tile.color)
+                if tile.coordinate == selected {
+                    Rectangle()
+                        .foregroundColor(.orange)
+                        .opacity(0.2)
                 }
             }
-            .foregroundColor(tile.display.inverseColor)
-            .opacity(0.8)
-            .font(.system(size: 14, weight: .heavy, design: .default))
-            .padding(3)
+            .frame(
+                width: tileWidth,
+                height: tileWidth,
+                alignment: .center
+            )
+            subscripts
         }
     }
-
+    
+    var subscripts: some View {
+        Group {
+            if tile.coordinate.rankNum == 1 {
+                Text(String(tile.coordinate.fileLetter))
+                    .frame(
+                        maxWidth: tileWidth,
+                        maxHeight: tileWidth,
+                        alignment: .bottomTrailing
+                    )
+            }
+            if tile.coordinate.fileLetter == "a" {
+                Text(String(tile.coordinate.rankNum))
+                    .frame(
+                        maxWidth: tileWidth,
+                        maxHeight: tileWidth,
+                        alignment: .topLeading
+                    )
+            }
+        }
+        .foregroundColor(tile.color)
+        .colorInvert()
+        .opacity(0.8)
+        .font(.system(size: 14, weight: .heavy, design: .default))
+        .padding(3)
+    }
 }
