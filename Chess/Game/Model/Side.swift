@@ -8,16 +8,6 @@
 import Foundation
 
 enum Side: String {
-    
     case white = "w"
     case black = "b"
-    
-    var opponent: Side {
-        switch self {
-        case .white:
-            return .black
-        case .black:
-            return .white
-        }
-    }
 }

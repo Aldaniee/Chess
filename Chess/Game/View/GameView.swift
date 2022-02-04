@@ -13,30 +13,18 @@ struct GameView: View {
     @ObservedObject var viewModel: GameViewModel = GameViewModel()
     
     let boardWidth = UIScreen.main.bounds.width
-    let captureTrayHeight = CGFloat(40)
-    let pgnDisplayHeight = CGFloat(100)
-    let pgnMode = false
     
     var tileWidth: CGFloat {
         boardWidth / CGFloat(8)
     }
     
     var body: some View {
-        VStack {
-            Spacer()
-            Button {
-                viewModel.newGame()
-            } label: {
-                Text("New Game")
-            }
-            BoardView(viewModel: viewModel, tileWidth: tileWidth)
-            .frame(
-                width: boardWidth,
-                height: boardWidth,
-                alignment: .center
-            )
-            Spacer()
-        }
+        BoardView(viewModel: viewModel, tileWidth: tileWidth)
+        .frame(
+            width: boardWidth,
+            height: boardWidth,
+            alignment: .center
+        )
     }
 }
 
