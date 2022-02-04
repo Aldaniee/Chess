@@ -40,9 +40,6 @@ struct Coordinate {
         self.rankIndex = rankIndex
         self.fileIndex = fileIndex
     }
-}
-
-extension Coordinate {
     
     // Expect Values (A-H, 1-8)
     init(fileLetter: Character, rankNum: Int) {
