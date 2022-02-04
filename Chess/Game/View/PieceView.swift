@@ -23,14 +23,12 @@ struct PieceView: View {
     
     let scaleFactor: CGFloat = 3
     
-    var body: some View {
-        let startCoordinate = tile.coordinate
-        let piece = tile.piece
-        let dragGesture = DragGesture(coordinateSpace: .global)
+    var drag: some Gesture {
+        DragGesture(coordinateSpace: .global)
             .onChanged { dragValue in
-                if viewModel.turn == piece?.side {
+                if viewModel.turn == tile.piece?.side {
                     scaleAmount = scaleFactor
-                    selected = startCoordinate
+                    selected = tile.coordinate
                     self.dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)
                     let rank = 7 - Int((dragValue.location.y - boardTop) / tileWidth)
                     let file = Int((dragValue.location.x) / tileWidth)
@@ -45,23 +43,26 @@ struct PieceView: View {
                 }
                 highlighted = nil
             }
-        
-        GeometryReader { geometry in
-            if piece != nil {
-                piece!.image
+    }
+    var body: some View {
+        Group {
+            if let piece = tile.piece {
+                piece.image
                     .resizable()
                     .scaledToFit()
-                    .frame(
-                        width: geometry.size.width-10,
-                        height: geometry.size.width-10,
-                        alignment: .center
-                    )
-                    .padding(5)
                     .offset(dragAmount)
                     .scaleEffect(scaleAmount, anchor: .center)
                     .animation(.easeInOut(duration: 0.05), value: scaleAmount)
-                    .gesture(dragGesture)
+                    .gesture(drag)
+            } else {
+                Spacer()
             }
         }
+        .padding(5)
+        .frame(
+            width: tileWidth,
+            height: tileWidth,
+            alignment: .center
+        )
     }
 }

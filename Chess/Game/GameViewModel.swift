@@ -15,12 +15,15 @@ class GameViewModel: ObservableObject {
     
     @Published private (set) var game: Game
     
-    // MARK: - Accessors
-    
+    // MARK: - Properties
     var boardArray: [Tile] {
-        game.asArray()
+        Array(game.board.joined())
+    }
+    var turn: Side {
+        game.turn
     }
     
+    // MARK: - Accessors
     func selectedOwnPiece(_ coordinate: Coordinate) -> Bool {
         if let piece = getPiece(from: coordinate) {
             return piece.side == turn
@@ -31,15 +34,11 @@ class GameViewModel: ObservableObject {
     func getPiece(from coordinate: Coordinate) -> Piece? {
         return game.getPiece(from: coordinate)
     }
-    var turn: Side {
-        game.turn
-    }
     func isValidMove(_ piece: Piece, from start: Coordinate, to end: Coordinate) -> Bool {
         return game.legalMoves(from: Tile(start, piece)).contains(Move(game, from: start, to: end))
     }
     
     // MARK: - Intents
-    
     func newGame() {
         game = Game()
     }
