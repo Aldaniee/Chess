@@ -10,7 +10,7 @@ import SwiftUI
 struct GameView: View {
     @Environment(\.colorScheme) var colorScheme
 
-    @ObservedObject var viewModel: GameViewModel = GameViewModel()
+    @ObservedObject var viewModel = GameViewModel()
     
     let boardWidth = UIScreen.main.bounds.width
     let captureTrayHeight = CGFloat(40)

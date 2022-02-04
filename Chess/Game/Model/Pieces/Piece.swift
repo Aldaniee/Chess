@@ -7,31 +7,6 @@
 
 import SwiftUI
 
-enum PieceType : String {
-    case pawn = "P"
-    case rook = "R"
-    case knight = "N"
-    case bishop = "B"
-    case king = "K"
-    case queen = "Q"
-    
-    var name: String {
-        switch self {
-        case .pawn:
-            return "pawn"
-        case .rook:
-            return "rook"
-        case .knight:
-            return "knight"
-        case .bishop:
-            return "bishop"
-        case .king:
-            return "king"
-        case .queen:
-            return "queen"
-        }
-    }
-}
 enum MoveSet {
     case verticalHorizontal
     case diagonal
@@ -60,12 +35,10 @@ protocol Piece {
 }
 extension Piece {
     var image: Image {
-        let assetName = "\(side.rawValue)_\(type.name)_shadow"
-        return Image(assetName)
+        return Image("\(side.rawValue)_\(type.rawValue)_svg_withShadow")
     }
     var imageNoShadow: Image {
-        let assetName = "\(side.rawValue)_\(type.name)"
-        return Image(assetName)
+        return Image("\(side.rawValue)_\(type.rawValue)_svg_NoShadow")
     }
     func possibleMovesFromThreats(from start: Coordinate, _ game: Game) -> [Move] {
         var moves = [Move]()
@@ -100,5 +73,26 @@ extension RecursivePiece {
     
     func possibleMoves(from start: Coordinate, _ game: Game) -> [Move] {
         self.possibleMovesFromThreats(from: start, game)
+    }
+}
+
+enum PieceType : String {
+    case pawn, king, queen, rook, bishop, knight
+    
+    var abbreviation: String {
+        switch self {
+        case .pawn:
+            return "P"
+        case .rook:
+            return "R"
+        case .knight:
+            return "N"
+        case .bishop:
+            return "B"
+        case .king:
+            return "K"
+        case .queen:
+            return "Q"
+        }
     }
 }

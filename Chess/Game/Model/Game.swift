@@ -12,8 +12,7 @@ enum GameError: Error {
 }
 
 typealias CastleRights = (queenSide: Bool, kingSide: Bool)
-typealias Board = [Rank]
-typealias Rank = [Tile]
+typealias Board = [[Tile]]
 typealias PieceCounter = (piece: Piece, count: Int)
 
 struct Game {

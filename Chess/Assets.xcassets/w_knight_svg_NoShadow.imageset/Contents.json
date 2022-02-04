@@ -1,0 +1,15 @@
+{
+  "images" : [
+    {
+      "filename" : "w_knight_svg_NoShadow.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "properties" : {
+    "preserves-vector-representation" : true
+  }
+}

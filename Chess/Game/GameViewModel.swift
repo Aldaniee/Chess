@@ -9,13 +9,15 @@ import Foundation
 
 class GameViewModel: ObservableObject {
     
-    init(_ game: Game = Game()) {
-        self.game = game
+    @Published private (set) var game = Game()
+    
+    // MARK: Properties
+    var turn: Side {
+        game.turn
     }
-    
-    @Published private (set) var game: Game
-    
-    // MARK: - Accessors
+    var boardArray: [Tile] {
+        Array(game.board.joined())
+    }
     var pgnString: String {
         var pgnString = ""
         for index in 0..<game.pgn.count {
@@ -24,22 +26,16 @@ class GameViewModel: ObservableObject {
         }
         return pgnString
     }
-    var boardArray: [Tile] {
-        Array(game.board.joined())
-    }
     
+    // MARK: - Accessors
     func selectedOwnPiece(_ coordinate: Coordinate) -> Bool {
         if let piece = getPiece(from: coordinate) {
             return piece.side == turn
         }
         return false
     }
-    
     func getPiece(from coordinate: Coordinate) -> Piece? {
         return game.getPiece(from: coordinate)
-    }
-    var turn: Side {
-        game.turn
     }
     func isValidMove(_ piece: Piece, from start: Coordinate, to end: Coordinate) -> Bool {
         return game.legalMoves(from: Tile(start, piece)).contains(Move(game, from: start, to: end))
