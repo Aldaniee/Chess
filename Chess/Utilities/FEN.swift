@@ -18,7 +18,7 @@ class FEN {
     func makeBoard(from fen: String) -> Board {
         var gameBoard = Board()
         for _ in 0..<8 {
-            gameBoard.append(Rank())
+            gameBoard.append([Tile]())
         }
         let board = fen.components(separatedBy: "/")
         for rank in 0..<8 {
@@ -120,22 +120,22 @@ class FEN {
     }
     
     private func getPiece(from pieceChar: String, of side: Side) -> Piece {
-        guard let pieceType = PieceType(rawValue: pieceChar.uppercased()) else {
+        switch pieceChar.uppercased() {
+        case "P":
             return Pawn(side)
-        }
-        switch pieceType {
-        case .pawn:
-            return Pawn(side)
-        case .rook:
+        case "R":
             return Rook(side)
-        case .knight:
+        case "N":
             return Knight(side)
-        case .bishop:
+        case "B":
             return Bishop(side)
-        case .king:
+        case "K":
             return King(side)
-        case .queen:
+        case "Q":
             return Queen(side)
+        default:
+            print("ERROR: \(FENError.decodingError)")
+            return Pawn(side)
         }
     }
 }

@@ -20,7 +20,7 @@ enum Side: String, Codable {
             return .white
         }
     }
-    var name: String {
+    var displayName: String {
         switch self {
         case .white:
             return "White"

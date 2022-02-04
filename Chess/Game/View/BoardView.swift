@@ -24,6 +24,39 @@ struct BoardView: View {
         Array(repeating: GridItem(.fixed(tileWidth), spacing: 0), count: 8)
     }
     
+    var body: some View {
+        ZStack {
+            border
+            tiles
+            dragIndicationCircle
+            pieces
+            ChoosePromotionView(promotionSquare: $promotionSquare, promotionStart: $promotionStart, moveAndPromote: viewModel.move(from:to:promotesTo:), tileWidth: tileWidth)
+        }
+    }
+    var tiles: some View {
+        LazyVGrid(columns: columns, spacing: 0) {
+            ForEach(viewModel.boardArray, id: \.coordinate.notation) { tile in
+                TileView(tile: tile, tileWidth: tileWidth, selected: $selected)
+                    .onTapGesture {
+                        selectTile(at: tile.coordinate)
+                    }
+            }
+        }
+    }
+    var pieces: some View {
+        GeometryReader { geometry in
+            LazyVGrid(columns: columns, spacing: 0) {
+                ForEach(viewModel.boardArray, id: \.coordinate.notation) { tile in
+                    PieceView(tile: tile, viewModel: viewModel, selectTile: selectTile(at:), selected: $selected, highlighted: $highlighted, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
+                        .onTapGesture {
+                            selectTile(at: tile.coordinate)
+                        }
+                        .zIndex(selected == tile.coordinate ? 1000 : 0)
+                }
+            }
+        }
+    }
+    
     var dragIndicationCircle: some View {
         Group {
             if let highlightedTile = highlighted {
@@ -39,40 +72,6 @@ struct BoardView: View {
                 .opacity(0.4)
                 .frame(width: circleSize, height: circleSize, alignment: .center)
                 .offset(circleOffset)
-            }
-        }
-    }
-    var body: some View {
-        ZStack {
-            border
-            tiles
-            pieces
-            dragIndicationCircle
-            ChoosePromotionView(promotionSquare: $promotionSquare, promotionStart: $promotionStart, moveAndPromote: viewModel.move(from:to:promotesTo:), tileWidth: tileWidth)
-        }
-    }
-    var tiles: some View {
-        LazyVGrid(columns: columns, spacing: 0) {
-            ForEach(viewModel.boardArray, id: \.coordinate.notation) { tile in
-                TileView(tile: tile, tileWidth: tileWidth, selected: $selected)
-                    .onTapGesture {
-                        selectTile(at: tile.coordinate)
-                    }
-                    .zIndex(selected == tile.coordinate ? 1000 : 0)
-
-            }
-        }
-    }
-    var pieces: some View {
-        GeometryReader { geometry in
-            LazyVGrid(columns: columns, spacing: 0) {
-                ForEach(viewModel.boardArray, id: \.coordinate.notation) { tile in
-                    PieceView(tile: tile, viewModel: viewModel, selectTile: selectTile(at:), selected: $selected, highlighted: $highlighted, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
-                        .onTapGesture {
-                            selectTile(at: tile.coordinate)
-                        }
-                        .zIndex(selected == tile.coordinate ? 1000 : 0)
-                }
             }
         }
     }

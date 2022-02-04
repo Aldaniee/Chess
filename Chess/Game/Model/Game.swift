@@ -12,13 +12,10 @@ enum GameError: Error {
 }
 
 typealias CastleRights = (queenSide: Bool, kingSide: Bool)
-typealias Board = [Rank]
-typealias Rank = [Tile]
+typealias Board = [[Tile]]
 typealias PieceCounter = (piece: Piece, count: Int)
 
 struct Game {
-
-    private (set) var id: UUID
     
     private (set) var board: Board
     private (set) var turn: Side
@@ -37,7 +34,6 @@ struct Game {
     private (set) var blackCapturedPieces: [PieceCounter]
     
     init(
-        id: UUID = UUID(),
         board: Board = FEN.shared.makeBoard(from: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"),
         fenBoard: String? = nil,
         turn: Side = Side.white,
@@ -52,7 +48,6 @@ struct Game {
         blackCapturedPieces: [(piece: Piece, count: Int)] = [(Piece, Int)]()
     )
     {
-        self.id = id
         if let fenBoard = fenBoard {
             self.board = FEN.shared.makeBoard(from: fenBoard)
         } else {
@@ -275,7 +270,7 @@ struct Game {
         return Array(board.joined())
     }
     func copy() -> Game {
-        return Game(id: id, board: board, turn: turn, whiteCanCastle: whiteCanCastle, blackCanCastle: blackCanCastle, enPassantTargetSquare: enPassantTarget, halfMoveClock: halfMoveClock, fullMoveNumber: fullMoveNumber, gameStatus: gameStatus, pgn: pgn, whiteCapturedPieces: whiteCapturedPieces, blackCapturedPieces: blackCapturedPieces)
+        return Game(board: board, turn: turn, whiteCanCastle: whiteCanCastle, blackCanCastle: blackCanCastle, enPassantTargetSquare: enPassantTarget, halfMoveClock: halfMoveClock, fullMoveNumber: fullMoveNumber, gameStatus: gameStatus, pgn: pgn, whiteCapturedPieces: whiteCapturedPieces, blackCapturedPieces: blackCapturedPieces)
     }
     
     func isThreefoldRepetition() -> Bool {

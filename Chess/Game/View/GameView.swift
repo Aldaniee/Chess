@@ -10,7 +10,7 @@ import SwiftUI
 struct GameView: View {
     @Environment(\.colorScheme) var colorScheme
 
-    @ObservedObject var viewModel: GameViewModel = GameViewModel()
+    @ObservedObject var viewModel = GameViewModel()
     
     let boardWidth = UIScreen.screenWidth
     let captureTrayHeight = CGFloat(40)
@@ -61,7 +61,7 @@ struct GameView: View {
                 Group {
                     switch status {
                     case .checkmating, .flagging, .resigning:
-                        Text("\(turn.name) Won \(status.display)!")
+                        Text("\(turn.displayName) Won \(status.display)!")
                     default:
                         Text(status.display)
                     }

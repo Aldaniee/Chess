@@ -7,48 +7,6 @@
 
 import SwiftUI
 
-enum PieceType : String {
-    case pawn = "P"
-    case rook = "R"
-    case knight = "N"
-    case bishop = "B"
-    case king = "K"
-    case queen = "Q"
-    
-    var name: String {
-        switch self {
-        case .pawn:
-            return "pawn"
-        case .rook:
-            return "rook"
-        case .knight:
-            return "knight"
-        case .bishop:
-            return "bishop"
-        case .king:
-            return "king"
-        case .queen:
-            return "queen"
-        }
-    }
-}
-enum MoveSet {
-    case verticalHorizontal
-    case diagonal
-    case both
-    var directions: [Coordinate.Direction] {
-        let diagonal: [Coordinate.Direction] = [.upRankUpFile, .upRankDownFile, .downRankUpFile, .downRankDownFile]
-        let verticalHorizontal: [Coordinate.Direction] = [.upRank, .downRank, .upFile, .downFile]
-        switch self {
-        case .verticalHorizontal:
-            return verticalHorizontal
-        case .diagonal:
-            return diagonal
-        case .both:
-            return verticalHorizontal + diagonal
-        }
-    }
-}
 // MARK: - Implementations: King, Knight, Pawn, RecursivePieces
 protocol Piece {
     func possibleMoves(from start: Coordinate, _ game: Game) -> [Move]
@@ -60,11 +18,11 @@ protocol Piece {
 }
 extension Piece {
     var image: Image {
-        let assetName = "\(side.rawValue)_\(type.name)_shadow"
+        let assetName = "\(side.rawValue)_\(type.rawValue)_svg_withShadow"
         return Image(assetName)
     }
     var imageNoShadow: Image {
-        let assetName = "\(side.rawValue)_\(type.name)"
+        let assetName = "\(side.rawValue)_\(type.rawValue)_svg_NoShadow"
         return Image(assetName)
     }
     func possibleMovesFromThreats(from start: Coordinate, _ game: Game) -> [Move] {
@@ -100,5 +58,42 @@ extension RecursivePiece {
     
     func possibleMoves(from start: Coordinate, _ game: Game) -> [Move] {
         self.possibleMovesFromThreats(from: start, game)
+    }
+}
+enum PieceType : String {
+    case pawn, rook, knight, bishop, king, queen
+    
+    var abbreviation: String {
+        switch self {
+        case .pawn:
+            return "P"
+        case .rook:
+            return "R"
+        case .knight:
+            return "N"
+        case .bishop:
+            return "B"
+        case .king:
+            return "K"
+        case .queen:
+            return "Q"
+        }
+    }
+}
+enum MoveSet {
+    case verticalHorizontal
+    case diagonal
+    case both
+    var directions: [Coordinate.Direction] {
+        let diagonal: [Coordinate.Direction] = [.upRankUpFile, .upRankDownFile, .downRankUpFile, .downRankDownFile]
+        let verticalHorizontal: [Coordinate.Direction] = [.upRank, .downRank, .upFile, .downFile]
+        switch self {
+        case .verticalHorizontal:
+            return verticalHorizontal
+        case .diagonal:
+            return diagonal
+        case .both:
+            return verticalHorizontal + diagonal
+        }
     }
 }
