@@ -127,7 +127,7 @@ struct Game {
         // En Passant Special Case
         if piece.type == .pawn && start.isDiagonal(from: end) && capturedPiece == nil {
             // When a pawn moves diagonally and landed on a piece it must be En Passant capturing
-            capturedPiece = removePiece(Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex))
+            capturedPiece = removePiece(Coordinate(start.rankIndex, end.fileIndex))
         }
         if let capturedPiece = capturedPiece {
             recordCapture(piece: capturedPiece)
@@ -178,7 +178,7 @@ struct Game {
                 && start.isDiagonal(from: end)
                 && lastHalfMove.capturedPiece == nil
             {
-                let opponenetCoordinate = Coordinate(rankIndex: start.rankIndex, fileIndex: end.fileIndex)
+                let opponenetCoordinate = Coordinate(start.rankIndex, end.fileIndex)
                 _ = putPiece(Pawn(piece.side.opponent), opponenetCoordinate)
                 enPassantTarget = opponenetCoordinate
             }
@@ -358,12 +358,12 @@ struct Game {
         if piece.type == .king {
             changeCastlingRights(side, queenSide: false, kingSide: false)
         } else if piece.type == .rook {
-            if (side == .white && start.algebraicNotation[1] == "1")
-            || (side == .black && start.algebraicNotation[1] == "8") {
-                if start.algebraicNotation == "A" {
+            if (side == .white && start.rankNum == 1)
+            || (side == .black && start.rankNum == 8) {
+                if start.fileLetter == Character("A") {
                     changeCastlingRights(side, queenSide: false)
                 }
-                if start.algebraicNotation == "H" {
+                if start.fileLetter == Character("H") {
                     changeCastlingRights(side, kingSide: false)
                 }
             }
@@ -395,7 +395,7 @@ struct Game {
                     print("\(piece.type.rawValue) ", terminator: "")
                 }
                 else {
-                    print(tile.coordinate.algebraicNotation, terminator: "")
+                    print(tile.coordinate.notation, terminator: "")
                 }
             }
         }

@@ -8,61 +8,25 @@
 import SwiftUI
 
 struct BoardView: View {
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) var colorScheme //Phone in light/dark mode
 
     @ObservedObject var viewModel: GameViewModel
-    @State var highlightedTile: Coordinate? = nil
-    @State var selectedTile: Coordinate? = nil
+    @State var highlighted: Coordinate? = nil
+    @State var selected: Coordinate? = nil
     @State var promotionSquare: Coordinate? = nil
     @State var promotionStart: Coordinate? = nil
+        
+    let tileWidth: CGFloat
     
     let boardWidth: CGFloat
-    var tileWidth: CGFloat {
-        boardWidth / CGFloat(8)
-    }
-
     
-    private func clickToSelectTile(at newSelection: Coordinate) {
-        if selectedTile != nil && selectedTile == newSelection {
-            selectedTile = nil
-        }
-        else if selectedTile != nil && !viewModel.selectedOwnPiece(newSelection) {
-            makeSecondSelection(at: newSelection)
-        } else {
-            selectedTile = newSelection
-        }
+    var columns: [GridItem] {
+        Array(repeating: GridItem(.fixed(tileWidth), spacing: 0), count: 8)
     }
     
-    private func makeSecondSelection(at newSelection: Coordinate?) {
-        if makeMoveIfValid(from: selectedTile, to: newSelection) {
-            selectedTile = nil
-        }
-    }
-    private func makeMoveIfValid(from oldSelection: Coordinate?, to newSelection: Coordinate?) -> Bool {
-        if let start = oldSelection {
-            if let end = newSelection {
-                if let movingPiece = viewModel.getPiece(from: start) {
-                    if movingPiece.side == viewModel.turn {
-                        if movingPiece.type == .pawn
-                            && (end.rankNum == 8 || end.rankNum == 1)
-                            && viewModel.isValidMove(movingPiece, from: start, to: end)
-                        {
-                            promotionStart = start
-                            promotionSquare = end
-                        }
-                        else {
-                            viewModel.move(from: start, to: end)
-                            return true
-                        }
-                    }
-                }
-            }
-        }
-        return false
-    }
     var dragIndicationCircle: some View {
         Group {
-            if let highlightedTile = highlightedTile {
+            if let highlightedTile = highlighted {
                 let fileIndex = highlightedTile.fileIndex
                 let rankIndex = highlightedTile.rankIndex
                 let circleOffset = CGSize(
@@ -79,34 +43,60 @@ struct BoardView: View {
         }
     }
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Rectangle().stroke(self.colorScheme == .light ? .black : .white, lineWidth: 5)
-                let columns =
-                Array(repeating: GridItem(.fixed(tileWidth), spacing: 0), count: 8)
-                LazyVGrid(columns: columns, spacing: 0) {
-                    ForEach(viewModel.boardArray) { tile in
-                        TileView(tile: tile, selectedTile: selectedTile)
-                            .aspectRatio(contentMode: .fill)
-                            .onTapGesture {
-                                clickToSelectTile(at: tile.coordinate)
-                            }
+        ZStack {
+            border
+            tiles
+            pieces
+            dragIndicationCircle
+            ChoosePromotionView(promotionSquare: $promotionSquare, promotionStart: $promotionStart, moveAndPromote: viewModel.move(from:to:promotesTo:), tileWidth: tileWidth)
+        }
+    }
+    var tiles: some View {
+        LazyVGrid(columns: columns, spacing: 0) {
+            ForEach(viewModel.boardArray, id: \.coordinate.notation) { tile in
+                TileView(tile: tile, tileWidth: tileWidth, selected: $selected)
+                    .onTapGesture {
+                        selectTile(at: tile.coordinate)
                     }
-                }
-                Spacer(minLength: 0)
-                dragIndicationCircle
-                LazyVGrid(columns: columns, spacing: 0) {
-                    ForEach(viewModel.boardArray) { tile in
-                        PieceView(tile: tile, viewModel: viewModel, dropToSelectTile: makeSecondSelection(at:), selectedTile: $selectedTile, highlightedTile: $highlightedTile, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
-                            .aspectRatio(contentMode: .fill)
-                            .onTapGesture {
-                                clickToSelectTile(at: tile.coordinate)
-                            }
-                        .zIndex(selectedTile == tile.coordinate ? 1000 : 0)
-                    }
-                }
-                ChoosePromotionView(promotionSquare: $promotionSquare, promotionStart: $promotionStart, moveAndPromote: viewModel.move(from:to:promotesTo:), tileWidth: tileWidth)
+                    .zIndex(selected == tile.coordinate ? 1000 : 0)
+
             }
         }
+    }
+    var pieces: some View {
+        GeometryReader { geometry in
+            LazyVGrid(columns: columns, spacing: 0) {
+                ForEach(viewModel.boardArray, id: \.coordinate.notation) { tile in
+                    PieceView(tile: tile, viewModel: viewModel, selectTile: selectTile(at:), selected: $selected, highlighted: $highlighted, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
+                        .onTapGesture {
+                            selectTile(at: tile.coordinate)
+                        }
+                        .zIndex(selected == tile.coordinate ? 1000 : 0)
+                }
+            }
+        }
+    }
+    var border: some View {
+        Rectangle()
+            .stroke(self.colorScheme == .light ? .black : .white, lineWidth: 5)
+    }
+    // MARK: - Private Functions
+    private func selectTile(at newSelection: Coordinate) {
+        let madeSameSelection = selected == newSelection
+        let madeSelection = selected != nil
+        let madeMove = madeSelection && !viewModel.selectedOwnPiece(newSelection) && makeMoveIfValid(from: selected, to: newSelection)
+
+        selected = madeSameSelection || madeMove ? nil : newSelection
+    }
+    private func makeMoveIfValid(from oldSelection: Coordinate?, to newSelection: Coordinate?) -> Bool {
+        if let start = oldSelection,
+           let end = newSelection,
+           let movingPiece = viewModel.getPiece(from: start),
+           movingPiece.side == viewModel.turn
+        {
+            viewModel.move(from: start, to: end)
+            return true
+        }
+        return false
     }
 }

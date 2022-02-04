@@ -46,7 +46,7 @@ class GameViewModel: ObservableObject {
     
     // For ease of testing
     func move(from start: String, to end: String) {
-        move(from: Coordinate(algebraicNotation: start), to: Coordinate(algebraicNotation: end))
+        move(from: Coordinate(notation: start), to: Coordinate(notation: end))
     }
     
     func move(from start: Coordinate, to end: Coordinate, promotesTo promotion: Piece? = nil) {

@@ -14,9 +14,9 @@ struct PieceView: View {
     @State private var dragAmount = CGSize.zero
     @State private var scaleAmount: CGFloat = 1.0
     
-    var dropToSelectTile: (Coordinate?) async -> Void
-    @Binding var selectedTile: Coordinate?
-    @Binding var highlightedTile: Coordinate?
+    var selectTile: (Coordinate) -> Void
+    @Binding var selected: Coordinate?
+    @Binding var highlighted: Coordinate?
 
     let boardTop: CGFloat
     let tileWidth: CGFloat
@@ -30,22 +30,20 @@ struct PieceView: View {
             .onChanged { dragValue in
                 if viewModel.turn == piece?.side {
                     scaleAmount = scaleFactor
-                    selectedTile = startCoordinate
+                    selected = startCoordinate
                     self.dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)
                     let rank = 7 - Int((dragValue.location.y - boardTop) / tileWidth)
                     let file = Int((dragValue.location.x) / tileWidth)
-                    highlightedTile = Coordinate(rankIndex: rank, fileIndex: file)
+                    highlighted = Coordinate(rank, file)
                 }
             }
             .onEnded { dragValue in
                 self.dragAmount = .zero
                 scaleAmount = 1.0
-                if let highlightedTile = highlightedTile {
-                    Task {
-                        await dropToSelectTile(highlightedTile)
-                    }
+                if let highlighted = highlighted {
+                    selectTile(highlighted)
                 }
-                highlightedTile = nil
+                highlighted = nil
             }
         
         GeometryReader { geometry in

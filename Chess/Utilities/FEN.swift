@@ -27,13 +27,13 @@ class FEN {
                 if letter.isNumber {
                     let numSpaces = Int(letter.description) ?? 0
                     for _ in 0..<numSpaces {
-                        gameBoard[rank].append(Tile(Coordinate(rankIndex: 7-rank, fileIndex: file), nil))
+                        gameBoard[rank].append(Tile(Coordinate(7-rank, file), nil))
                         file += 1
                     }
                 } else {
                     let side = letter.isUppercase ? Side.white : Side.black
                     let piece = getPiece(from: letter.description, of: side)
-                    gameBoard[rank].append(Tile(Coordinate(rankIndex: 7-rank, fileIndex: file), piece))
+                    gameBoard[rank].append(Tile(Coordinate(7-rank, file), piece))
                     file += 1
                 }
             }
@@ -45,7 +45,7 @@ class FEN {
         let piecePlacement = makeString(from: game.board)
         let activeColor = game.turn.rawValue
         let castlingAvailability = encodeCastlingAvailability(white: game.whiteCanCastle, black: game.blackCanCastle)
-        let enPassantTargetSquare = game.enPassantTarget?.algebraicNotation ?? "-"
+        let enPassantTargetSquare = game.enPassantTarget?.notation ?? "-"
         if withoutClocks {
             return piecePlacement + " " + activeColor + " " + castlingAvailability + " " + enPassantTargetSquare
         }
@@ -69,7 +69,7 @@ class FEN {
         let blackCanCastle = canCastle.black
         let enPassantTargetSquare = fields[3].description
         
-        let enPassantTarget = fields[3].description == "-" ? nil : Coordinate(algebraicNotation: enPassantTargetSquare)
+        let enPassantTarget = fields[3].description == "-" ? nil : Coordinate(notation: enPassantTargetSquare)
         
         let halfMoveClock = Int(fields[4].description) ?? 0
         let fullMoveNumber = Int(fields[5].description) ?? 1

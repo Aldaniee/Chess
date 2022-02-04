@@ -31,7 +31,7 @@ struct GameView: View {
             CapturedPieceTrayView(capturedPieces: viewModel.game.whiteCapturedPieces)
                 .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
             ZStack {
-                BoardView(viewModel: viewModel, boardWidth: boardWidth)
+                BoardView(viewModel: viewModel, tileWidth: tileWidth, boardWidth: boardWidth)
                     .frame(
                         width: boardWidth,
                         height: boardWidth,
