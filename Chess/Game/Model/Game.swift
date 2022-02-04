@@ -11,11 +11,7 @@ typealias Board = [[Tile]]
 
 struct Game {
     
-    private (set) var board: Board
-    
-    init() {
-        self.board = Game.emptyBoard
-    }
+    private (set) var board = Game.emptyBoard
     
     // MARK: - Static
     static var emptyBoard: Board {
