@@ -12,13 +12,14 @@ struct GameView: View {
 
     @ObservedObject var viewModel = GameViewModel()
     
-    let boardWidth = UIScreen.screenWidth
-    let captureTrayHeight = CGFloat(40)
-    let pgnDisplayHeight = CGFloat(100)
+    let boardWidth = UIScreen.main.bounds.width
     
     var tileWidth: CGFloat {
         boardWidth / CGFloat(8)
     }
+    
+    let captureTrayHeight = CGFloat(40)
+    let pgnDisplayHeight = CGFloat(100)
     
     var body: some View {
         VStack {
