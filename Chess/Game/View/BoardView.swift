@@ -30,7 +30,7 @@ struct BoardView: View {
     var tiles: some View {
         LazyVGrid(columns: columns, spacing: 0) {
             ForEach(viewModel.boardArray, id: \.coordinate.notation) { tile in
-                TileView(tile: tile, tileWidth: tileWidth, selected: selected)
+                TileView(tile: tile, tileWidth: tileWidth)
             }
         }
     }

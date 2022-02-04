@@ -13,10 +13,15 @@ protocol Piece {
 }
 extension Piece {
     var image: Image {
-        Image("\(side.rawValue)_\(type.rawValue)_shadow")
+        Image("\(side.rawValue)_\(type.rawValue)_svg_withShadow")
     }
 }
 
 enum PieceType : String {
     case pawn, king, queen, rook, bishop, knight
+}
+
+enum Side: String {
+    case white = "w"
+    case black = "b"
 }

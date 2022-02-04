@@ -19,11 +19,11 @@ struct PieceView: View {
                 piece.image
                     .resizable()
                     .scaledToFit()
+                    .padding(5)
             } else {
                 Spacer()
             }
         }
-        .padding(5)
         .frame(
             width: tileWidth,
             height: tileWidth,

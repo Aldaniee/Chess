@@ -12,19 +12,12 @@ struct TileView: View {
     let tile: Tile
     
     let tileWidth: CGFloat
-
-    var selected: Coordinate?
     
     var body: some View {
         ZStack {
             Group {
                 Rectangle()
                     .foregroundColor(tile.color)
-                if tile.coordinate == selected {
-                    Rectangle()
-                        .foregroundColor(.orange)
-                        .opacity(0.2)
-                }
             }
             .frame(
                 width: tileWidth,

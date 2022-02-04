@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		EA0F7AE0278633B000E506E5 /* King.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA0F7ADF278633B000E506E5 /* King.swift */; };
-		EA1712532793433C0090D9EF /* Side.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1712522793433C0090D9EF /* Side.swift */; };
 		EA17129327A45C470090D9EF /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA17129227A45C470090D9EF /* BoardView.swift */; };
 		EA17129527A467860090D9EF /* GameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA17129427A467860090D9EF /* GameTests.swift */; };
 		EA8CB6AF277DFBE000CAF379 /* ChessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8CB6AE277DFBE000CAF379 /* ChessApp.swift */; };
@@ -44,7 +43,6 @@
 
 /* Begin PBXFileReference section */
 		EA0F7ADF278633B000E506E5 /* King.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = King.swift; sourceTree = "<group>"; };
-		EA1712522793433C0090D9EF /* Side.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Side.swift; sourceTree = "<group>"; };
 		EA1712662798AF9F0090D9EF /* ChessTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ChessTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA1712762798B0130090D9EF /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA17129227A45C470090D9EF /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
@@ -128,7 +126,6 @@
 			isa = PBXGroup;
 			children = (
 				EA8CB6BC277DFC2900CAF379 /* Game.swift */,
-				EA1712522793433C0090D9EF /* Side.swift */,
 				EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */,
 				EA8CB6BE277DFCCF00CAF379 /* Tile.swift */,
 				EA0F7AE127867A5F00E506E5 /* Pieces */,
@@ -340,7 +337,6 @@
 				EA8CB6C7277E038600CAF379 /* Extensions.swift in Sources */,
 				EA8CB6C9277E55C000CAF379 /* GameViewModel.swift in Sources */,
 				EA8CB6CB277F5DB100CAF379 /* Coordinate.swift in Sources */,
-				EA1712532793433C0090D9EF /* Side.swift in Sources */,
 				EA0F7AE0278633B000E506E5 /* King.swift in Sources */,
 				EA8CB6C1277DFD2C00CAF379 /* Piece.swift in Sources */,
 				EA8CB6BD277DFC2900CAF379 /* Game.swift in Sources */,

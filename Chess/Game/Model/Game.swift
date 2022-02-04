@@ -15,22 +15,7 @@ struct Game {
     
     init() {
         self.board = Game.emptyBoard
-        self.setupBoard()
-    }
-    
-    // MARK: - Mutators
-    mutating func putPiece(_ piece: Piece?, _ coordinate: Coordinate) -> Piece? {
-        let oldPiece = getPiece(from: coordinate)
-        setPiece(piece, coordinate)
-        return oldPiece
-    }
-    mutating func removePiece(_ coordinate: Coordinate) -> Piece? {
-        putPiece(nil, coordinate)
-    }
-    
-    // MARK: - Accessors
-    func getPiece(from coordinate: Coordinate) -> Piece? {
-        board[7-coordinate.rankIndex][coordinate.fileIndex].piece
+        setupBoard()
     }
     
     // MARK: - Private Mutators
