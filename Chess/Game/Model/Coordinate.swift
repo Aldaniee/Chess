@@ -16,6 +16,19 @@ struct Coordinate {
     let rankIndex: Int // 0-7
     let fileIndex: Int // 0-7
     
+    // 1-8
+    var rankNum: Int {
+        rankIndex + 1
+    }
+    // A-H
+    var fileLetter: Character {
+        fileIndex.toLetterAtAlphabeticalIndex()
+    }
+    // A1-H8
+    var notation: String {
+        "\(fileLetter)\(rankNum)"
+    }
+    
     // Expect Values (0-7, 0-7)
     init(_ rankIndex: Int, _ fileIndex: Int) {
         if !(0...7).contains(rankIndex) {
@@ -26,21 +39,6 @@ struct Coordinate {
         }
         self.rankIndex = rankIndex
         self.fileIndex = fileIndex
-    }
-    
-    // 1-8
-    var rankNum: Int {
-        rankIndex + 1
-    }
-    
-    // A-H
-    var fileLetter: Character {
-        fileIndex.toLetterAtAlphabeticalIndex()
-    }
-    
-    // A1-H8
-    var notation: String {
-        "\(fileLetter)\(rankNum)"
     }
 }
 
