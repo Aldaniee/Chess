@@ -12,7 +12,6 @@ struct Tile: Identifiable {
     let id = UUID()
     
     let coordinate: Coordinate
-    
     var piece: Piece?
     
     var color: Color {
