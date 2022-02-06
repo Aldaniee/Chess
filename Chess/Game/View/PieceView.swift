@@ -21,7 +21,7 @@ struct PieceView: View {
     let boardTop: CGFloat
     let tileWidth: CGFloat
     
-    let scaleFactor: CGFloat = 3
+    let scaleFactor: CGFloat = 4
     
     var drag: some Gesture {
         DragGesture(coordinateSpace: .global)

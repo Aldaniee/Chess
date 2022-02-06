@@ -36,7 +36,7 @@ struct CapturedPieceTrayView: View {
                     .foregroundColor(colors.primary)
             }
         }
-        .frame(width: size.width, height: size.height, alignment: .center)
+        .frame(width: size.width, height: size.height, alignment: .leading)
     }
 }
 struct CapturedPiece: View {

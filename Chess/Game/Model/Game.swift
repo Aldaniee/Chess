@@ -33,6 +33,8 @@ struct Game {
     private (set) var whiteCapturedPieces: [PieceCounter]
     private (set) var blackCapturedPieces: [PieceCounter]
     
+    private var consoleDebug = false
+    
     init(
         board: Board = FEN.shared.makeBoard(from: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"),
         fenBoard: String? = nil,
@@ -67,7 +69,9 @@ struct Game {
     
     mutating func nextTurn() {
         turn = turn.opponent
-        print(FEN.shared.makeString(from: self))
+        if consoleDebug {
+            print(FEN.shared.makeString(from: self))
+        }
     }
     
     mutating func setGameStatus(_ gameStatus: GameStatus) {
@@ -396,19 +400,5 @@ struct Game {
             print("ERROR: FEN error \(error)")
         }
         return Game()
-    }
-    // MARK: - Debug
-    func displayBoardInConsole() {
-        for file in board {
-            print()
-            for tile in file {
-                if let piece = tile.piece {
-                    print("\(piece.type.rawValue) ", terminator: "")
-                }
-                else {
-                    print(tile.coordinate.notation, terminator: "")
-                }
-            }
-        }
     }
 }

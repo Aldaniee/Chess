@@ -32,6 +32,11 @@ struct BoardView: View {
             pieces
             ChoosePromotionView(promotionSquare: $promotionSquare, promotionStart: $promotionStart, moveAndPromote: viewModel.move(from:to:promotesTo:), tileWidth: tileWidth)
         }
+        .frame(
+            width: boardWidth,
+            height: boardWidth,
+            alignment: .center
+        )
     }
     var tiles: some View {
         LazyVGrid(columns: columns, spacing: 0) {

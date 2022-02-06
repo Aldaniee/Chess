@@ -20,7 +20,7 @@ struct GameView: View {
         (primaryColor, secondaryColor)
     }
     
-    @ObservedObject var viewModel = GameViewModel(Game.promotionTestGame)
+    @ObservedObject var viewModel = GameViewModel()
     
     let boardWidth = UIScreen.main.bounds.width
     
@@ -29,6 +29,7 @@ struct GameView: View {
     }
     
     let pgnDisplayHeight = CGFloat(100)
+    
     var winnerCardWidth: CGFloat {
         boardWidth - 50
     }
@@ -40,27 +41,17 @@ struct GameView: View {
         VStack {
                 CapturedPieceTrayView(
                     viewModel: viewModel,
-                    side: .black,
+                    side: viewModel.boardFlipped ? .white : .black,
                     colors: colors,
                     size: captureTraySize
                 )
                 ZStack {
                     BoardView(viewModel: viewModel, tileWidth: tileWidth, boardWidth: boardWidth)
-                        .frame(
-                            width: boardWidth,
-                            height: boardWidth,
-                            alignment: .center
-                        )
                     winnerCard
-                        .frame(
-                            width: winnerCardWidth,
-                            height: winnerCardWidth,
-                            alignment: .center
-                        )
                 }
                 CapturedPieceTrayView(
                     viewModel: viewModel,
-                    side: .white,
+                    side: viewModel.boardFlipped ? .black : .white,
                     colors: colors,
                     size: captureTraySize
                 )
@@ -110,6 +101,11 @@ struct GameView: View {
                 .foregroundColor(primaryColor)
             }
         }
+        .frame(
+            width: winnerCardWidth,
+            height: winnerCardWidth,
+            alignment: .center
+        )
     }
 }
 
