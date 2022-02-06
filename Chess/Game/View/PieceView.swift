@@ -11,23 +11,28 @@ struct PieceView: View {
     
     let tile: Tile
     @ObservedObject var viewModel: GameViewModel
+        
     @State private var dragAmount = CGSize.zero
-    @State private var scaleAmount: CGFloat = 1.0
     
     var selectTile: (Coordinate) -> Void
     @Binding var selected: Coordinate?
     @Binding var highlighted: Coordinate?
 
     let boardTop: CGFloat
+    
     let tileWidth: CGFloat
     
-    let scaleFactor: CGFloat = 4
-    
+    //when dragging scale the piece up for visibility
+    let scaleFactor: CGFloat = 3
+    // when dragging move piece above thumb so it can be seen
+    let thumbOffset: CGFloat = 15
+ 
     var drag: some Gesture {
         DragGesture(coordinateSpace: .global)
             .onChanged { dragValue in
                 if viewModel.turn == tile.piece?.side {
-                    scaleAmount = scaleFactor
+
+
                     selected = tile.coordinate
                     dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)
                     
@@ -44,7 +49,8 @@ struct PieceView: View {
             }
             .onEnded { dragValue in
                 self.dragAmount = .zero
-                scaleAmount = 1.0
+
+
                 if let highlighted = highlighted {
                     selectTile(highlighted)
                 }
@@ -57,10 +63,17 @@ struct PieceView: View {
                 piece.image
                     .resizable()
                     .scaledToFit()
-                    .offset(dragAmount)
-                    .scaleEffect(scaleAmount, anchor: .center)
-                    .animation(.easeInOut(duration: 0.05), value: scaleAmount)
-                    .gesture(drag)
+                    .offset(
+                        dragAmount == CGSize.zero
+                        ? CGSize.zero
+                        : CGSize(width: dragAmount.width, height: dragAmount.height - thumbOffset)
+                    )
+                    .scaleEffect(
+                        dragAmount != .zero ? scaleFactor : 1,
+                        anchor: .center
+                    )
+                    .animation(.easeInOut(duration: 0.03), value: scaleFactor)
+                    .gesture(drag, including: .all)
             } else {
                 Spacer()
             }
