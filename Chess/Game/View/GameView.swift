@@ -28,55 +28,65 @@ struct GameView: View {
         boardWidth / CGFloat(8)
     }
     
-    let captureTrayHeight = CGFloat(40)
     let pgnDisplayHeight = CGFloat(100)
-    
+    var winnerCardWidth: CGFloat {
+        boardWidth - 50
+    }
+    var captureTraySize: CGSize {
+        CGSize(width: boardWidth - 30, height: CGFloat(40))
+    }
     var body: some View {
+        NavigationView {
         VStack {
-            Spacer()
-            Button {
-                viewModel.newGame()
-            } label: {
+                CapturedPieceTrayView(
+                    viewModel: viewModel,
+                    side: .black,
+                    colors: colors,
+                    size: captureTraySize
+                )
                 ZStack {
-                    RoundedRectangle(cornerRadius: CGFloat(10))
-                        .stroke(primaryColor, lineWidth: 2)
+                    BoardView(viewModel: viewModel, tileWidth: tileWidth, boardWidth: boardWidth)
                         .frame(
-                            width: 70,
-                            height: 20,
+                            width: boardWidth,
+                            height: boardWidth,
                             alignment: .center
                         )
-                    Text("Restart")
-                        .font(.system(size: 14, weight: .medium, design: .default))
-                        .foregroundColor(primaryColor)
+                    winnerCard
+                        .frame(
+                            width: winnerCardWidth,
+                            height: winnerCardWidth,
+                            alignment: .center
+                        )
+                }
+                CapturedPieceTrayView(
+                    viewModel: viewModel,
+                    side: .white,
+                    colors: colors,
+                    size: captureTraySize
+                )
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { // <2>
+                ToolbarItem(placement: .principal) { // <3>
+                    VStack {
+                        Text("Chess").font(.headline)
+                        Text("Pass & Play").font(.subheadline)
+                    }
+                }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("New Game") {
+                        viewModel.newGame()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    let display = viewModel.boardFlipsOnMove
+                    ? "Flips On Move"
+                    : "Stationary"
+                    Button(display) {
+                        viewModel.toggleBoardFlipping()
+                    }
                 }
             }
-            CapturedPieceTrayView(
-                viewModel: viewModel,
-                side: .black,
-                colors: colors
-            )
-                .frame(width: boardWidth-30, height: captureTrayHeight, alignment: .leading)
-            ZStack {
-                BoardView(viewModel: viewModel, tileWidth: tileWidth, boardWidth: boardWidth)
-                    .frame(
-                        width: boardWidth,
-                        height: boardWidth,
-                        alignment: .center
-                    )
-                winnerCard
-                    .frame(
-                        width: boardWidth - 50,
-                        height: boardWidth - 50,
-                        alignment: .center
-                    )
-            }
-            CapturedPieceTrayView(
-                viewModel: viewModel,
-                side: .white,
-                colors: colors
-            )
-                .frame(width: boardWidth-30, height: captureTrayHeight, alignment: .leading)
-            Spacer()
         }
     }
     

@@ -36,7 +36,7 @@ struct BoardView: View {
     var tiles: some View {
         LazyVGrid(columns: columns, spacing: 0) {
             ForEach(viewModel.boardArray, id: \.coordinate.notation) { tile in
-                TileView(tile: tile, tileWidth: tileWidth, selected: $selected)
+                TileView(tile: tile, tileWidth: tileWidth, boardFlipped: viewModel.boardFlipped, selected: $selected)
                     .onTapGesture {
                         selectTile(at: tile.coordinate)
                     }
@@ -62,7 +62,12 @@ struct BoardView: View {
             if let highlightedTile = highlighted {
                 let fileIndex = highlightedTile.fileIndex
                 let rankIndex = highlightedTile.rankIndex
-                let circleOffset = CGSize(
+                let circleOffset = viewModel.boardFlipped
+                ? CGSize(
+                    width: -tileWidth/CGFloat(2) + boardWidth/CGFloat(2) - CGFloat(fileIndex) * tileWidth,
+                    height: tileWidth/CGFloat(2) - boardWidth/CGFloat(2) + CGFloat(rankIndex) * tileWidth
+                )
+                : CGSize(
                     width: tileWidth/CGFloat(2) - boardWidth/CGFloat(2) + CGFloat(fileIndex) * tileWidth,
                     height: -tileWidth/CGFloat(2) + boardWidth/CGFloat(2) - CGFloat(rankIndex) * tileWidth
                 )

@@ -13,7 +13,8 @@ struct CapturedPieceTrayView: View {
     
     let side: Side
     let colors: (primary: Color, secondary: Color)
-
+    let size: CGSize
+    
     var capturedPieces: [PieceCounter] {
         side == .white
         ? viewModel.whiteCapturedPieces
@@ -35,6 +36,7 @@ struct CapturedPieceTrayView: View {
                     .foregroundColor(colors.primary)
             }
         }
+        .frame(width: size.width, height: size.height, alignment: .center)
     }
 }
 struct CapturedPiece: View {

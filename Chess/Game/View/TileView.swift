@@ -10,11 +10,13 @@ import SwiftUI
 struct TileView: View {
     
     let tile: Tile
-    
-    let tileWidth: CGFloat
-    
-    @Binding var selected: Coordinate?
 
+    let tileWidth: CGFloat
+
+    let boardFlipped: Bool
+
+    @Binding var selected: Coordinate?
+    
     var body: some View {
         ZStack {
             Group {
@@ -35,8 +37,10 @@ struct TileView: View {
         }
     }
     var subscripts: some View {
-        Group {
-            if tile.coordinate.rankNum == 1 {
+        ZStack {
+            if !boardFlipped && tile.coordinate.rankNum == 1
+                || boardFlipped && tile.coordinate.rankNum == 8
+            {
                 Text(String(tile.coordinate.fileLetter))
                     .frame(
                         maxWidth: tileWidth,
@@ -44,7 +48,9 @@ struct TileView: View {
                         alignment: .bottomTrailing
                     )
             }
-            if tile.coordinate.fileLetter == "a" {
+            if !boardFlipped && tile.coordinate.fileLetter == "a"
+                || boardFlipped && tile.coordinate.fileLetter == "h"
+            {
                 Text(String(tile.coordinate.rankNum))
                     .frame(
                         maxWidth: tileWidth,

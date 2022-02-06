@@ -29,9 +29,16 @@ struct PieceView: View {
                 if viewModel.turn == tile.piece?.side {
                     scaleAmount = scaleFactor
                     selected = tile.coordinate
-                    self.dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)
-                    let rank = 7 - Int((dragValue.location.y - boardTop) / tileWidth)
-                    let file = Int((dragValue.location.x) / tileWidth)
+                    dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)
+                    
+                    let rank = viewModel.boardFlipped
+                    ? Int((dragValue.location.y - boardTop) / tileWidth)
+                    : 7 - Int((dragValue.location.y - boardTop) / tileWidth)
+                    
+                    let file = viewModel.boardFlipped
+                    ? 7 - Int((dragValue.location.x) / tileWidth)
+                    : Int((dragValue.location.x) / tileWidth)
+                    
                     highlighted = Coordinate(rank, file)
                 }
             }

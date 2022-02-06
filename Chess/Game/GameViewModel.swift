@@ -14,10 +14,17 @@ class GameViewModel: ObservableObject {
     }
     
     @Published private (set) var game: Game
-    
+    @Published var boardFlipsOnMove = false
+
     // MARK: - Properties
+    var boardFlipped : Bool {
+        boardFlipsOnMove && turn == .black
+    }
+    
     var boardArray: [Tile] {
-        Array(game.board.joined())
+        boardFlipped
+        ? Array(game.board.joined()).reversed()
+        : Array(game.board.joined())
     }
     var turn: Side {
         game.turn
@@ -57,6 +64,10 @@ class GameViewModel: ObservableObject {
     // MARK: - Intents
     func newGame() {
         game = Game()
+    }
+    
+    func toggleBoardFlipping() {
+        boardFlipsOnMove = !boardFlipsOnMove
     }
     
     // For ease of testing
