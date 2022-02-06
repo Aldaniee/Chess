@@ -22,38 +22,12 @@ struct PieceView: View {
     let tileWidth: CGFloat
     
     let scaleFactor: CGFloat = 3
-    
-    var drag: some Gesture {
-        DragGesture(coordinateSpace: .global)
-            .onChanged { dragValue in
-                if viewModel.turn == tile.piece?.side {
-                    scaleAmount = scaleFactor
-                    selected = tile.coordinate
-                    self.dragAmount = CGSize(width: dragValue.translation.width/scaleFactor, height: dragValue.translation.height/scaleFactor)
-                    let rank = 7 - Int((dragValue.location.y - boardTop) / tileWidth)
-                    let file = Int((dragValue.location.x) / tileWidth)
-                    highlighted = Coordinate(rank, file)
-                }
-            }
-            .onEnded { dragValue in
-                self.dragAmount = .zero
-                scaleAmount = 1.0
-                if let highlighted = highlighted {
-                    selectTile(highlighted)
-                }
-                highlighted = nil
-            }
-    }
     var body: some View {
         Group {
             if let piece = tile.piece {
                 piece.image
                     .resizable()
                     .scaledToFit()
-                    .offset(dragAmount)
-                    .scaleEffect(scaleAmount, anchor: .center)
-                    .animation(.easeInOut(duration: 0.05), value: scaleAmount)
-                    .gesture(drag)
             } else {
                 Spacer()
             }
