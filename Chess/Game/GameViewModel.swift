@@ -22,7 +22,12 @@ class GameViewModel: ObservableObject {
     var turn: Side {
         game.turn
     }
-    
+    var whiteCapturedPieces: [PieceCounter] {
+        game.whiteCapturedPieces
+    }
+    var blackCapturedPieces: [PieceCounter] {
+        game.blackCapturedPieces
+    }
     // MARK: - Accessors
     func selectedOwnPiece(_ coordinate: Coordinate) -> Bool {
         if let piece = getPiece(from: coordinate) {
@@ -34,8 +39,19 @@ class GameViewModel: ObservableObject {
     func getPiece(from coordinate: Coordinate) -> Piece? {
         return game.getPiece(from: coordinate)
     }
-    func isValidMove(_ piece: Piece, from start: Coordinate, to end: Coordinate) -> Bool {
-        return game.legalMoves(from: Tile(start, piece)).contains(Move(game, from: start, to: end))
+    func isValidMove(from start: Coordinate, to end: Coordinate) -> Bool {
+        return game.legalMoves(from: Tile(start, game.getPiece(from: start))).contains(Move(game, from: start, to: end))
+    }
+    
+    func getMaterialBalance(_ side: Side) -> Int {
+        let whiteCapturedPoints = capturedPoints(.white)
+        let blackCapturedPoints = capturedPoints(.black)
+        let balance = whiteCapturedPoints - blackCapturedPoints
+        if side == .white {
+            return balance > 0 ? balance : 0
+        } else {
+            return balance < 0 ? balance * -1 : 0
+        }
     }
     
     // MARK: - Intents
@@ -71,6 +87,15 @@ class GameViewModel: ObservableObject {
         else if game.isThreefoldRepetition() {
             game.setGameStatus(.drawingByRepetition)
         }
+    }
+    
+    private func capturedPoints(_ side: Side) -> Int {
+        let capturedPieces = side == .white ? game.whiteCapturedPieces : game.blackCapturedPieces
+        var sum = 0
+        for pieceCounter in capturedPieces {
+            sum += pieceCounter.count * pieceCounter.piece.points
+        }
+        return sum
     }
     
 }

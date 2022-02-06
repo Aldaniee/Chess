@@ -26,7 +26,7 @@ extension StringProtocol {
     }
 }
 
-extension Array where Element == (piece: Piece, count: Int) {
+extension Array where Element == PieceCounter {
 
     mutating func appendAndSort(piece: Piece) -> [(piece: Piece, count: Int)] {
         if let index = self.firstIndex(where: {$0.piece.type == piece.type}) {

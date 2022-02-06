@@ -44,8 +44,8 @@ struct Game {
         fullMoveNumber: Int = 1,
         gameStatus: GameStatus = .playing,
         pgn: [FullMove] = [FullMove](),
-        whiteCapturedPieces: [(piece: Piece, count: Int)] = [(Piece, Int)](),
-        blackCapturedPieces: [(piece: Piece, count: Int)] = [(Piece, Int)]()
+        whiteCapturedPieces: [PieceCounter] = [PieceCounter](),
+        blackCapturedPieces: [PieceCounter] = [PieceCounter]()
     )
     {
         if let fenBoard = fenBoard {
@@ -67,6 +67,7 @@ struct Game {
     
     mutating func nextTurn() {
         turn = turn.opponent
+        print(FEN.shared.makeString(from: self))
     }
     
     mutating func setGameStatus(_ gameStatus: GameStatus) {
@@ -119,10 +120,17 @@ struct Game {
             }
             
         }
-        // En Passant Special Case
-        if piece.type == .pawn && start.isDiagonal(from: end) && capturedPiece == nil {
+        if piece.type == .pawn {
+            // Promotion Special Case
+            if let promotion = move.promotesTo {
+                setPiece(promotion, end)
+            }
+            
+            // En Passant Special Case
+            if start.isDiagonal(from: end) && capturedPiece == nil {
             // When a pawn moves diagonally and landed on a piece it must be En Passant capturing
-            capturedPiece = removePiece(Coordinate(start.rankIndex, end.fileIndex))
+                capturedPiece = removePiece(Coordinate(start.rankIndex, end.fileIndex))
+            }
         }
         if let capturedPiece = capturedPiece {
             recordCapture(piece: capturedPiece)
@@ -380,7 +388,15 @@ struct Game {
             }
         }
     }
-    
+    // MARK: - Static
+    static var promotionTestGame: Game {
+        do {
+            return try FEN.shared.makeGame(from: "rnbqk1nr/ppppp1P1/5p2/8/8/8/PPPPPPP1/RNBQKBNR/ w KQkq - 0 5")
+        } catch {
+            print("ERROR: FEN error \(error)")
+        }
+        return Game()
+    }
     // MARK: - Debug
     func displayBoardInConsole() {
         for file in board {

@@ -106,7 +106,7 @@ class FEN {
                 if let piece = tile.piece {
                     if numEmpty != 0 { FENstring += "\(numEmpty)" }
                     numEmpty = 0
-                    let pieceLetter = piece.side == .white ? piece.type.rawValue.uppercased() : piece.type.rawValue.lowercased()
+                    let pieceLetter = piece.side == .white ? piece.type.abbreviation.uppercased() : piece.type.abbreviation.lowercased()
                     FENstring += pieceLetter
                 } else {
                     numEmpty += 1

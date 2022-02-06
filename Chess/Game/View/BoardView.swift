@@ -77,7 +77,7 @@ struct BoardView: View {
     }
     var border: some View {
         Rectangle()
-            .stroke(self.colorScheme == .light ? .black : .white, lineWidth: 5)
+            .stroke(colorScheme == .light ? .black : .white, lineWidth: 5)
     }
     // MARK: - Private Functions
     private func selectTile(at newSelection: Coordinate) {
@@ -86,6 +86,12 @@ struct BoardView: View {
         let madeMove = madeSelection && !viewModel.selectedOwnPiece(newSelection) && makeMoveIfValid(from: selected, to: newSelection)
 
         selected = madeSameSelection || madeMove ? nil : newSelection
+        
+        // click anywhere to remove promotion view
+        if !madeMove {
+            promotionStart = nil
+            promotionSquare = nil
+        }
     }
     private func makeMoveIfValid(from oldSelection: Coordinate?, to newSelection: Coordinate?) -> Bool {
         if let start = oldSelection,
@@ -93,6 +99,11 @@ struct BoardView: View {
            let movingPiece = viewModel.getPiece(from: start),
            movingPiece.side == viewModel.turn
         {
+            if movingPiece.type == .pawn && (end.rankNum == 1 || end.rankNum == 8) && viewModel.isValidMove(from: start, to: end){
+                promotionStart = start
+                promotionSquare = end
+                return true
+            }
             viewModel.move(from: start, to: end)
             return true
         }

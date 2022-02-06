@@ -10,7 +10,17 @@ import SwiftUI
 struct GameView: View {
     @Environment(\.colorScheme) var colorScheme
 
-    @ObservedObject var viewModel = GameViewModel()
+    var primaryColor: Color {
+        colorScheme == .light ? .black : .white
+    }
+    var secondaryColor: Color {
+        colorScheme == .light ? .white : .black
+    }
+    var colors: (primary: Color, secondary: Color) {
+        (primaryColor, secondaryColor)
+    }
+    
+    @ObservedObject var viewModel = GameViewModel(Game.promotionTestGame)
     
     let boardWidth = UIScreen.main.bounds.width
     
@@ -27,10 +37,25 @@ struct GameView: View {
             Button {
                 viewModel.newGame()
             } label: {
-                Text("New Game")
+                ZStack {
+                    RoundedRectangle(cornerRadius: CGFloat(10))
+                        .stroke(primaryColor, lineWidth: 2)
+                        .frame(
+                            width: 70,
+                            height: 20,
+                            alignment: .center
+                        )
+                    Text("Restart")
+                        .font(.system(size: 14, weight: .medium, design: .default))
+                        .foregroundColor(primaryColor)
+                }
             }
-            CapturedPieceTrayView(capturedPieces: viewModel.game.whiteCapturedPieces)
-                .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
+            CapturedPieceTrayView(
+                viewModel: viewModel,
+                side: .black,
+                colors: colors
+            )
+                .frame(width: boardWidth-30, height: captureTrayHeight, alignment: .leading)
             ZStack {
                 BoardView(viewModel: viewModel, tileWidth: tileWidth, boardWidth: boardWidth)
                     .frame(
@@ -45,8 +70,12 @@ struct GameView: View {
                         alignment: .center
                     )
             }
-            CapturedPieceTrayView(capturedPieces: viewModel.game.blackCapturedPieces)
-                .frame(width: boardWidth, height: captureTrayHeight, alignment: .leading)
+            CapturedPieceTrayView(
+                viewModel: viewModel,
+                side: .white,
+                colors: colors
+            )
+                .frame(width: boardWidth-30, height: captureTrayHeight, alignment: .leading)
             Spacer()
         }
     }
@@ -56,8 +85,8 @@ struct GameView: View {
             let status = viewModel.game.gameStatus
             let turn = viewModel.turn
             if status != .playing {
-                let shape = RoundedRectangle(cornerSize: CGSize(width: 50, height: 50))
-                shape.fill().foregroundColor(.white).opacity(0.95)
+                let shape = RoundedRectangle(cornerRadius: CGFloat(70))
+                shape.fill().foregroundColor(secondaryColor).opacity(0.95)
                 shape.stroke(Color.black, lineWidth: 3)
                 Group {
                     switch status {
@@ -68,7 +97,7 @@ struct GameView: View {
                     }
                 }
                 .font(.system(size: CGFloat(30)))
-                .foregroundColor(.black)
+                .foregroundColor(primaryColor)
             }
         }
     }

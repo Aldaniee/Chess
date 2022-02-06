@@ -8,12 +8,31 @@
 import SwiftUI
 
 struct CapturedPieceTrayView: View {
-    let capturedPieces: [(piece: Piece, count: Int)]
+    
+    @ObservedObject var viewModel: GameViewModel
+    
+    let side: Side
+    let colors: (primary: Color, secondary: Color)
+
+    var capturedPieces: [PieceCounter] {
+        side == .white
+        ? viewModel.whiteCapturedPieces
+        : viewModel.blackCapturedPieces
+    }
+    var pointsUp: Int {
+        viewModel.getMaterialBalance(side)
+    }
+    
     var body: some View {
         HStack {
             ForEach(capturedPieces, id: \.piece.id) { capturedPiece in
                 CapturedPiece(piece: capturedPiece.piece, count: capturedPiece.count)
                     .padding(CGFloat(capturedPiece.count))
+            }
+            if pointsUp != 0 {
+                Text("+\(pointsUp)")
+                    .font(.system(size: 14, weight: .bold, design: .default))
+                    .foregroundColor(colors.primary)
             }
         }
     }
@@ -30,6 +49,6 @@ struct CapturedPiece: View {
                     .offset(x: CGFloat(index*5), y: 0)
             }
         }
-        .padding(CGFloat(count))
+        .padding(.trailing, CGFloat(count))
     }
 }
