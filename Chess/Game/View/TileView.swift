@@ -61,8 +61,7 @@ struct TileView: View {
         }
         .foregroundColor(tile.color)
         .colorInvert()
-        .opacity(0.8)
-        .font(.system(size: 14, weight: .heavy, design: .default))
+        .font(.system(size: 10, weight: .bold, design: .default))
         .padding(3)
     }
 

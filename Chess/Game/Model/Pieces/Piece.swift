@@ -14,7 +14,7 @@ protocol Piece {
     var type: PieceType { get }
     var side: Side { get }
     var id: Int { get }
-    var points: Int { get}
+    var points: Int { get }
 }
 extension Piece {
     var image: Image {
@@ -35,6 +35,7 @@ extension Piece {
         }
         return moves
     }
+
 }
 
 // MARK: - Implementations: Rook, Bishop, Queen

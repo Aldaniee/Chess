@@ -44,6 +44,7 @@ struct BoardView: View {
                 TileView(tile: tile, tileWidth: tileWidth, boardFlipped: viewModel.boardFlipped, selected: $selected)
                     .onTapGesture {
                         selectTile(at: tile.coordinate)
+                        viewModel.lastMoveWasDragged = false
                     }
             }
         }
@@ -55,6 +56,7 @@ struct BoardView: View {
                     PieceView(tile: tile, viewModel: viewModel, selectTile: selectTile(at:), selected: $selected, highlighted: $highlighted, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
                         .onTapGesture {
                             selectTile(at: tile.coordinate)
+                            viewModel.lastMoveWasDragged = false
                         }
                         .zIndex(selected == tile.coordinate ? 1000 : 0)
                 }

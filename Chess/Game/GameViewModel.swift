@@ -15,7 +15,7 @@ class GameViewModel: ObservableObject {
     
     @Published private (set) var game: Game
     @Published var boardFlipsOnMove = false
-
+    @Published var lastMoveWasDragged = false
     // MARK: - Properties
     var boardFlipped : Bool {
         boardFlipsOnMove && turn == .black
@@ -26,6 +26,14 @@ class GameViewModel: ObservableObject {
         ? Array(game.board.joined()).reversed()
         : Array(game.board.joined())
     }
+    
+    var lastMove: Move? {
+        if let black = game.pgn.last?.black {
+            return black
+        }
+        return game.pgn.last?.white
+    }
+    
     var turn: Side {
         game.turn
     }
