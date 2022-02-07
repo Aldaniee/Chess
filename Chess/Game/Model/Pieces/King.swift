@@ -23,15 +23,7 @@ struct King: Piece {
     
     // MARK: - Piece Protocol Functions
     func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate] {
-        var moves = [Coordinate]()
-        if let upRank = start.upRank() { moves.append(upRank) }
-        if let downRank = start.downRank() { moves.append(downRank) }
-        if let upFile = start.upFile() { moves.append(upFile) }
-        if let downFile = start.downFile() { moves.append(downFile) }
-        moves.append(contentsOf: start.upOneDiagonals())
-        moves.append(contentsOf: start.downOneDiagonals())
-        
-        return moves
+        return start.allCoords(in: Coordinate.Direction.all)
     }
     
     func possibleMoves(from start: Coordinate, _ game: Game) -> [Move] {

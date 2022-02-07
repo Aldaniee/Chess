@@ -17,7 +17,7 @@ struct Rook: RecursivePiece {
     
     let points = 5
     
-    let moveType: MoveSet = .verticalHorizontal
+    let moveDirections = Coordinate.Direction.verticalHorizontals
     
     init(_ side: Side) {
         self.side = side

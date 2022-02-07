@@ -41,3 +41,13 @@ extension Array where Element == PieceCounter {
     }
     
 }
+
+extension Array where Element == Coordinate {
+
+    mutating func append(_ coordinate: Coordinate?) {
+        if let coordinate = coordinate {
+            self.append(coordinate)
+        }
+    }
+    
+}

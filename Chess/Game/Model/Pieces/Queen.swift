@@ -17,7 +17,7 @@ class Queen: RecursivePiece {
     
     let points = 9
     
-    let moveType: MoveSet = .both
+    let moveDirections = Coordinate.Direction.all
     
     init(_ side: Side) {
         self.side = side

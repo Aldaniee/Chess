@@ -40,13 +40,13 @@ extension Piece {
 
 // MARK: - Implementations: Rook, Bishop, Queen
 protocol RecursivePiece : Piece {
-    var moveType: MoveSet { get }
+    var moveDirections: [Coordinate.Direction] { get }
 }
 extension RecursivePiece {
     
     func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate] {
         var moves = [Coordinate]()
-        for direction in moveType.directions {
+        for direction in moveDirections {
             for move in start.allCoords(in: direction) {
                 moves.append(move)
                 if !game.isEmpty(move) {
@@ -78,23 +78,6 @@ enum PieceType : String {
             return "K"
         case .queen:
             return "Q"
-        }
-    }
-}
-enum MoveSet {
-    case verticalHorizontal
-    case diagonal
-    case both
-    var directions: [Coordinate.Direction] {
-        let diagonal: [Coordinate.Direction] = [.upRankUpFile, .upRankDownFile, .downRankUpFile, .downRankDownFile]
-        let verticalHorizontal: [Coordinate.Direction] = [.upRank, .downRank, .upFile, .downFile]
-        switch self {
-        case .verticalHorizontal:
-            return verticalHorizontal
-        case .diagonal:
-            return diagonal
-        case .both:
-            return verticalHorizontal + diagonal
         }
     }
 }

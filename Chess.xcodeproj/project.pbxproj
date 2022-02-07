@@ -143,7 +143,7 @@
 		EA171288279B17C70090D9EF /* Game */ = {
 			isa = PBXGroup;
 			children = (
-				EA8CB6C8277E55C000CAF379 /* GameViewModel.swift */,
+				EAB1990827B1853000D7F0A5 /* ViewModel */,
 				EA171289279B18240090D9EF /* Model */,
 				EA17128A279B184F0090D9EF /* View */,
 			);
@@ -214,6 +214,14 @@
 				EA8CB6B5277DFBE400CAF379 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		EAB1990827B1853000D7F0A5 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				EA8CB6C8277E55C000CAF379 /* GameViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

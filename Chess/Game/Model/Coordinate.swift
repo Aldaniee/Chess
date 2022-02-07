@@ -61,7 +61,7 @@ struct Coordinate: Hashable {
         }
     }
     
-    // MARK: - Single Related Coordinate
+    // MARK: - Accessors
     func upRank() -> Coordinate? {
         return rankIndex < 7 ? Coordinate(rankIndex+1, fileIndex) : nil
     }
@@ -89,122 +89,68 @@ struct Coordinate: Hashable {
     
     // MARK: - Multiple Related Coordinates
     func upOneDiagonals() -> [Coordinate] {
-        var coords = [Coordinate]()
-        if let upUpDiagonal = upRankUpFile() {
-            coords.append(upUpDiagonal)
-        }
-        if let upDownDiagonal = upRankDownFile() {
-            coords.append(upDownDiagonal)
-        }
-        return coords
+        var coordinates = [Coordinate]()
+        coordinates.append(Direction.upRankUpFile.compute(self))
+        coordinates.append(Direction.upRankDownFile.compute(self))
+        return coordinates
     }
     func downOneDiagonals() -> [Coordinate] {
-        var coords = [Coordinate]()
-        
-        if let downUpDiagonal = downRankUpFile() {
-            coords.append(downUpDiagonal)
-        }
-        if let downDownDiagonal = downRankDownFile() {
-            coords.append(downDownDiagonal)
-        }
-        return coords
+        var coordinates = [Coordinate]()
+        coordinates.append(Direction.downRankUpFile.compute(self))
+        coordinates.append(Direction.downRankDownFile.compute(self))
+        return coordinates
     }
     func sameFile() -> [Coordinate] {
-        var coords = [Coordinate]()
-        for rank in 0..<8 {
-            if rank != rankIndex {
-                coords.append(Coordinate(rank, fileIndex))
-            }
-        }
-        return coords
+        return allCoords(in: [.upRank, .downRank])
     }
     func sameRank() -> [Coordinate] {
-        var coords = [Coordinate]()
-        for file in 0..<8 {
-            if file != fileIndex {
-                coords.append(Coordinate(rankIndex, file))
-            }
-        }
-        return coords
+        return allCoords(in: [.upFile, .downFile])
     }
     func sameDiagonal() -> [Coordinate] {
-        var coords = [Coordinate]()
-        
-        coords.append(contentsOf: allCoords(in: .upRankUpFile))
-        coords.append(contentsOf: allCoords(in: .upRankDownFile))
-        coords.append(contentsOf: allCoords(in: .downRankUpFile))
-        coords.append(contentsOf: allCoords(in: .downRankDownFile))
-        
-        return coords
-    }
-    /// Coords between self coordiante and given coordinate horizontally
-    /// - Parameter end: Second coordinate to use
-    /// - Returns: Array of coordinate between the two coordinates (empty if coordiantes are the same, adjacent, or not on the same rank
-    func horizontalCoordsBetween(to end: Coordinate) -> [Coordinate] {
-        if self.isHorizontal(from: end){
-            if fileIndex < end.fileIndex {
-                return coordsBetween(to: end, in: .upFile)
-            }
-            if fileIndex > end.fileIndex {
-                return coordsBetween(to: end, in: .downFile)
-            }
-        }
-        return [Coordinate]()
+        return allCoords(in: [.upRankUpFile, .upRankDownFile, .downRankUpFile, .downRankDownFile])
     }
     
-    /// Coords between self coordiante and given coordinate in given direction
-    /// - Parameters:
-    ///   - end: Second coordinate to use
-    ///   - direction: Direction of second coordinate from first
-    /// - Returns: Array of coordinate between the two coordinates
-    private func coordsBetween(to end: Coordinate, in direction: Direction) -> [Coordinate] {
-        var between = [Coordinate]()
-        
-        var next = direction.compute(self)
-        while next != nil && next! != end {
-            between.append(next!)
-            next = direction.compute(self)
-        }
-        return between
-    }
-    
-    /// Return all coords in a given direction
+    /// Return all coords in a given direction that are still on the board
     /// - Parameters:
     ///   - direction: Direction in which to enumerate
     /// - Returns: Array of all coordinates in that direction (not including self)
     func allCoords(in direction: Direction) -> [Coordinate] {
-        var moves = [Coordinate]()
+        var coords = [Coordinate]()
         
         var next = direction.compute(self)
         while next != nil {
-            moves.append(next!)
+            coords.append(next!)
             next = direction.compute(next!)
         }
-        return moves
+        return coords
+    }
+    func allCoords(in directions: [Direction]) -> [Coordinate] {
+        var coords = [Coordinate]()
+        for direction in directions {
+            coords.append(contentsOf: allCoords(in: direction))
+        }
+        return coords
     }
     
     // MARK: - Relations
+    
+    // used to determine if castling
     func distance(to coordinate: Coordinate) -> Int {
         return abs(coordinate.rankIndex-self.rankIndex) + abs(coordinate.fileIndex-self.fileIndex)
     }
-    
+    // used to determine if en passant
     func isDiagonal(from end: Coordinate) -> Bool {
         return self.sameDiagonal().contains(end)
-    }
-    func isHorizontal(from end: Coordinate) -> Bool {
-        return self.rankIndex == end.rankIndex
-    }
-    func isVertical(from end: Coordinate) -> Bool {
-        return self.fileIndex == end.fileIndex
-    }
-    func isValid() -> Bool {
-        return rankIndex < 8 && fileIndex < 8 && fileIndex > -1 && rankIndex > -1
     }
 }
 
 extension Coordinate {
 
     enum Direction {
+        static var all: [Direction] = [.upRank, .upRankUpFile, .downRank, .downRankDownFile, .upFile, .downFile, .downRankDownFile, .downRankUpFile]
+        static var diagonals: [Direction] = [.upRankUpFile, .upRankDownFile, .downRankUpFile, .downRankDownFile]
+        static var verticalHorizontals: [Direction] = [.upRank, .downRank, .upFile, .downFile]
+        
         case upRank
         case downRank
         case upFile

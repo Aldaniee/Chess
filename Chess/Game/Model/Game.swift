@@ -110,7 +110,7 @@ struct Game {
         var capturedPiece = movePiece(from: start, to: end)
         if piece.type == .king {
             // Kingside/short castle
-            if start.upFile()?.upFile() == end {
+            if start.upFile() == end {
                 if let rookLocation = start.upFile()?.upFile()?.upFile() {
                     _ = movePiece(from: rookLocation, to: start.upFile()!)
                 }
