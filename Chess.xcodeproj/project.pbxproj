@@ -115,9 +115,10 @@
 		EA171288279B17C70090D9EF /* Game */ = {
 			isa = PBXGroup;
 			children = (
-				EA8CB6C8277E55C000CAF379 /* GameViewModel.swift */,
 				EA171289279B18240090D9EF /* Model */,
 				EA17128A279B184F0090D9EF /* View */,
+				EAB1991427B2C1BC00D7F0A5 /* ViewModel */,
+				EA17125427971CA50090D9EF /* Utilities */,
 			);
 			path = Game;
 			sourceTree = "<group>";
@@ -168,7 +169,6 @@
 			children = (
 				EA8CB6AE277DFBE000CAF379 /* ChessApp.swift */,
 				EA171288279B17C70090D9EF /* Game */,
-				EA17125427971CA50090D9EF /* Utilities */,
 				EA8CB6B2277DFBE400CAF379 /* Assets.xcassets */,
 				EA8CB6B4277DFBE400CAF379 /* Preview Content */,
 			);
@@ -181,6 +181,14 @@
 				EA8CB6B5277DFBE400CAF379 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		EAB1991427B2C1BC00D7F0A5 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				EA8CB6C8277E55C000CAF379 /* GameViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

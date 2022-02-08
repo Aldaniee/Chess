@@ -23,7 +23,7 @@ struct Game {
         setPiece(King(.white), Coordinate(notation: "e1"))
         setPiece(King(.black), Coordinate(notation: "e8"))
     }
-    private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
+    private mutating func setPiece(_ coordinate: Coordinate, _ piece: Piece? = nil) {
         board[7-coordinate.rankIndex][coordinate.fileIndex].piece = piece
     }
     
