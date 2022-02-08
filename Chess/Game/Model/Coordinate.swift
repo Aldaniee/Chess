@@ -116,7 +116,6 @@ struct Coordinate: Hashable {
     /// - Returns: Array of all coordinates in that direction (not including self)
     func allCoords(in direction: Direction) -> [Coordinate] {
         var coords = [Coordinate]()
-        
         var next = direction.compute(self)
         while next != nil {
             coords.append(next!)
@@ -126,14 +125,14 @@ struct Coordinate: Hashable {
     }
     func allCoords(in directions: [Direction]) -> [Coordinate] {
         var coords = [Coordinate]()
-        for direction in directions {
+        
+        directions.forEach { direction in
             coords.append(contentsOf: allCoords(in: direction))
         }
         return coords
     }
     
     // MARK: - Relations
-    
     // used to determine if castling
     func distance(to coordinate: Coordinate) -> Int {
         return abs(coordinate.rankIndex-self.rankIndex) + abs(coordinate.fileIndex-self.fileIndex)
