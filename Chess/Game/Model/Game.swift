@@ -20,8 +20,8 @@ struct Game {
     
     // MARK: - Private Mutators
     private mutating func setupBoard() {
-        setPiece(King(.white), Coordinate(notation: "e1"))
-        setPiece(King(.black), Coordinate(notation: "e8"))
+        setPiece(Coordinate(notation: "e1"), King(.white))
+        setPiece(Coordinate(notation: "e8"), King(.black))
     }
     private mutating func setPiece(_ coordinate: Coordinate, _ piece: Piece? = nil) {
         board[7-coordinate.rankIndex][coordinate.fileIndex].piece = piece
