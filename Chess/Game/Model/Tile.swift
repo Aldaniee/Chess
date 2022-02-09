@@ -7,11 +7,10 @@
 
 import SwiftUI
 
-struct Tile: Identifiable {
-    
-    let id = UUID()
-    
+struct Tile {
+        
     let coordinate: Coordinate
+    
     var piece: Piece?
     
     var color: Color {

@@ -7,10 +7,6 @@
 
 import Foundation
 
-enum MoveError: Error {
-    case invalidPiece
-}
-
 struct Move : Equatable {
     
     var start: Coordinate
@@ -19,10 +15,10 @@ struct Move : Equatable {
     
     var piece: Piece
             
-    init(_ game: Game, from start: Coordinate, to end: Coordinate) {
+    init(_ piece: Piece, from start: Coordinate, to end: Coordinate) {
         self.start = start
         self.end = end
-        self.piece = game.getPiece(from: start)!
+        self.piece = piece
     }
     
     static func == (lhs: Move, rhs: Move) -> Bool {

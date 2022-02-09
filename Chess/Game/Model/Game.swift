@@ -19,26 +19,16 @@ struct Game {
     }
     
     // MARK: - Public
-    
-    /// Moves a piece from one square to another regardless of rules
-    mutating func movePiece(from start: Coordinate, to end: Coordinate) -> Piece? {
-        let piece = removePiece(start)
-        return putPiece(end, piece)
-    }
-
-    // MARK: - Access Functions
-    func getPiece(from coordinate: Coordinate) -> Piece? {
+    func getPiece(_ coordinate: Coordinate) -> Piece? {
         board[7-coordinate.rankIndex][coordinate.fileIndex].piece
     }
-    
-    /// Get all legal moves for a piece from a tile that contains that piece
-    /// - Parameter tile: Tile that must contain a piece
-    /// - Returns: Array of possible moves
-    func legalMoves(from tile: Tile) -> [Move] {
-        if let piece = tile.piece {
-            return piece.possibleMoves(from: tile.coordinate, self)
+    /// Moves a piece from one square to another regardless of rules
+    mutating func movePiece(from start: Coordinate, to end: Coordinate) -> Piece? {
+        if let piece = getPiece(start) {
+            removePiece(start)
+            return putPiece(end, piece)
         }
-        return [Move]()
+        return nil
     }
     
     // MARK: - Private
@@ -50,12 +40,12 @@ struct Game {
         board[7-coordinate.rankIndex][coordinate.fileIndex].piece = piece
     }
     private mutating func putPiece(_ coordinate: Coordinate, _ piece: Piece? = nil) -> Piece? {
-        let oldPiece = getPiece(from: coordinate)
+        let oldPiece = getPiece(coordinate)
         setPiece(coordinate, piece)
         return oldPiece
     }
-    private mutating func removePiece(_ coordinate: Coordinate) -> Piece? {
-        return putPiece(coordinate)
+    private mutating func removePiece(_ coordinate: Coordinate) {
+        setPiece(coordinate)
     }
     
     

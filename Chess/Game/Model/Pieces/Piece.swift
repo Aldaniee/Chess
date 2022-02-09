@@ -7,9 +7,8 @@
 
 import SwiftUI
 
-// MARK: - Implementations: King, Knight, Pawn, RecursivePieces
 protocol Piece {
-    func possibleMoves(from start: Coordinate, _ game: Game) -> [Move]
+    func possibleMoves(from start: Coordinate) -> [Move]
     var type: PieceType { get }
     var side: Side { get }
 }

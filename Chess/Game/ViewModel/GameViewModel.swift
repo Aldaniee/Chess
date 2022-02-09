@@ -18,14 +18,22 @@ class GameViewModel: ObservableObject {
     
     // MARK: - Accessors
     
-    func getPiece(from coordinate: Coordinate) -> Piece? {
-        return game.getPiece(from: coordinate)
+    func getPiece(_ coordinate: Coordinate) -> Piece? {
+        return game.getPiece(coordinate)
     }
     func isValidMove(from start: Coordinate, to end: Coordinate) -> Bool {
-        if getPiece(from: start) != nil {
-            return game.legalMoves(from: Tile(start, game.getPiece(from: start))).contains(Move(game, from: start, to: end))
+        if let piece = getPiece(start) {
+            return legalMoves(from: start).contains(Move(piece, from: start, to: end))
         }
         return false
+    }
+    
+    /// Get all legal moves for a piece at the given coordinate
+    func legalMoves(from coordinate: Coordinate) -> [Move] {
+        if let piece = getPiece(coordinate) {
+            return piece.possibleMoves(from: coordinate, game)
+        }
+        return [Move]()
     }
     
     // MARK: - Intents
