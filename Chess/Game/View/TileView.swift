@@ -13,8 +13,6 @@ struct TileView: View {
 
     let tileWidth: CGFloat
 
-    let boardFlipped: Bool
-
     @Binding var selected: Coordinate?
     
     var body: some View {
@@ -37,10 +35,8 @@ struct TileView: View {
         }
     }
     var subscripts: some View {
-        ZStack {
-            if !boardFlipped && tile.coordinate.rankNum == 1
-                || boardFlipped && tile.coordinate.rankNum == 8
-            {
+        Group {
+            if tile.coordinate.rankNum == 1 {
                 Text(String(tile.coordinate.fileLetter))
                     .frame(
                         maxWidth: tileWidth,
@@ -48,9 +44,7 @@ struct TileView: View {
                         alignment: .bottomTrailing
                     )
             }
-            if !boardFlipped && tile.coordinate.fileLetter == "a"
-                || boardFlipped && tile.coordinate.fileLetter == "h"
-            {
+            if tile.coordinate.fileLetter == "a" {
                 Text(String(tile.coordinate.rankNum))
                     .frame(
                         maxWidth: tileWidth,
@@ -61,7 +55,8 @@ struct TileView: View {
         }
         .foregroundColor(tile.color)
         .colorInvert()
-        .font(.system(size: 10, weight: .bold, design: .default))
+        .opacity(0.8)
+        .font(.system(size: 14, weight: .heavy, design: .default))
         .padding(3)
     }
 
