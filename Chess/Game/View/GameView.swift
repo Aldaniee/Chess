@@ -38,7 +38,7 @@ struct GameView: View {
     }
     var body: some View {
         NavigationView {
-        VStack {
+            VStack {
                 CapturedPieceTrayView(
                     viewModel: viewModel,
                     side: viewModel.boardFlipped ? .white : .black,
