@@ -13,9 +13,13 @@ class GameViewModel: ObservableObject {
         self.game = game
     }
     
-    @Published private (set) var game: Game
+    @Published private var game: Game
     @Published var boardFlipsOnMove = false
     @Published var lastMoveWasDragged = false
+    
+    @Published var promotionStart: Coordinate? = nil
+    @Published var promotionEnd: Coordinate? = nil
+    
     // MARK: - Properties
     var boardFlipped : Bool {
         boardFlipsOnMove && turn == .black
@@ -27,11 +31,12 @@ class GameViewModel: ObservableObject {
         : Array(game.board.joined())
     }
     
+    var enPassantTarget: Coordinate? {
+        game.enPassantTarget
+    }
+    
     var lastMove: Move? {
-        if let black = game.pgn.last?.black {
-            return black
-        }
-        return game.pgn.last?.white
+        game.pgn.last
     }
     
     var turn: Side {
@@ -43,21 +48,36 @@ class GameViewModel: ObservableObject {
     var blackCapturedPieces: [PieceCounter] {
         game.blackCapturedPieces
     }
+    var gameStatus: GameStatus {
+        game.gameStatus
+    }
+    
     // MARK: - Accessors
     func selectedOwnPiece(_ coordinate: Coordinate) -> Bool {
-        if let piece = getPiece(from: coordinate) {
+        if let piece = getPiece(coordinate) {
             return piece.side == turn
         }
         return false
     }
     
-    func getPiece(from coordinate: Coordinate) -> Piece? {
-        return game.getPiece(from: coordinate)
+    func getPiece(_ coordinate: Coordinate) -> Piece? {
+        return game.getPiece(coordinate)
     }
     func isValidMove(from start: Coordinate, to end: Coordinate) -> Bool {
-        return game.legalMoves(from: Tile(start, game.getPiece(from: start))).contains(Move(game, from: start, to: end))
+        return legalMoves(from: start).contains(Move(game, from: start, to: end))
     }
-    
+    func isCheck() -> Bool {
+        return game.isCheck()
+    }
+    /// Get all legal moves for a piece from a tile that contains that piece
+    /// - Parameter tile: Tile that must contain a piece
+    /// - Returns: Array of possible moves
+    func legalMoves(from start: Coordinate) -> [Move] {
+        if let piece = getPiece(start) {
+            return piece.possibleMoves(from: start, game)
+        }
+        return [Move]()
+    }
     func getMaterialBalance(_ side: Side) -> Int {
         let whiteCapturedPoints = capturedPoints(.white)
         let blackCapturedPoints = capturedPoints(.black)
@@ -78,32 +98,76 @@ class GameViewModel: ObservableObject {
         boardFlipsOnMove = !boardFlipsOnMove
     }
     
-    // For ease of testing
-    func move(from start: String, to end: String) {
-        move(from: Coordinate(notation: start), to: Coordinate(notation: end))
-    }
-    
-    func move(from start: Coordinate, to end: Coordinate, promotesTo promotion: Piece? = nil) {
-        if let piece = getPiece(from: start) {
-            let move = Move(game, from: start, to: end, promotesTo: promotion)
-            let moves = game.legalMoves(from: Tile(start, piece))
-            if moves.contains(move) {
-                game.makeMove(move)
+    func makeMoveIfValid(from start: Coordinate, to end: Coordinate, promotesTo promotion: Piece? = nil) -> Bool {
+        if let movingPiece = getPiece(start), movingPiece.side == turn, !selectedOwnPiece(end)
+        {
+            if movingPiece.type == .pawn && (end.rankNum == 1 || end.rankNum == 8) && isValidMove(from: start, to: end) {
+                promotionStart = start
+                promotionEnd = end
+                return true
+            }
+            legalMoves(from: start).forEach({ print($0.end) })
+            if isValidMove(from: start, to: end) {
+                game.makeMove(Move(game, from: start, to: end, promotesTo: promotion))
                 nextTurn()
+                return true
             }
         }
+        return false
     }
     
+    /// Determines if the side whose turn it is is in checkmate
+    func isCheckmate() -> Bool {
+        return game.isCheck() && hasNoMoves(game)
+    }
+    /// Determines if the game is a draw
+    func isDraw() -> Bool {
+        return !game.isCheck() && hasNoMoves(game)
+    }
     // MARK: - Private
+    private func hasNoMoves(_ game: Game) -> Bool {
+        var result = true
+        game.getAllTilesWithPieces(turn).forEach { tile in
+            if !legalMoves(from: tile.coordinate).isEmpty {
+                result = false
+                return
+            }
+        }
+        return result
+    }
+    func isThreefoldRepetition() -> Bool {
+        var tempGame = game.copy()
+        var pastStates = [(state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1)]
+        while tempGame.pgn.count != 0 {
+            if let last = tempGame.pgn.last {
+                if last.isReversible {
+                    tempGame.undoLastMove()
+                    if let index = pastStates.firstIndex(where: { $0.state == FEN.shared.makeString(from: tempGame, withoutClocks: true) }) {
+                        pastStates[index].appearances += 1
+                        print("\(pastStates[index].state) \(pastStates[index].appearances)")
+                        if pastStates[index].appearances == 3 {
+                            return true
+                        }
+                    } else {
+                        pastStates.append((state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1))
+                    }
+                }
+                else {
+                    return false
+                }
+            }
+        }
+        return false
+    }
     private func nextTurn() {
         game.nextTurn()
-        if game.isCheckmate() {
+        if isCheckmate() {
             game.setGameStatus(.checkmating)
         }
-        else if game.isDraw() {
+        else if isDraw() {
             game.setGameStatus(.drawingByPosition)
         }
-        else if game.isThreefoldRepetition() {
+        else if isThreefoldRepetition() {
             game.setGameStatus(.drawingByRepetition)
         }
     }
@@ -115,6 +179,29 @@ class GameViewModel: ObservableObject {
             sum += pieceCounter.count * pieceCounter.piece.points
         }
         return sum
+    }
+    
+    // MARK: - Testing Clarity Functions
+    func makeMultipleMovesIfValid(_ pgnMoveNotation: String) -> Bool {
+        let moveStrings = pgnMoveNotation.split(separator: " ")
+        for moveString in moveStrings {
+            if !moveString[0].isNumber {
+                if !makeMoveIfValid(moveString.description) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+    
+    func makeMoveIfValid(_ moveNotation: String) -> Bool {
+        do {
+            let move = try Move(game, moveNotation: moveNotation)
+            return makeMoveIfValid(from: move.start, to: move.end, promotesTo: move.promotesTo)
+        } catch {
+            print("ERROR: Move error: \(error)")
+        }
+        return false
     }
     
 }

@@ -36,7 +36,7 @@ extension Array where Element == PieceCounter {
             self.append((piece, 1))
         }
         return self.sorted { p1, p2 in
-            p1.piece.points == p2.piece.points ? p1.piece.type.abbreviation > p2.piece.type.abbreviation : p1.piece.points < p2.piece.points
+            p1.piece.points == p2.piece.points ? p1.piece.type.rawValue > p2.piece.type.rawValue : p1.piece.points < p2.piece.points
         }
     }
     

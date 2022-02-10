@@ -11,10 +11,9 @@ struct BoardView: View {
     @Environment(\.colorScheme) var colorScheme //Phone in light/dark mode
 
     @ObservedObject var viewModel: GameViewModel
+    
     @State var highlighted: Coordinate? = nil
     @State var selected: Coordinate? = nil
-    @State var promotionSquare: Coordinate? = nil
-    @State var promotionStart: Coordinate? = nil
         
     let tileWidth: CGFloat
     
@@ -24,13 +23,17 @@ struct BoardView: View {
         Array(repeating: GridItem(.fixed(tileWidth), spacing: 0), count: 8)
     }
     
+    var selectedPiece: Piece? {
+        selected != nil ? viewModel.getPiece(selected!) : nil
+    }
+    
     var body: some View {
         ZStack {
             border
             tiles
             dragIndicationCircle
             pieces
-            ChoosePromotionView(promotionSquare: $promotionSquare, promotionStart: $promotionStart, moveAndPromote: viewModel.move(from:to:promotesTo:), tileWidth: tileWidth)
+            ChoosePromotionView(promotionSquare: $viewModel.promotionEnd, promotionStart: $viewModel.promotionStart, moveAndPromote: viewModel.makeMoveIfValid(from:to:promotesTo:), tileWidth: tileWidth)
         }
         .frame(
             width: boardWidth,
@@ -43,7 +46,7 @@ struct BoardView: View {
             ForEach(viewModel.boardArray, id: \.coordinate.notation) { tile in
                 TileView(tile: tile, tileWidth: tileWidth, boardFlipped: viewModel.boardFlipped, selected: $selected)
                     .onTapGesture {
-                        selectTile(at: tile.coordinate)
+                        selectTile(tile.coordinate)
                         viewModel.lastMoveWasDragged = false
                     }
             }
@@ -53,9 +56,9 @@ struct BoardView: View {
         GeometryReader { geometry in
             LazyVGrid(columns: columns, spacing: 0) {
                 ForEach(viewModel.boardArray, id: \.coordinate.notation) { tile in
-                    PieceView(tile: tile, viewModel: viewModel, selectTile: selectTile(at:), selected: $selected, highlighted: $highlighted, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
+                    PieceView(tile: tile, viewModel: viewModel, selectTile: selectTile, selected: $selected, highlighted: $highlighted, boardTop: geometry.frame(in: .global).minY, tileWidth: tileWidth)
                         .onTapGesture {
-                            selectTile(at: tile.coordinate)
+                            selectTile(tile.coordinate)
                             viewModel.lastMoveWasDragged = false
                         }
                         .zIndex(selected == tile.coordinate ? 1000 : 0)
@@ -92,33 +95,17 @@ struct BoardView: View {
             .stroke(colorScheme == .light ? .black : .white, lineWidth: 5)
     }
     // MARK: - Private Functions
-    private func selectTile(at newSelection: Coordinate) {
+    private func selectTile(_ newSelection: Coordinate) {
         let madeSameSelection = selected == newSelection
         let madeSelection = selected != nil
-        let madeMove = madeSelection && !viewModel.selectedOwnPiece(newSelection) && makeMoveIfValid(from: selected, to: newSelection)
+        let madeMove = madeSelection && viewModel.makeMoveIfValid(from: selected!, to: newSelection)
 
         selected = madeSameSelection || madeMove ? nil : newSelection
         
         // click anywhere to remove promotion view
         if !madeMove {
-            promotionStart = nil
-            promotionSquare = nil
+            viewModel.promotionStart = nil
+            viewModel.promotionEnd = nil
         }
-    }
-    private func makeMoveIfValid(from oldSelection: Coordinate?, to newSelection: Coordinate?) -> Bool {
-        if let start = oldSelection,
-           let end = newSelection,
-           let movingPiece = viewModel.getPiece(from: start),
-           movingPiece.side == viewModel.turn
-        {
-            if movingPiece.type == .pawn && (end.rankNum == 1 || end.rankNum == 8) && viewModel.isValidMove(from: start, to: end){
-                promotionStart = start
-                promotionSquare = end
-                return true
-            }
-            viewModel.move(from: start, to: end)
-            return true
-        }
-        return false
     }
 }

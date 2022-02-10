@@ -10,7 +10,7 @@ import SwiftUI
 struct ChoosePromotionView: View {
     @Binding var promotionSquare: Coordinate?
     @Binding var promotionStart: Coordinate?
-    let moveAndPromote: (Coordinate, Coordinate, Piece) -> Void
+    let moveAndPromote: (Coordinate, Coordinate, Piece?) -> Bool
     let tileWidth: CGFloat
     var side: Side? {
         promotionSquare?.rankNum == 8 ? .white : .black
@@ -32,7 +32,7 @@ struct ChoosePromotionView: View {
                 VStack {
                     HStack {
                         Button {
-                            moveAndPromote(promotionStart!, promotionSquare!, Queen(side!))
+                            _ = moveAndPromote(promotionStart!, promotionSquare!, Queen(side!))
                             promotionSquare = nil
                         } label: {
                             Queen(side!).imageNoShadow
@@ -40,7 +40,7 @@ struct ChoosePromotionView: View {
                         }
                         .frame(width: pieceSize, height: pieceSize, alignment: .center)
                         Button {
-                            moveAndPromote(promotionStart!, promotionSquare!, Bishop(side!))
+                            _ = moveAndPromote(promotionStart!, promotionSquare!, Bishop(side!))
                             promotionSquare = nil
                         } label: {
                             Bishop(side!).imageNoShadow
@@ -50,7 +50,7 @@ struct ChoosePromotionView: View {
                     }
                     HStack {
                         Button {
-                            moveAndPromote(promotionStart!, promotionSquare!, Rook(side!))
+                            _ = moveAndPromote(promotionStart!, promotionSquare!, Rook(side!))
                             promotionSquare = nil
                         } label: {
                             Rook(side!).imageNoShadow
@@ -58,7 +58,7 @@ struct ChoosePromotionView: View {
                         }
                         .frame(width: pieceSize, height: pieceSize, alignment: .center)
                         Button {
-                            moveAndPromote(promotionStart!, promotionSquare!, Knight(side!))
+                            _ = moveAndPromote(promotionStart!, promotionSquare!, Knight(side!))
                             promotionSquare = nil
                         } label: {
                             Knight(side!).imageNoShadow

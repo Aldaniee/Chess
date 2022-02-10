@@ -18,22 +18,27 @@ protocol Piece {
 }
 extension Piece {
     var image: Image {
-        let assetName = "\(side.rawValue)_\(type.rawValue)_svg_withShadow"
+        let assetName = "\(side.rawValue)_\(type)_svg_withShadow"
         return Image(assetName)
     }
     var imageNoShadow: Image {
-        let assetName = "\(side.rawValue)_\(type.rawValue)_svg_NoShadow"
+        let assetName = "\(side.rawValue)_\(type)_svg_NoShadow"
         return Image(assetName)
     }
     func possibleMovesFromThreats(from start: Coordinate, _ game: Game) -> [Move] {
         var moves = [Move]()
         for end in threatsCreated(from: start, game) {
-            if !game.isOccupied(at: end, by: side) && !game.isMovingIntoCheck(from: start, to: end) {
+            if !game.isOccupied(at: end, by: side) && !isMovingIntoCheck(game, from: start, to: end) {
                 let move = Move(game, from: start, to: end)
                 moves.append(move)
             }
         }
         return moves
+    }
+     func isMovingIntoCheck(_ game: Game, from start: Coordinate, to end: Coordinate) -> Bool {
+        var newState = game.copy()
+        newState.makeMove(Move(game, from: start, to: end))
+        return newState.isCheck()
     }
 
 }
@@ -62,22 +67,10 @@ extension RecursivePiece {
     }
 }
 enum PieceType : String {
-    case pawn, rook, knight, bishop, king, queen
-    
-    var abbreviation: String {
-        switch self {
-        case .pawn:
-            return "P"
-        case .rook:
-            return "R"
-        case .knight:
-            return "N"
-        case .bishop:
-            return "B"
-        case .king:
-            return "K"
-        case .queen:
-            return "Q"
-        }
-    }
+    case pawn = "P"
+    case king = "K"
+    case queen = "Q"
+    case rook = "R"
+    case knight = "N"
+    case bishop = "B"
 }

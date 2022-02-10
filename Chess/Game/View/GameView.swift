@@ -83,7 +83,7 @@ struct GameView: View {
     
     var winnerCard: some View {
         ZStack {
-            let status = viewModel.game.gameStatus
+            let status = viewModel.gameStatus
             let turn = viewModel.turn
             if status != .playing {
                 let shape = RoundedRectangle(cornerRadius: CGFloat(70))

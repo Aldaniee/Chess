@@ -49,7 +49,7 @@ struct Pawn: Piece {
         
         // diagonal attacks
         attacks.forEach { end in
-            if let pieceToAttack = game.getPiece(from: end), pieceToAttack.side != side {
+            if let pieceToAttack = game.getPiece(end), pieceToAttack.side != side {
                 moves.append(Move(game, from: start, to: end))
             }
         }
@@ -67,8 +67,10 @@ struct Pawn: Piece {
                 }
             }
         }
-        moves.removeAll { move in
-            game.isMovingIntoCheck(from: start, to: move.end)
+        moves.forEach { move in
+            if isMovingIntoCheck(game, from: move.start, to: move.end) {
+                moves.removeAll(where: { $0 == move })
+            }
         }
         return moves
     }

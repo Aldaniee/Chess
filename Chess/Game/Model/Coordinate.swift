@@ -123,6 +123,16 @@ struct Coordinate: Hashable {
         }
         return coords
     }
+    
+    func oneCoordinate(inEach directions: [Direction]) -> [Coordinate] {
+        var coords = [Coordinate]()
+        
+        directions.forEach { direction in
+            coords.append(direction.compute(self))
+        }
+        return coords
+    }
+    
     func allCoords(in directions: [Direction]) -> [Coordinate] {
         var coords = [Coordinate]()
         
@@ -146,7 +156,7 @@ struct Coordinate: Hashable {
 extension Coordinate {
 
     enum Direction {
-        static var all: [Direction] = [.upRank, .upRankUpFile, .downRank, .downRankDownFile, .upFile, .downFile, .downRankDownFile, .downRankUpFile]
+        static var all: [Direction] = diagonals + verticalHorizontals
         static var diagonals: [Direction] = [.upRankUpFile, .upRankDownFile, .downRankUpFile, .downRankDownFile]
         static var verticalHorizontals: [Direction] = [.upRank, .downRank, .upFile, .downFile]
         
@@ -177,6 +187,27 @@ extension Coordinate {
                 return { (c: Coordinate) -> Coordinate? in c.downRankUpFile() }
             case .downRankDownFile:
                 return { (c: Coordinate) -> Coordinate? in c.downRankDownFile() }
+            }
+        }
+        
+        var opposite: Direction {
+            switch self {
+            case .upRank:
+                return .downRank
+            case .downRank:
+                return .upRank
+            case .upFile:
+                return .downFile
+            case .downFile:
+                return .upFile
+            case .upRankUpFile:
+                return .downRankDownFile
+            case .upRankDownFile:
+                return .downRankUpFile
+            case .downRankUpFile:
+                return .upRankDownFile
+            case .downRankDownFile:
+                return .upRankUpFile
             }
         }
     }

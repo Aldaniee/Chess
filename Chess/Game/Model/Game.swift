@@ -28,12 +28,12 @@ struct Game {
     
     private (set) var gameStatus: GameStatus
     
-    private (set) var pgn = [FullMove]() // portable game notation
+    private (set) var pgn = [Move]() // portable game notation
     
     private (set) var whiteCapturedPieces: [PieceCounter]
     private (set) var blackCapturedPieces: [PieceCounter]
     
-    private var consoleDebug = false
+    private var consoleDebug = true
     
     init(
         board: Board = FEN.shared.makeBoard(from: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"),
@@ -45,7 +45,7 @@ struct Game {
         halfMoveClock: Int = 0,
         fullMoveNumber: Int = 1,
         gameStatus: GameStatus = .playing,
-        pgn: [FullMove] = [FullMove](),
+        pgn: [Move] = [Move](),
         whiteCapturedPieces: [PieceCounter] = [PieceCounter](),
         blackCapturedPieces: [PieceCounter] = [PieceCounter]()
     )
@@ -67,6 +67,7 @@ struct Game {
         self.blackCapturedPieces = blackCapturedPieces
     }
     
+    // MARK: - Public
     mutating func nextTurn() {
         turn = turn.opponent
         if consoleDebug {
@@ -78,14 +79,13 @@ struct Game {
         self.gameStatus = gameStatus
     }
     
-    // MARK: - Data Mutating Actions
-    mutating func putPiece(_ piece: Piece?, _ coordinate: Coordinate) -> Piece? {
-        let oldPiece = getPiece(from: coordinate)
-        setPiece(piece, coordinate)
+    mutating func putPiece(_ coordinate: Coordinate, _ piece: Piece? = nil) -> Piece? {
+        let oldPiece = getPiece(coordinate)
+        setPiece(coordinate, piece)
         return oldPiece
     }
-    mutating func removePiece(_ coordinate: Coordinate) -> Piece? {
-        putPiece(nil, coordinate)
+    mutating func removePiece(_ coordinate: Coordinate) {
+        setPiece(coordinate)
     }
     
     
@@ -95,8 +95,11 @@ struct Game {
     ///   - end: Location for piece to move to
     /// - Returns: Piece that used to be on end Tile
     private mutating func movePiece(from start: Coordinate, to end: Coordinate) -> Piece? {
-        let piece = removePiece(start)
-        return putPiece(piece, end)
+        if let piece = getPiece(start) {
+            removePiece(start)
+            return putPiece(end, piece)
+        }
+        return nil
     }
     
     
@@ -110,7 +113,7 @@ struct Game {
         var capturedPiece = movePiece(from: start, to: end)
         if piece.type == .king {
             // Kingside/short castle
-            if start.upFile() == end {
+            if start.upFile()?.upFile() == end {
                 if let rookLocation = start.upFile()?.upFile()?.upFile() {
                     _ = movePiece(from: rookLocation, to: start.upFile()!)
                 }
@@ -127,22 +130,32 @@ struct Game {
         if piece.type == .pawn {
             // Promotion Special Case
             if let promotion = move.promotesTo {
-                setPiece(promotion, end)
+                setPiece(end, promotion)
             }
             
             // En Passant Special Case
             if start.isDiagonal(from: end) && capturedPiece == nil {
             // When a pawn moves diagonally and landed on a piece it must be En Passant capturing
-                capturedPiece = removePiece(Coordinate(start.rankIndex, end.fileIndex))
+                let captureCoordinate = Coordinate(start.rankIndex, end.fileIndex)
+                capturedPiece = getPiece(captureCoordinate)
+                removePiece(captureCoordinate)
             }
+            
+            if start.distance(to: end) == 2 {
+                enPassantTarget = end
+            } else {
+                enPassantTarget = nil
+            }
+        } else {
+            enPassantTarget = nil
         }
         if let capturedPiece = capturedPiece {
-            recordCapture(piece: capturedPiece)
+            recordCapture(capturedPiece)
         }
         changeCastlingRights(after: move)
         recordMove(move)
     }
-    mutating func recordCapture(piece: Piece) {
+    mutating func recordCapture(_ piece: Piece) {
         if piece.side == .white {
             self.blackCapturedPieces = self.blackCapturedPieces.appendAndSort(piece: piece)
         } else {
@@ -150,58 +163,53 @@ struct Game {
         }
     }
     mutating func recordMove(_ move: Move) {
-        if turn == .white {
-            pgn.append(FullMove(white: move, black: nil))
-            fullMoveNumber += 1
-        } else {
-            let fullMove = FullMove(white: pgn.last!.white, black: move)
-            pgn.removeLast()
-            pgn.append(fullMove)
-        }
+        pgn.append(move)
         halfMoveClock += 1
         if move.piece.type == .pawn || move.capturedPiece != nil {
             halfMoveClock = 0
         }
+        if move.piece.side == .white {
+            fullMoveNumber += 1
+        }
     }
     mutating func undoLastMove() {
         if let lastMove = pgn.last {
-            let lastHalfMove = lastMove.black ?? lastMove.white
-            let start = lastHalfMove.start
-            let end = lastHalfMove.end
-            let piece = lastHalfMove.piece
+            let start = lastMove.start
+            let end = lastMove.end
+            let piece = lastMove.piece
             
             _ = movePiece(from: end, to: start)
 
             // promotion
-            if lastHalfMove.promotesTo != nil {
-                _ = putPiece(Pawn(piece.side), start)
+            if lastMove.promotesTo != nil {
+                _ = putPiece(start, Pawn(piece.side))
             }
             // capture
-            if let capturedPiece = lastHalfMove.capturedPiece {
-                _ = putPiece(capturedPiece, end)
+            if let capturedPiece = lastMove.capturedPiece {
+                _ = putPiece(end, capturedPiece)
             }
             // en passant
             if piece.type == .pawn
                 && start.isDiagonal(from: end)
-                && lastHalfMove.capturedPiece == nil
+                && lastMove.capturedPiece == nil
             {
                 let opponenetCoordinate = Coordinate(start.rankIndex, end.fileIndex)
-                _ = putPiece(Pawn(piece.side.opponent), opponenetCoordinate)
+                _ = putPiece(opponenetCoordinate, Pawn(piece.side.opponent))
                 enPassantTarget = opponenetCoordinate
             }
             // castle
-            if lastHalfMove.isCastling {
+            if lastMove.isCastling {
                 // Long Castle
-                if lastHalfMove.start.fileLetter == "C" {
-                    let rook = removePiece(lastHalfMove.end.upFile()!)
-                    let rookCoordinates = Coordinate(fileLetter: "A", rankNum: start.rankNum)
-                    _ = putPiece(rook, rookCoordinates)
+                if lastMove.start.fileLetter == "C" {
+                    let oldRookCoordinates = lastMove.end.upFile()!
+                    setPiece(Coordinate(fileLetter: "A", rankNum: start.rankNum),  getPiece(oldRookCoordinates))
+                    removePiece(oldRookCoordinates)
                 }
                 // Short castle
                 else {
-                    let rook = removePiece(lastHalfMove.end.downFile()!)
-                    let rookCoordinates = Coordinate(fileLetter: "H", rankNum: start.rankNum)
-                    _ = putPiece(rook, rookCoordinates)
+                    let oldRookCoordinates = lastMove.end.downFile()!
+                    setPiece(Coordinate(fileLetter: "H", rankNum: start.rankNum),  getPiece(oldRookCoordinates))
+                    removePiece(oldRookCoordinates)
                 }
             }
             nextTurn()
@@ -210,11 +218,11 @@ struct Game {
     }
     
     // MARK: - Access Functions
-    func getPiece(from coordinate: Coordinate) -> Piece? {
+    func getPiece(_ coordinate: Coordinate) -> Piece? {
         board[7-coordinate.rankIndex][coordinate.fileIndex].piece
     }
     
-    func getAllTilesWithPieces(of side: Side) -> [Tile] {
+    func getAllTilesWithPieces(_ side: Side) -> [Tile] {
         var tiles = [Tile]()
         asArray().forEach { tile in
             if let piece = tile.piece {
@@ -225,29 +233,13 @@ struct Game {
         }
         return tiles
     }
-    
-    /// Get all legal moves for a piece from a tile that contains that piece
-    /// - Parameter tile: Tile that must contain a piece
-    /// - Returns: Array of possible moves
-    func legalMoves(from tile: Tile) -> [Move] {
-        if let piece = tile.piece {
-            return piece.possibleMoves(from: tile.coordinate, self)
-        }
-        return [Move]()
-    }
-    
-    func isMovingIntoCheck(from start: Coordinate, to end: Coordinate) -> Bool {
-        var newState = self.copy()
-        newState.makeMove(Move(self, from: start, to: end))
-        return newState.isCheck()
-    }
     /// Determines if the side whose turn it is is in check
     func isCheck() -> Bool {
         let kingSide = turn
         let attackingSide = turn.opponent
         do {
             let kingTile = try getKingTile(kingSide)
-            let tilesWithAttackingPieces = getAllTilesWithPieces(of: attackingSide)
+            let tilesWithAttackingPieces = getAllTilesWithPieces(attackingSide)
             for tile in tilesWithAttackingPieces {
                 let threats = tile.piece!.threatsCreated(from: tile.coordinate, self)
                 for threat in threats {
@@ -261,22 +253,15 @@ struct Game {
         }
         return false
     }
-    /// Determines if the side whose turn it is is in checkmate
-    func isCheckmate() -> Bool {
-        return isCheck() && hasNoMoves()
-    }
-    /// Determines if the game is a draw
-    func isDraw() -> Bool {
-        return !isCheck() && hasNoMoves()
-    }
+
     func isOccupied(at coordinate: Coordinate, by side: Side) -> Bool {
-        if let piece = getPiece(from: coordinate) {
+        if let piece = getPiece(coordinate) {
             return piece.side == side
         }
         return false
     }
     func isEmpty(_ coordinate: Coordinate) -> Bool {
-        return getPiece(from: coordinate) == nil
+        return getPiece(coordinate) == nil
     }
     func asArray() -> [Tile] {
         return Array(board.joined())
@@ -285,46 +270,10 @@ struct Game {
         return Game(board: board, turn: turn, whiteCanCastle: whiteCanCastle, blackCanCastle: blackCanCastle, enPassantTargetSquare: enPassantTarget, halfMoveClock: halfMoveClock, fullMoveNumber: fullMoveNumber, gameStatus: gameStatus, pgn: pgn, whiteCapturedPieces: whiteCapturedPieces, blackCapturedPieces: blackCapturedPieces)
     }
     
-    func isThreefoldRepetition() -> Bool {
-        var tempGame = copy()
-        var pastStates = [(state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1)]
-        while tempGame.pgn.count != 0 {
-            if let lastFull = tempGame.pgn.last {
-                let last = lastFull.black ?? lastFull.white
-                if last.isReversible {
-                    tempGame.undoLastMove()
-                    if let index = pastStates.firstIndex(where: { $0.state == FEN.shared.makeString(from: tempGame, withoutClocks: true) }) {
-                        pastStates[index].appearances += 1
-                        print("\(pastStates[index].state) \(pastStates[index].appearances)")
-                        if pastStates[index].appearances == 3 {
-                            return true
-                        }
-                    } else {
-                        pastStates.append((state: FEN.shared.makeString(from: tempGame, withoutClocks: true), appearances: 1))
-                    }
-                }
-                else {
-                    return false
-                }
-            }
-        }
-        return false
-    }
-    
-    // MARK: - Private Accessors
-    private func hasNoMoves() -> Bool {
-        var result = true
-        getAllTilesWithPieces(of: turn).forEach { tile in
-            if !legalMoves(from: tile).isEmpty {
-                result = false
-                return
-            }
-        }
-        return result
-    }
+    // MARK: - Private
     
     // Should never return nil as a king is always on the board
-    private func getKingTile(_ side: Side) throws -> Tile {
+    func getKingTile(_ side: Side) throws -> Tile {
         var king: Tile? = nil
         asArray().forEach { tile in
             if let piece = tile.piece {
@@ -343,19 +292,13 @@ struct Game {
         return FEN.shared.makeBoard(from: fen)
     }
     
-    // MARK: - Private Mutators
-    private mutating func setPiece(_ piece: Piece?, _ coordinate: Coordinate) {
+    private mutating func setPiece(_ coordinate: Coordinate, _ piece: Piece? = nil) {
         board[7-coordinate.rankIndex][coordinate.fileIndex].piece = piece
     }
     private mutating func removeRecordedMove() {
-        if let fullMoveToRemove = pgn.last {
+        if !pgn.isEmpty {
             pgn.removeLast()
-            if turn == .black {
-                let fullMove = FullMove(white: fullMoveToRemove.white, black: nil)
-                pgn.append(fullMove)
-            } else {
-                fullMoveNumber -= 1
-            }
+            fullMoveNumber -= 1
         }
     }
     private mutating func changeCastlingRights(after move: Move) {
@@ -396,6 +339,22 @@ struct Game {
     static var promotionTestGame: Game {
         do {
             return try FEN.shared.makeGame(from: "rnbqk1nr/ppppp1P1/5p2/8/8/8/PPPPPPP1/RNBQKBNR/ w KQkq - 0 5")
+        } catch {
+            print("ERROR: FEN error \(error)")
+        }
+        return Game()
+    }
+    static var checkTestGame: Game {
+        do {
+            return try FEN.shared.makeGame(from: "rnb1kbnr/pppp2pp/5p2/4P3/7q/6P1/PPPPP2P/RNBQKBNR/ w KQkq - 0 4")
+        } catch {
+            print("ERROR: FEN error \(error)")
+        }
+        return Game()
+    }
+    static var enPassantTestGame: Game {
+        do {
+            return try FEN.shared.makeGame(from: "rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR/ b KQkq - 0 3")
         } catch {
             print("ERROR: FEN error \(error)")
         }

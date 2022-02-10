@@ -23,7 +23,7 @@ struct King: Piece {
     
     // MARK: - Piece Protocol Functions
     func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate] {
-        return start.allCoords(in: Coordinate.Direction.all)
+        return start.oneCoordinate(inEach: Coordinate.Direction.all)
     }
     
     func possibleMoves(from start: Coordinate, _ game: Game) -> [Move] {
@@ -35,12 +35,12 @@ struct King: Piece {
             if let newRookCords = start.upFile(),
                canShortCastle(game, side),
                game.isEmpty(newRookCords),
-               !game.isMovingIntoCheck(from: start, to: newRookCords),
+               !isMovingIntoCheck(game, from: start, to: newRookCords),
                let newKingCords = newRookCords.upFile(),
                game.isEmpty(newKingCords),
-               !game.isMovingIntoCheck(from: start, to: newKingCords),
+               !isMovingIntoCheck(game, from: start, to: newRookCords),
                let rookCords = newKingCords.upFile(),
-               let piece = game.getPiece(from: rookCords),
+               let piece = game.getPiece(rookCords),
                piece.type == .rook
             {
                 moves.append(Move(game, from: start, to: newKingCords))
@@ -49,14 +49,14 @@ struct King: Piece {
             if let newRookCords = start.downFile(),
                canLongCastle(game, side),
                game.isEmpty(newRookCords),
-               !game.isMovingIntoCheck(from: start, to: newRookCords),
+               !isMovingIntoCheck(game, from: start, to: newRookCords),
                let newKingCords = newRookCords.downFile(),
                game.isEmpty(newKingCords),
-               !game.isMovingIntoCheck(from: start, to: newKingCords),
+               !isMovingIntoCheck(game, from: start, to: newRookCords),
                let empty = newKingCords.downFile(),
                game.isEmpty(empty),
                let rookCords = empty.downFile(),
-               let piece = game.getPiece(from: rookCords),
+               let piece = game.getPiece(rookCords),
                piece.type == .rook
             {
                 moves.append(Move(game, from: start, to: newKingCords))
