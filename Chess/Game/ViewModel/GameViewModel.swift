@@ -185,7 +185,7 @@ class GameViewModel: ObservableObject {
         let moveStrings = pgnMoveNotation.split(separator: " ")
         for moveString in moveStrings {
             if !moveString[0].isNumber {
-                if !makeMoveIfValid(moveString.description) {
+                if !makeMoveIfLegal(moveString.description) {
                     return false
                 }
             }
@@ -193,7 +193,7 @@ class GameViewModel: ObservableObject {
         return true
     }
     
-    func makeMoveIfValid(_ moveNotation: String) -> Bool {
+    func makeMoveIfLegal(_ moveNotation: String) -> Bool {
         do {
             let move = try Move(game, moveNotation: moveNotation)
             return makeMoveIfLegal(from: move.start, to: move.end, promotesTo: move.promotesTo)
