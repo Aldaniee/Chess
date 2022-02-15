@@ -67,11 +67,24 @@ struct Game {
         self.blackCapturedPieces = blackCapturedPieces
     }
     
+    func pgnString() -> String {
+        var pgnString = ""
+        for index in 0..<pgn.count {
+            if index.isMultiple(of: 2) {
+                pgnString.append("\(index/2 + 1). ")
+            }
+            pgnString.append(pgn[index].asNotation(self))
+            pgnString.append(" ")
+        }
+        return pgnString
+    }
+    
     // MARK: - Public
     mutating func nextTurn() {
         turn = turn.opponent
         if consoleDebug {
             print(FEN.shared.makeString(from: self))
+            print(pgnString())
         }
     }
     

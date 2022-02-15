@@ -63,42 +63,36 @@ struct Coordinate: Hashable {
     
     // MARK: - Accessors
     func upRank() -> Coordinate? {
-        return rankIndex < 7 ? Coordinate(rankIndex+1, fileIndex) : nil
+        rankIndex < 7 ? Coordinate(rankIndex+1, fileIndex) : nil
     }
     func downRank() -> Coordinate? {
-        return rankIndex > 0 ? Coordinate(rankIndex-1, fileIndex) : nil
+        rankIndex > 0 ? Coordinate(rankIndex-1, fileIndex) : nil
     }
     func upFile() -> Coordinate? {
-        return fileIndex < 7 ? Coordinate(rankIndex, fileIndex+1) : nil
+        fileIndex < 7 ? Coordinate(rankIndex, fileIndex+1) : nil
     }
     func downFile() -> Coordinate? {
-        return fileIndex > 0 ? Coordinate(rankIndex, fileIndex-1) : nil
+        fileIndex > 0 ? Coordinate(rankIndex, fileIndex-1) : nil
     }
     func upRankUpFile() -> Coordinate? {
-        return self.upRank()?.upFile()
+        upRank()?.upFile()
     }
     func upRankDownFile() -> Coordinate? {
-        return self.upRank()?.downFile()
+        upRank()?.downFile()
     }
     func downRankUpFile() -> Coordinate? {
-        return self.downRank()?.upFile()
+        downRank()?.upFile()
     }
     func downRankDownFile() -> Coordinate? {
-        return self.downRank()?.downFile()
+        downRank()?.downFile()
     }
     
     // MARK: - Multiple Related Coordinates
     func upOneDiagonals() -> [Coordinate] {
-        var coordinates = [Coordinate]()
-        coordinates.append(Direction.upRankUpFile.compute(self))
-        coordinates.append(Direction.upRankDownFile.compute(self))
-        return coordinates
+        return oneCoordinate(inEach: [.upRankUpFile, .upRankDownFile])
     }
     func downOneDiagonals() -> [Coordinate] {
-        var coordinates = [Coordinate]()
-        coordinates.append(Direction.downRankUpFile.compute(self))
-        coordinates.append(Direction.downRankDownFile.compute(self))
-        return coordinates
+        return oneCoordinate(inEach: [.downRankUpFile, .downRankDownFile])
     }
     func sameFile() -> [Coordinate] {
         return allCoords(in: [.upRank, .downRank])
@@ -116,10 +110,10 @@ struct Coordinate: Hashable {
     /// - Returns: Array of all coordinates in that direction (not including self)
     func allCoords(in direction: Direction) -> [Coordinate] {
         var coords = [Coordinate]()
-        var next = direction.compute(self)
+        var next = direction.next(self)
         while next != nil {
             coords.append(next!)
-            next = direction.compute(next!)
+            next = direction.next(next!)
         }
         return coords
     }
@@ -128,7 +122,7 @@ struct Coordinate: Hashable {
         var coords = [Coordinate]()
         
         directions.forEach { direction in
-            coords.append(direction.compute(self))
+            coords.append(direction.next(self))
         }
         return coords
     }
@@ -169,7 +163,7 @@ extension Coordinate {
         case downRankUpFile
         case downRankDownFile
         
-        var compute: ((Coordinate) -> Coordinate?) {
+        var next: ((Coordinate) -> Coordinate?) {
             switch self {
             case .upRank:
                 return { (c: Coordinate) -> Coordinate? in c.upRank() }

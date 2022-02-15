@@ -63,7 +63,7 @@ class GameViewModel: ObservableObject {
     func getPiece(_ coordinate: Coordinate) -> Piece? {
         return game.getPiece(coordinate)
     }
-    func isValidMove(from start: Coordinate, to end: Coordinate) -> Bool {
+    func isLegalMove(from start: Coordinate, to end: Coordinate) -> Bool {
         return legalMoves(from: start).contains(Move(game, from: start, to: end))
     }
     func isCheck() -> Bool {
@@ -74,7 +74,7 @@ class GameViewModel: ObservableObject {
     /// - Returns: Array of possible moves
     func legalMoves(from start: Coordinate) -> [Move] {
         if let piece = getPiece(start) {
-            return piece.possibleMoves(from: start, game)
+            return piece.possibleMoves(game)
         }
         return [Move]()
     }
@@ -98,16 +98,15 @@ class GameViewModel: ObservableObject {
         boardFlipsOnMove = !boardFlipsOnMove
     }
     
-    func makeMoveIfValid(from start: Coordinate, to end: Coordinate, promotesTo promotion: Piece? = nil) -> Bool {
+    func makeMoveIfLegal(from start: Coordinate, to end: Coordinate, promotesTo promotion: Piece? = nil) -> Bool {
         if let movingPiece = getPiece(start), movingPiece.side == turn, !selectedOwnPiece(end)
         {
-            if movingPiece.type == .pawn && (end.rankNum == 1 || end.rankNum == 8) && isValidMove(from: start, to: end) {
+            if movingPiece.type == .pawn && (end.rankNum == 1 || end.rankNum == 8) && isLegalMove(from: start, to: end) {
                 promotionStart = start
                 promotionEnd = end
                 return true
             }
-            legalMoves(from: start).forEach({ print($0.end) })
-            if isValidMove(from: start, to: end) {
+            if isLegalMove(from: start, to: end) {
                 game.makeMove(Move(game, from: start, to: end, promotesTo: promotion))
                 nextTurn()
                 return true
@@ -197,7 +196,7 @@ class GameViewModel: ObservableObject {
     func makeMoveIfValid(_ moveNotation: String) -> Bool {
         do {
             let move = try Move(game, moveNotation: moveNotation)
-            return makeMoveIfValid(from: move.start, to: move.end, promotesTo: move.promotesTo)
+            return makeMoveIfLegal(from: move.start, to: move.end, promotesTo: move.promotesTo)
         } catch {
             print("ERROR: Move error: \(error)")
         }

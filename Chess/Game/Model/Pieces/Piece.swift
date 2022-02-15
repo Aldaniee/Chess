@@ -9,8 +9,12 @@ import SwiftUI
 
 // MARK: - Implementations: King, Knight, Pawn, RecursivePieces
 protocol Piece {
+    // get all legal move options this piece has
     func possibleMoves(from start: Coordinate, _ game: Game) -> [Move]
+    
+    // get all coordinates this piece threatens
     func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate]
+    
     var type: PieceType { get }
     var side: Side { get }
     var id: Int { get }
@@ -25,22 +29,36 @@ extension Piece {
         let assetName = "\(side.rawValue)_\(type)_svg_NoShadow"
         return Image(assetName)
     }
+    
+    func possibleMoves(_ game: Game) -> [Move] {
+        return possibleMoves(from: getLocation(game), game)
+    }
+    func threatsCreated(_ game: Game) -> [Coordinate] {
+        return threatsCreated(from: getLocation(game), game)
+    }
     func possibleMovesFromThreats(from start: Coordinate, _ game: Game) -> [Move] {
         var moves = [Move]()
         for end in threatsCreated(from: start, game) {
             if !game.isOccupied(at: end, by: side) && !isMovingIntoCheck(game, from: start, to: end) {
-                let move = Move(game, from: start, to: end)
-                moves.append(move)
+                moves.append(Move(game, from: start, to: end))
             }
         }
         return moves
     }
-     func isMovingIntoCheck(_ game: Game, from start: Coordinate, to end: Coordinate) -> Bool {
+    func isMovingIntoCheck(_ game: Game, from start: Coordinate, to end: Coordinate) -> Bool {
         var newState = game.copy()
         newState.makeMove(Move(game, from: start, to: end))
         return newState.isCheck()
     }
-
+    private func getLocation(_ game: Game) -> Coordinate {
+        guard let start = game.getAllTilesWithPieces(side).first(
+            where: { $0.piece?.id == self.id }
+        )?.coordinate else {
+            print("ERROR: Piece not on board")
+            return Coordinate(0, 0)
+        }
+        return start
+    }
 }
 
 // MARK: - Implementations: Rook, Bishop, Queen
@@ -73,4 +91,21 @@ enum PieceType : String {
     case rook = "R"
     case knight = "N"
     case bishop = "B"
+    
+    func makePiece(_ side: Side) -> Piece {
+        switch self {
+        case .pawn:
+            return Pawn(side)
+        case .king:
+            return King(side)
+        case .queen:
+            return Queen(side)
+        case .rook:
+            return Rook(side)
+        case .knight:
+            return Knight(side)
+        case .bishop:
+            return Bishop(side)
+        }
+    }
 }

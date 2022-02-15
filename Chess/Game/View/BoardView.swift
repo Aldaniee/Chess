@@ -33,7 +33,7 @@ struct BoardView: View {
             tiles
             dragIndicationCircle
             pieces
-            ChoosePromotionView(promotionSquare: $viewModel.promotionEnd, promotionStart: $viewModel.promotionStart, moveAndPromote: viewModel.makeMoveIfValid(from:to:promotesTo:), tileWidth: tileWidth)
+            ChoosePromotionView(promotionSquare: $viewModel.promotionEnd, promotionStart: $viewModel.promotionStart, moveAndPromote: viewModel.makeMoveIfLegal(from:to:promotesTo:), tileWidth: tileWidth)
         }
         .frame(
             width: boardWidth,
@@ -98,7 +98,7 @@ struct BoardView: View {
     private func selectTile(_ newSelection: Coordinate) {
         let madeSameSelection = selected == newSelection
         let madeSelection = selected != nil
-        let madeMove = madeSelection && viewModel.makeMoveIfValid(from: selected!, to: newSelection)
+        let madeMove = madeSelection && viewModel.makeMoveIfLegal(from: selected!, to: newSelection)
 
         selected = madeSameSelection || madeMove ? nil : newSelection
         
