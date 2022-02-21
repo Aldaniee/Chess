@@ -26,12 +26,10 @@ extension StringProtocol {
     }
 }
 
-extension Array where Element == Coordinate {
-
-    mutating func append(_ coordinate: Coordinate?) {
-        if let coordinate = coordinate {
-            self.append(coordinate)
+extension Array {
+    mutating func append(_ element: Element?) {
+        if let element = element {
+            self.append(element)
         }
     }
-    
 }

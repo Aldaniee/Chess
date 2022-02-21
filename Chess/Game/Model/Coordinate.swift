@@ -63,27 +63,28 @@ struct Coordinate: Hashable {
     
     // MARK: - Accessors
     func upRank() -> Coordinate? {
-        return rankIndex < 7 ? Coordinate(rankIndex+1, fileIndex) : nil
-    }
-    func downRank() -> Coordinate? {
-        return rankIndex > 0 ? Coordinate(rankIndex-1, fileIndex) : nil
+        rankIndex < 7 ? Coordinate(rankIndex+1, fileIndex) : nil
     }
     func upFile() -> Coordinate? {
-        return fileIndex < 7 ? Coordinate(rankIndex, fileIndex+1) : nil
+        fileIndex < 7 ? Coordinate(rankIndex, fileIndex+1) : nil
+    }
+    func downRank() -> Coordinate? {
+        rankIndex > 0 ? Coordinate(rankIndex-1, fileIndex) : nil
     }
     func downFile() -> Coordinate? {
-        return fileIndex > 0 ? Coordinate(rankIndex, fileIndex-1) : nil
+        fileIndex > 0 ? Coordinate(rankIndex, fileIndex-1) : nil
     }
+    
     func upRankUpFile() -> Coordinate? {
-        return self.upRank()?.upFile()
+        upRank()?.upFile()
     }
     func upRankDownFile() -> Coordinate? {
-        return self.upRank()?.downFile()
+        upRank()?.downFile()
     }
     func downRankUpFile() -> Coordinate? {
-        return self.downRank()?.upFile()
+        downRank()?.upFile()
     }
     func downRankDownFile() -> Coordinate? {
-        return self.downRank()?.downFile()
+        downRank()?.downFile()
     }
 }

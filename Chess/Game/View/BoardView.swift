@@ -59,7 +59,7 @@ struct BoardView: View {
         } else if madeSameSelection {
             selected = nil
         } else {
-            let madeMove = viewModel.makeMoveIfValid(from: selected!, to: newSelection)
+            let madeMove = viewModel.makeMoveIfLegal(from: selected!, to: newSelection)
             self.selected = madeMove ? nil : newSelection
         }
     }

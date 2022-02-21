@@ -117,9 +117,9 @@
 		EA171288279B17C70090D9EF /* Game */ = {
 			isa = PBXGroup;
 			children = (
-				EAB1990827B1853000D7F0A5 /* ViewModel */,
 				EA171289279B18240090D9EF /* Model */,
 				EA17128A279B184F0090D9EF /* View */,
+				EAB1990827B1853000D7F0A5 /* ViewModel */,
 			);
 			path = Game;
 			sourceTree = "<group>";
@@ -128,9 +128,9 @@
 			isa = PBXGroup;
 			children = (
 				EA8CB6BC277DFC2900CAF379 /* Game.swift */,
+				EA8CB6BE277DFCCF00CAF379 /* Tile.swift */,
 				EA8CB6CA277F5DB100CAF379 /* Coordinate.swift */,
 				EAA00F9F278CE2E200F5BFF5 /* Move.swift */,
-				EA8CB6BE277DFCCF00CAF379 /* Tile.swift */,
 				EA0F7AE127867A5F00E506E5 /* Pieces */,
 			);
 			path = Model;

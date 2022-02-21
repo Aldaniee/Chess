@@ -7,22 +7,20 @@
 
 import Foundation
 
-struct Move : Equatable {
-    
+struct Move: Equatable {
     var start: Coordinate
-    
     var end: Coordinate
-    
     var piece: Piece
-            
-    init(_ piece: Piece, from start: Coordinate, to end: Coordinate) {
+    var capturedPiece: Piece?
+    
+    init(_ game: Game, from start: Coordinate, to end: Coordinate) {
         self.start = start
         self.end = end
+        let piece = game.getPiece(start)!
         self.piece = piece
+        self.capturedPiece = game.getPiece(end)
     }
-    
     static func == (lhs: Move, rhs: Move) -> Bool {
         return lhs.start == rhs.start && lhs.end == rhs.end
     }
-    
 }

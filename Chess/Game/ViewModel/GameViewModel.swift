@@ -18,20 +18,12 @@ class GameViewModel: ObservableObject {
     
     // MARK: - Accessors
     
-    func getPiece(_ coordinate: Coordinate) -> Piece? {
-        return game.getPiece(coordinate)
+    private func isLegalMove(from start: Coordinate, to end: Coordinate) -> Bool {
+        return legalMoves(from: start).contains(Move(game, from: start, to: end))
     }
-    func isValidMove(from start: Coordinate, to end: Coordinate) -> Bool {
-        if let piece = getPiece(start) {
-            return legalMoves(from: start).contains(Move(piece, from: start, to: end))
-        }
-        return false
-    }
-    
-    /// Get all legal moves for a piece at the given coordinate
-    func legalMoves(from coordinate: Coordinate) -> [Move] {
-        if let piece = getPiece(coordinate) {
-            return piece.possibleMoves(from: coordinate, game)
+    private func legalMoves(from start: Coordinate) -> [Move] {
+        if let piece = game.getPiece(start) {
+            return piece.possibleMoves(from: start, game)
         }
         return [Move]()
     }
@@ -41,10 +33,12 @@ class GameViewModel: ObservableObject {
         game = Game()
     }
     
-    func makeMoveIfValid(from start: Coordinate, to end: Coordinate) -> Bool {
-        if isValidMove(from: start, to: end) {
-            _ = game.movePiece(from: start, to: end)
-            return true
+    func makeMoveIfLegal(from start: Coordinate, to end: Coordinate) -> Bool {
+        if game.getPiece(start) != nil {
+            if isLegalMove(from: start, to: end) {
+                _ = game.movePiece(from: start, to: end)
+                return true
+            }
         }
         return false
     }

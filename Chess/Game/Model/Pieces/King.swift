@@ -18,21 +18,20 @@ struct King: Piece {
     }
     
     // MARK: - Piece Protocol Functions
-    func possibleMoves(from start: Coordinate) -> [Move] {
-        var ends = [Coordinate]()
-        ends.append(start.upFile())
-        ends.append(start.downFile())
-        ends.append(start.upRank())
-        ends.append(start.downRank())
-        ends.append(start.upRankUpFile())
-        ends.append(start.upRankDownFile())
-        ends.append(start.downRankUpFile())
-        ends.append(start.downRankDownFile())
-        
-        var moves = [Move]()
-        ends.forEach { end in
-            moves.append(Move(self, from: start, to: end))
-        }
-        return moves
+    func threatsCreated(from start: Coordinate, _ game: Game) -> [Coordinate] {
+        var threats = [Coordinate]()
+        threats.append(start.upRank())
+        threats.append(start.upFile())
+        threats.append(start.downRank())
+        threats.append(start.downFile())
+        threats.append(start.upRankUpFile())
+        threats.append(start.upRankDownFile())
+        threats.append(start.downRankUpFile())
+        threats.append(start.downRankDownFile())
+        return threats
+    }
+    
+    func possibleMoves(from start: Coordinate, _ game: Game) -> [Move] {
+        possibleMovesFromThreats(from: start, game)
     }
 }

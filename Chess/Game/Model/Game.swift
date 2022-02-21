@@ -32,22 +32,21 @@ struct Game {
     }
     
     // MARK: - Private
-    private mutating func setupPieces() {
-        setPiece(Coordinate(notation: "e1"), King(.white))
-        setPiece(Coordinate(notation: "e8"), King(.black))
-    }
-    private mutating func setPiece(_ coordinate: Coordinate, _ piece: Piece? = nil) {
-        board[7-coordinate.rankIndex][coordinate.fileIndex].piece = piece
-    }
     private mutating func putPiece(_ coordinate: Coordinate, _ piece: Piece? = nil) -> Piece? {
         let oldPiece = getPiece(coordinate)
         setPiece(coordinate, piece)
         return oldPiece
     }
+    private mutating func setPiece(_ coordinate: Coordinate, _ piece: Piece? = nil) {
+        board[7-coordinate.rankIndex][coordinate.fileIndex].piece = piece
+    }
     private mutating func removePiece(_ coordinate: Coordinate) {
         setPiece(coordinate)
     }
-    
+    private mutating func setupPieces() {
+        setPiece(Coordinate(notation: "e1"), King(.white))
+        setPiece(Coordinate(notation: "e8"), King(.black))
+    }
     
     // MARK: - Static
     static var emptyBoard: Board {
