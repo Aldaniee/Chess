@@ -53,25 +53,6 @@ struct Pawn: Piece {
                 moves.append(Move(game, from: start, to: end))
             }
         }
-        
-        // en passant
-        if start.rankNum == (side == .white ? 5 : 4) {
-            if let upFile = start.upFile(), upFile == game.enPassantTarget {
-                if let diagonalAttack = side == .white ? upFile.upRank() : upFile.downRank() {
-                    moves.append(Move(game, from: start, to: diagonalAttack))
-                }
-            }
-            if let downFile = start.downFile(), downFile == game.enPassantTarget {
-                if let diagonalAttack = side == .white ? downFile.upRank() : downFile.downRank() {
-                    moves.append(Move(game, from: start, to: diagonalAttack))
-                }
-            }
-        }
-        moves.forEach { move in
-            if isMovingIntoCheck(game, from: move.start, to: move.end) {
-                moves.removeAll(where: { $0 == move })
-            }
-        }
         return moves
     }
     

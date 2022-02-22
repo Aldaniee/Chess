@@ -33,7 +33,6 @@ struct BoardView: View {
             tiles
             dragIndicationCircle
             pieces
-            ChoosePromotionView(promotionSquare: $viewModel.promotionEnd, promotionStart: $viewModel.promotionStart, moveAndPromote: viewModel.makeMoveIfLegal(from:to:promotesTo:), tileWidth: tileWidth)
         }
         .frame(
             width: boardWidth,
