@@ -99,8 +99,7 @@ class GameViewModel: ObservableObject {
     }
     
     func makeMoveIfLegal(from start: Coordinate, to end: Coordinate, promotesTo promotion: Piece? = nil) -> Bool {
-        if let movingPiece = getPiece(start), movingPiece.side == turn, !selectedOwnPiece(end)
-        {
+        if let movingPiece = getPiece(start), movingPiece.side == turn, !selectedOwnPiece(end) {
             if movingPiece.type == .pawn && (end.rankNum == 1 || end.rankNum == 8) && isLegalMove(from: start, to: end) {
                 promotionStart = start
                 promotionEnd = end
