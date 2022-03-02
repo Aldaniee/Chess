@@ -13,13 +13,6 @@ enum MoveError: Error {
 
 struct Move : Equatable {
     
-    static let capture = "x"
-    static let checkMate = "#"
-    static let check = "+"
-    static let promoteTo = "="
-    static let castle = "O-O"
-    static let longCastle = "O-O-O"
-    
     var start: Coordinate
     
     var end: Coordinate
@@ -54,28 +47,14 @@ struct Move : Equatable {
     
 }
 extension Move {
-    private func disambiguousMoveString(_ game: Game) -> String {
-        var notation = ""
-        var coordinates = [Coordinate]()
-        let tiles = game.getAllTilesWithPieces(game.turn)
-        for tile in tiles {
-            if tile.piece!.type == piece.type {
-                if tile.piece!.possibleMoves(game).contains(where: { $0.end == end && $0.start != start }) {
-                    coordinates.append(tile.coordinate)
-                }
-            }
-        }
-        for coordinate in coordinates {
-            if start.fileLetter == coordinate.fileLetter {
-                notation.append(start.fileLetter)
-            }
-            if start.rankNum == coordinate.rankNum {
-                notation.append("\(start.rankNum)")
-            }
-        }
-        return notation
-    }
-    func asNotation(_ game: Game) -> String {
+    static let capture: Character = "x"
+    static let checkMate: Character = "#"
+    static let check: Character = "+"
+    static let promoteTo: Character = "="
+    static let castle = "O-O"
+    static let longCastle = "O-O-O"
+    
+    func asShortNotation(_ game: Game) -> String {
         
         // TODO: Doesn't cover checkmate
         
@@ -110,6 +89,27 @@ extension Move {
             notation.append(Move.check)
         }
         
+        return notation
+    }
+    private func disambiguousMoveString(_ game: Game) -> String {
+        var notation = ""
+        var coordinates = [Coordinate]()
+        let tiles = game.getAllTilesWithPieces(game.turn)
+        for tile in tiles {
+            if tile.piece!.type == piece.type {
+                if tile.piece!.possibleMoves(game).contains(where: { $0.end == end && $0.start != start }) {
+                    coordinates.append(tile.coordinate)
+                }
+            }
+        }
+        for coordinate in coordinates {
+            if start.fileLetter == coordinate.fileLetter {
+                notation.append(start.fileLetter)
+            }
+            if start.rankNum == coordinate.rankNum {
+                notation.append("\(start.rankNum)")
+            }
+        }
         return notation
     }
     private static func buildMove(_ game: Game, moveNotation: String) throws -> Move {
