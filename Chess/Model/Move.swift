@@ -13,6 +13,13 @@ enum MoveError: Error {
 
 struct Move : Equatable {
     
+    static let capture = "x"
+    static let checkMate = "#"
+    static let check = "+"
+    static let promoteTo = "="
+    static let castle = "O-O"
+    static let longCastle = "O-O-O"
+    
     var start: Coordinate
     
     var end: Coordinate
@@ -74,16 +81,16 @@ extension Move {
         
         if isCastling {
             if start.fileIndex < end.fileIndex {
-                return "O-O"
+                return Move.castle
             } else {
-                return "O-O-O"
+                return Move.longCastle
             }
         }
         var notation = ""
         if piece.type == .pawn {
             if capturedPiece != nil {
                 notation.append(start.fileLetter)
-                notation.append("x")
+                notation.append(Move.capture)
                 notation.append(end.fileLetter)
             } else {
                 notation.append(end.notation)
@@ -92,7 +99,7 @@ extension Move {
             notation.append(piece.type.rawValue)
             notation.append(disambiguousMoveString(game))
             if capturedPiece != nil {
-                notation.append("x")
+                notation.append(Move.capture)
             }
             notation.append(end.notation)
         }
@@ -100,7 +107,7 @@ extension Move {
         var copy = game.copy()
         copy.makeMove(self)
         if copy.isCheck() {
-            notation.append("+")
+            notation.append(Move.check)
         }
         
         return notation
@@ -109,17 +116,17 @@ extension Move {
         var promotesTo: Piece? = nil
         
         var characterArray = Array(moveNotation)
-        let isCapturing = characterArray.contains(where: {$0 == "x"})
-        characterArray.removeAll(where: {$0 == "x"})
-        characterArray.removeAll(where: {$0 == "+"})
-        characterArray.removeAll(where: {$0 == "#"})
+        let isCapturing = characterArray.contains(where: {$0 == Move.capture})
+        characterArray.removeAll(where: {$0 == Move.capture})
+        characterArray.removeAll(where: {$0 == Move.check})
+        characterArray.removeAll(where: {$0 == Move.checkMate})
 
-        if characterArray.contains(where: {$0 == "="}) {
+        if characterArray.contains(where: {$0 == Move.promoteTo}) {
             promotesTo = PieceType(rawValue: characterArray.removeLast().description)?.makePiece(game.turn)
             characterArray.removeLast()
         }
         
-        if moveNotation == "O-O-O" {
+        if moveNotation == Move.longCastle {
             let kingTile = try game.getKingTile(game.turn)
             let start = kingTile.coordinate
             if let end = start.downFile()?.downFile() {
@@ -127,7 +134,7 @@ extension Move {
             }
             throw MoveError.invalidMoveNotation
         }
-        else if moveNotation == "O-O" {
+        else if moveNotation == Move.castle {
             let kingTile = try game.getKingTile(game.turn)
             let start = kingTile.coordinate
             if let end = start.upFile()?.upFile() {
